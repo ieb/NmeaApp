@@ -1,0 +1,7 @@
+#type,id,t,lastmodified,...
+#cogSog,id,t,lastmodified,cog,sog,reference
+#gnss,id,t,lastmodified,daysSince1970,secondsSinceMidnight,latitude,longitude,altitude,type,method,nSatellites,HDOP,PDOP,geoidalSeparation,nReferenceStations,referenceStationType,ageOfCorrection
+t,83652827
+
+cogSog,0,83663614,2.12,0.2,0
+gnss,0,83675791,18973,77160,60.44,22.24,10.5,0,1,12,0.8,0.5,15,1,0,2

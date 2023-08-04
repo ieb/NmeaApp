@@ -1,0 +1,772 @@
+{
+    "0": {
+        "devices": [
+            {
+                "source": 22,
+                "mcode": 2046,
+                "id": 1,
+                "swcode": "1.1.1.30 (2021-02-05)",
+                "version": "1.1.1.0 (2021-02-05)",
+                "info": "NMEA2000 library, https://github.com/ttlappalainen/NMEA2000",
+                "desc1": "",
+                "desc2": "",
+                "tpgn": [
+                    59392,
+                    59904,
+                    60160,
+                    60416,
+                    60928,
+                    126208,
+                    126464,
+                    126993,
+                    126996,
+                    126998
+                ],
+                "rpgn": [
+                    59392,
+                    59904,
+                    60160,
+                    60416,
+                    60928,
+                    65240,
+                    126208
+                ]
+            },
+            {
+                "source": 24,
+                "mcode": 0,
+                "id": 3,
+                "swcode": "1.2.3.4 (2017-06-11)",
+                "version": "5.6.7.8 (2017-06-11)",
+                "info": "https://github.com/ieb/EngineManagement",
+                "desc1": "Engine Monitor",
+                "desc2": "Luna Technical Area",
+                "tpgn": [
+                    127488,
+                    127489,
+                    127505,
+                    130316,
+                    127508,
+                    126464,
+                    60928,
+                    126996,
+                    126998,
+                    59392
+                ],
+                "rpgn": [
+                    59392,
+                    59904,
+                    60928
+                ]
+            }
+        ]
+    },
+    "1": {
+        "t": 84003569,
+        "nmea2000": 1,
+        "engine": [
+            {
+                "id": 0,
+                "source": 22,
+                "instance": 0,
+                "lastModified": 84003513,
+                "hours": 7695180.00,
+                "speed": 4350.00,
+                "coolantTemp": 355.25,
+                "altenatorVoltage": 14.21,
+                "status1": 10,
+                "status2": 0
+            },
+            {
+                "id": 1,
+                "source": 24,
+                "instance": 0,
+                "lastModified": 84003531,
+                "hours": 138270.00,
+                "speed": 0.00,
+                "coolantTemp": 273.15,
+                "altenatorVoltage": 0.02,
+                "status1": 0,
+                "status2": 0
+            }
+        ],
+        "battery": [
+            {
+                "id": 0,
+                "source": 22,
+                "instance": 1,
+                "lastModified": 84002741,
+                "instance": 1,
+                "voltage": 12.72,
+                "current": -1000000000.00,
+                "temperature": -1000000000.00
+            },
+            {
+                "id": 1,
+                "source": 22,
+                "instance": 0,
+                "lastModified": 84002742,
+                "instance": 0,
+                "voltage": 13.80,
+                "current": 0.90,
+                "temperature": -1000000000.00
+            },
+            {
+                "id": 2,
+                "source": 24,
+                "instance": 0,
+                "lastModified": 83669737,
+                "instance": 0,
+                "voltage": 0.00,
+                "current": -1000000000.00,
+                "temperature": -1000000000.00
+            },
+            {
+                "id": 3,
+                "source": 24,
+                "instance": 1,
+                "lastModified": 83699798,
+                "instance": 1,
+                "voltage": 0.00,
+                "current": -1000000000.00,
+                "temperature": -1000000000.00
+            }
+        ],
+        "fluidLevel": [
+            {
+                "id": 0,
+                "source": 22,
+                "instance": 0,
+                "lastModified": 83995791,
+                "level": 0.00,
+                "capacity": 60.00,
+                "fluidType": 0
+            },
+            {
+                "id": 1,
+                "source": 22,
+                "instance": 1,
+                "lastModified": 83995792,
+                "level": 81.00,
+                "capacity": 200.00,
+                "fluidType": 1
+            },
+            {
+                "id": 2,
+                "source": 22,
+                "instance": 2,
+                "lastModified": 83995792,
+                "level": 55.00,
+                "capacity": 200.00,
+                "fluidType": 1
+            },
+            {
+                "id": 3,
+                "source": 24,
+                "instance": 0,
+                "lastModified": 84000956,
+                "level": 0.00,
+                "capacity": 0.00,
+                "fluidType": 0
+            }
+        ]
+    },
+    "2": {
+        "t": 84003576,
+        "nmea2000": 1,
+        "heading": [
+            {
+                "id": 0,
+                "source": 22,
+                "lastModified": 84003512,
+                "heading": 3.97,
+                "deviation": -0.05,
+                "variation": 0.10,
+                "reference": 1
+            },
+            {
+                "id": 1,
+                "source": 255,
+                "lastModified": 0,
+                "heading": 0.00,
+                "deviation": 0.00,
+                "variation": 0.00,
+                "reference": 0
+            },
+            {
+                "id": 2,
+                "source": 255,
+                "lastModified": 0,
+                "heading": 0.00,
+                "deviation": 0.00,
+                "variation": 0.00,
+                "reference": 0
+            }
+        ],
+        "speed": [
+            {
+                "id": 0,
+                "source": 22,
+                "lastModified": 84002792,
+                "stw": 6.28,
+                "sog": -1000000000.00,
+                "swrt": 0
+            },
+            {
+                "id": 1,
+                "source": 255,
+                "lastModified": 0,
+                "stw": 0.00,
+                "sog": 0.00,
+                "swrt": 0
+            },
+            {
+                "id": 2,
+                "source": 255,
+                "lastModified": 0,
+                "stw": 0.00,
+                "sog": 0.00,
+                "swrt": 0
+            }
+        ],
+        "waterDepth": [
+            {
+                "id": 0,
+                "source": 22,
+                "lastModified": 84002793,
+                "depthBelowTransducer": 5.10,
+                "offset": 0.10
+            },
+            {
+                "id": 1,
+                "source": 255,
+                "lastModified": 0,
+                "depthBelowTransducer": 0.00,
+                "offset": 0.00
+            }
+        ],
+        "rudder": [
+            {
+                "id": 0,
+                "source": 22,
+                "instance": 1,
+                "lastModified": 84003511,
+                "directionOrder": 1,
+                "position": 0.09,
+                "angleOrder": -0.09
+            }
+        ],
+        "attitude": [
+            {
+                "id": 0,
+                "source": 22,
+                "lastModified": 84002731,
+                "roll": -0.14,
+                "pitch": 0.04,
+                "yaw": -0.05
+            },
+            {
+                "id": 1,
+                "source": 255,
+                "lastModified": 0,
+                "roll": 0.00,
+                "pitch": 0.00,
+                "yaw": 0.00
+            }
+        ]
+    },
+    "3": {
+        "t": 84003590,
+        "nmea2000": 1,
+        "cogSog": [
+            {
+                "id": 0,
+                "source": 22,
+                "lastModified": 84003461,
+                "cog": 2.02,
+                "sog": 0.10,
+                "reference": 0
+            },
+            {
+                "id": 1,
+                "source": 255,
+                "lastModified": 0,
+                "cog": 0.00,
+                "sog": 0.00,
+                "reference": 0
+            }
+        ],
+        "gnss": [
+            {
+                "id": 0,
+                "source": 22,
+                "lastModified": 84002790,
+                "daysSince1970": 18973,
+                "secondsSinceMidnight": 77487.00,
+                "latitude": 60.44,
+                "longitude": 22.24,
+                "altitude": 10.50,
+                "type": 0,
+                "method": 1,
+                "nSatellites": 12,
+                "HDOP": 0.80,
+                "PDOP": 0.50,
+                "geoidalSeparation": 15.00,
+                "nReferenceStations": 1,
+                "referenceStationType": 0,
+                "ageOfCorrection": 2.00
+            },
+            {
+                "id": 1,
+                "source": 255,
+                "lastModified": 0,
+                "daysSince1970": 0,
+                "secondsSinceMidnight": 0.00,
+                "latitude": 0.00,
+                "longitude": 0.00,
+                "altitude": 0.00,
+                "type": 0,
+                "method": 0,
+                "nSatellites": 0,
+                "HDOP": 0.00,
+                "PDOP": 0.00,
+                "geoidalSeparation": 0.00,
+                "nReferenceStations": 0,
+                "referenceStationType": 0,
+                "ageOfCorrection": 0.00
+            }
+        ]
+    },
+    "4": {
+        "t": 84003600,
+        "nmea2000": 1,
+        "outsideEnvironment": [
+            {
+                "id": 0,
+                "source": 22,
+                "lastModified": 84003249,
+                "waterTemperature": 288.65,
+                "outsideAmbientAirTemperature": 298.45,
+                "atmosphericPressure": 101400.00
+            },
+            {
+                "id": 1,
+                "source": 255,
+                "lastModified": 0,
+                "waterTemperature": 0.00,
+                "outsideAmbientAirTemperature": 0.00,
+                "atmosphericPressure": 0.00
+            }
+        ],
+        "humidity": [
+            {
+                "id": 0,
+                "source": 22,
+                "instance": 0,
+                "lastModified": 84001752,
+                "instance": 0,
+                "source": 22,
+                "actual": 41.80,
+                "set": -1000000000.00
+            }
+        ],
+        "pressure": [
+            {
+                "id": 0,
+                "source": 22,
+                "instance": 2,
+                "lastModified": 84001753,
+                "instance": 2,
+                "source": 22,
+                "actual": 102400.00
+            }
+        ]
+    },
+    "5": {
+        "t": 84003607,
+        "nmea2000": 1,
+        "temperature": [
+            {
+                "id": 0,
+                "source": 22,
+                "instance": 1,
+                "lastModified": 84001751,
+                "instance": 1,
+                "source": 22,
+                "actual": 294.26,
+                "set": 294.75
+            },
+            {
+                "id": 1,
+                "source": 24,
+                "instance": 0,
+                "lastModified": 84000582,
+                "instance": 0,
+                "source": 24,
+                "actual": 273.15,
+                "set": -1000000000.00
+            },
+            {
+                "id": 2,
+                "source": 24,
+                "instance": 1,
+                "lastModified": 84000583,
+                "instance": 1,
+                "source": 24,
+                "actual": 273.15,
+                "set": -1000000000.00
+            },
+            {
+                "id": 3,
+                "source": 24,
+                "instance": 2,
+                "lastModified": 84000583,
+                "instance": 2,
+                "source": 24,
+                "actual": 273.15,
+                "set": -1000000000.00
+            },
+            {
+                "id": 4,
+                "source": 255,
+                "instance": 0,
+                "lastModified": 0,
+                "instance": 0,
+                "source": 255,
+                "actual": 0.00,
+                "set": 0.00
+            }
+        ],
+        "temperatureExt": [
+            {
+                "id": 0,
+                "source": 22,
+                "instance": 9,
+                "lastModified": 84003255,
+                "instance": 9,
+                "source": 22,
+                "actual": 7603.20,
+                "set": 114.90
+            },
+            {
+                "id": 1,
+                "source": 22,
+                "instance": 0,
+                "lastModified": 84003256,
+                "instance": 0,
+                "source": 22,
+                "actual": 16776.97,
+                "set": -0.10
+            },
+            {
+                "id": 2,
+                "source": 255,
+                "instance": 0,
+                "lastModified": 0,
+                "instance": 0,
+                "source": 255,
+                "actual": 0.00,
+                "set": 0.00
+            },
+            {
+                "id": 3,
+                "source": 255,
+                "instance": 0,
+                "lastModified": 0,
+                "instance": 0,
+                "source": 255,
+                "actual": 0.00,
+                "set": 0.00
+            },
+            {
+                "id": 4,
+                "source": 255,
+                "instance": 0,
+                "lastModified": 0,
+                "instance": 0,
+                "source": 255,
+                "actual": 0.00,
+                "set": 0.00
+            }
+        ]
+    },
+    "6": {
+        "t": 84003624,
+        "temperatures": []
+    },
+    "7": {
+        "t": 84003624,
+        "bmp280": {
+            "lastModified": 84002067,
+            "temp": 28.02,
+            "pressure": 1010.25,
+            "humidity": 35.30,
+            "historyInterval": 675000,
+            "history": [
+                998.31,
+                998.42,
+                998.40,
+                998.21,
+                998.20,
+                998.08,
+                997.91,
+                998.01,
+                998.22,
+                998.53,
+                998.82,
+                998.97,
+                998.86,
+                999.18,
+                999.41,
+                999.56,
+                999.83,
+                1000.20,
+                1000.39,
+                1000.13,
+                1000.64,
+                1000.92,
+                1001.25,
+                1001.40,
+                1001.72,
+                1002.02,
+                1002.14,
+                1002.20,
+                1002.29,
+                1002.49,
+                1002.66,
+                1003.03,
+                1003.21,
+                1003.35,
+                1003.46,
+                1003.63,
+                1003.91,
+                1003.90,
+                1003.96,
+                1004.06,
+                1004.35,
+                1004.74,
+                1004.80,
+                1004.82,
+                1004.90,
+                1005.06,
+                1005.14,
+                1005.41,
+                1005.54,
+                1005.48,
+                1005.68,
+                1005.97,
+                1005.95,
+                1005.98,
+                1006.04,
+                1006.02,
+                1006.12,
+                1006.15,
+                1006.20,
+                1006.26,
+                1006.30,
+                1006.22,
+                1006.28,
+                1006.33,
+                1006.23,
+                1006.34,
+                1006.18,
+                1006.15,
+                1006.18,
+                1006.23,
+                1006.43,
+                1006.43,
+                1006.31,
+                1006.51,
+                1006.70,
+                1006.52,
+                1006.50,
+                1006.56,
+                1006.60,
+                1006.78,
+                1006.86,
+                1006.82,
+                1006.97,
+                1006.97,
+                1007.06,
+                1007.05,
+                1007.08,
+                1007.07,
+                1007.16,
+                1007.13,
+                1007.26,
+                1007.16,
+                1007.19,
+                1007.14,
+                1007.09,
+                1007.25,
+                1007.51,
+                1007.68,
+                1007.69,
+                1007.66,
+                1007.78,
+                1007.89,
+                1007.82,
+                1007.94,
+                1008.05,
+                1008.12,
+                1008.26,
+                1008.65,
+                1008.95,
+                1009.09,
+                1009.25,
+                1009.30,
+                1009.40,
+                1009.54,
+                1009.41,
+                1009.47,
+                1009.50,
+                1009.71,
+                1009.87,
+                1010.02,
+                1010.12,
+                1010.08,
+                1010.19,
+                1010.25,
+                1010.25
+            ]
+        }
+    },
+    "8": {
+        "t": 84003648,
+        "lastModified": 84002038,
+        "voltages": [
+            {
+                "channel": 0,
+                "type": "single",
+                "adcr": 26,
+                "adcv": 0.003250,
+                "v": 0.018266
+            },
+            {
+                "channel": 1,
+                "type": "single",
+                "adcr": 31,
+                "adcv": 0.003875,
+                "v": 0.021449
+            },
+            {
+                "channel": 2,
+                "type": "differential2_3",
+                "adcr": -93,
+                "adcv": -0.011625,
+                "v": -0.064457
+            },
+            {
+                "channel": 3,
+                "type": "disabled",
+                "adcr": 0,
+                "adcv": 0.000000,
+                "v": 0.000000
+            }
+        ]
+    },
+    "9": {
+        "t": 84003656,
+        "nmea2000": 1,
+        "xte": [
+            {
+                "id": 0,
+                "source": 22,
+                "instance": 34,
+                "lastModified": 84000794,
+                "xte": 10.20
+            },
+            {
+                "id": 1,
+                "source": 255,
+                "instance": 0,
+                "lastModified": 0,
+                "xte": 0.00
+            }
+        ]
+    },
+    "10": {
+        "t": 84003659,
+        "nmea2000": 1,
+        "variation": [
+            {
+                "id": 0,
+                "source": 22,
+                "lastModified": 83995760,
+                "daysSince1970": 18973,
+                "variation": -0.02
+            },
+            {
+                "id": 1,
+                "source": 255,
+                "lastModified": 0,
+                "daysSince1970": 0,
+                "variation": 0.00
+            }
+        ]
+    },
+    "11": {
+        "t": 84003662,
+        "nmea2000": 1,
+        "log": [
+            {
+                "id": 0,
+                "source": 22,
+                "lastModified": 84002736,
+                "daysSince1970": 18973,
+                "secondsSinceMidnight": 77487.00,
+                "log": 23919513,
+                "tripLog": 23917661
+            },
+            {
+                "id": 1,
+                "source": 255,
+                "lastModified": 0,
+                "daysSince1970": 0,
+                "secondsSinceMidnight": 0.00,
+                "log": 0,
+                "tripLog": 0
+            }
+        ]
+    },
+    "12": {
+        "t": 84003667,
+        "nmea2000": 1,
+        "position": [
+            {
+                "id": 0,
+                "source": 255,
+                "lastModified": 0,
+                "latitude": 0.00,
+                "longitude": 0.00
+            },
+            {
+                "id": 1,
+                "source": 255,
+                "lastModified": 0,
+                "latitude": 0.00,
+                "longitude": 0.00
+            }
+        ]
+    },
+    "13": {
+        "t": 84003671,
+        "nmea2000": 1,
+        "leeway": [
+            {
+                "id": 0,
+                "source": 255,
+                "lastModified": 0,
+                "instance": 0,
+                "leeway": 0.00
+            },
+            {
+                "id": 1,
+                "source": 255,
+                "lastModified": 0,
+                "instance": 0,
+                "leeway": 0.00
+            }
+        ]
+    }
+}

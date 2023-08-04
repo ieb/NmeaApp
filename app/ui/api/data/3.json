@@ -1,0 +1,62 @@
+{
+    "t": 83676073,
+    "nmea2000": 1,
+    "cogSog": [
+      {
+        "id": 0,
+        "source": 22,
+        "lastModified": 83675963,
+        "cog": 2.02,
+        "sog": 5.4,
+        "reference": 0
+      },
+      {
+        "id": 1,
+        "source": 255,
+        "lastModified": 0,
+        "cog": 0,
+        "sog": 0,
+        "reference": 0
+      }
+    ],
+    "gnss": [
+      {
+        "id": 0,
+        "source": 22,
+        "lastModified": 83675791,
+        "daysSince1970": 18973,
+        "secondsSinceMidnight": 77160,
+        "latitude": 60.44,
+        "longitude": 22.24,
+        "altitude": 10.5,
+        "type": 0,
+        "method": 1,
+        "nSatellites": 12,
+        "HDOP": 0.8,
+        "PDOP": 0.5,
+        "geoidalSeparation": 15,
+        "nReferenceStations": 1,
+        "referenceStationType": 0,
+        "ageOfCorrection": 2
+      },
+      {
+        "id": 1,
+        "source": 255,
+        "lastModified": 0,
+        "daysSince1970": 0,
+        "secondsSinceMidnight": 0,
+        "latitude": 0,
+        "longitude": 0,
+        "altitude": 0,
+        "type": 0,
+        "method": 0,
+        "nSatellites": 0,
+        "HDOP": 0,
+        "PDOP": 0,
+        "geoidalSeparation": 0,
+        "nReferenceStations": 0,
+        "referenceStationType": 0,
+        "ageOfCorrection": 0
+      }
+    ]
+  }

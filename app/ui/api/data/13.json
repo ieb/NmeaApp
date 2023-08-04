@@ -1,0 +1,20 @@
+{
+    "t": 83928614,
+    "nmea2000": 1,
+    "leeway": [
+        {
+            "id": 0,
+            "source": 255,
+            "lastModified": 0,
+            "instance": 0,
+            "leeway": 0.00
+        },
+        {
+            "id": 1,
+            "source": 255,
+            "lastModified": 0,
+            "instance": 0,
+            "leeway": 0.00
+        }
+    ]
+}

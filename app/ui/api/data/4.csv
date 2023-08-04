@@ -1,0 +1,10 @@
+#outsideEnvironment,id,lastmodified,waterTemperature,outsideAmbientAirTemperature,atmosphericPressure
+#humidity,id,lastmodified,actual,set
+#pressure,id,lastmodified,actual
+t,83652827
+
+outsideEnvironment,0,83663614,289.65,299.45,101600
+humidity,0,83675791,41.8,
+pressure,0,83675791,102400
+
+

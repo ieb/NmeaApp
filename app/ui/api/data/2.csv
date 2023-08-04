@@ -1,0 +1,14 @@
+#type,id,t,lastmodified,...
+#heading,id,t,lastmodified,heading,deviation,variation,type (0=true,1=magnetic)
+#speed,id,t,lastmodified,stw,sog,referencetype (0=paddlewheel)
+#speed,id,t,lastmodified,depthBelowTransducer,offset
+#rudder,id,t,lastmodified,directionOrder,position,angleOder
+#attitude,id,t,lastmodified,pitch,roll,yaw
+#wind,id,t,lastmodified,angle,speed,type  (0=true,  1=apparent)
+t,83652827
+heading,0,83663614,1.77,-0.15,0.2,1
+speed,0,83663614,6.58,,0
+waterDepth,0,83662795,5.5,0.2
+rudder,0,83663613,1,1.09,-0.09
+attitude,0,83662733,-0.25,0.14,-0.05
+wind,0,83662733,-0.75,15.2,1

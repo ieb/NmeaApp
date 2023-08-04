@@ -1,0 +1,20 @@
+{
+    "t": 83842298,
+    "nmea2000": 1,
+    "variation": [
+        {
+            "id": 0,
+            "source": 22,
+            "lastModified": 83835761,
+            "daysSince1970": 18973,
+            "variation": -0.02
+        },
+        {
+            "id": 1,
+            "source": 255,
+            "lastModified": 0,
+            "daysSince1970": 0,
+            "variation": 0.00
+        }
+    ]
+}

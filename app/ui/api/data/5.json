@@ -1,0 +1,88 @@
+{
+    "t": 83699835,
+    "nmea2000": 1,
+    "temperature": [
+      {
+        "id": 0,
+        "source": 22,
+        "instance": 1,
+        "lastModified": 83699753,
+        "actual": 294.26,
+        "set": 294.75
+      },
+      {
+        "id": 1,
+        "source": 24,
+        "instance": 0,
+        "lastModified": 83699110,
+        "actual": 273.15,
+        "set": -1000000000
+      },
+      {
+        "id": 2,
+        "source": 24,
+        "instance": 1,
+        "lastModified": 83699110,
+        "actual": 273.15,
+        "set": -1000000000
+      },
+      {
+        "id": 3,
+        "source": 24,
+        "instance": 2,
+        "lastModified": 83699111,
+        "actual": 273.15,
+        "set": -1000000000
+      },
+      {
+        "id": 4,
+        "source": 255,
+        "instance": 0,
+        "lastModified": 0,
+        "actual": 0,
+        "set": 0
+      }
+    ],
+    "temperatureExt": [
+      {
+        "id": 0,
+        "source": 22,
+        "instance": 9,
+        "lastModified": 83698257,
+        "actual": 7603.2,
+        "set": 114.9
+      },
+      {
+        "id": 1,
+        "source": 22,
+        "instance": 0,
+        "lastModified": 83698257,
+        "actual": 16776.97,
+        "set": -0.1
+      },
+      {
+        "id": 2,
+        "source": 255,
+        "instance": 0,
+        "lastModified": 0,
+        "actual": 0,
+        "set": 0
+      },
+      {
+        "id": 3,
+        "source": 255,
+        "instance": 0,
+        "lastModified": 0,
+        "actual": 0,
+        "set": 0
+      },
+      {
+        "id": 4,
+        "source": 255,
+        "instance": 0,
+        "lastModified": 0,
+        "actual": 0,
+        "set": 0
+      }
+    ]
+  }

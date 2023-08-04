@@ -1,0 +1,104 @@
+{
+    "t": 83663680,
+    "nmea2000": 1,
+    "heading": [
+      {
+        "id": 0,
+        "source": 22,
+        "lastModified": 83663614,
+        "heading": 3.97,
+        "deviation": -0.05,
+        "variation": 0.1,
+        "reference": 1
+      },
+      {
+        "id": 1,
+        "source": 255,
+        "lastModified": 0,
+        "heading": 0,
+        "deviation": 0,
+        "variation": 0,
+        "reference": 0
+      },
+      {
+        "id": 2,
+        "source": 255,
+        "lastModified": 0,
+        "heading": 0,
+        "deviation": 0,
+        "variation": 0,
+        "reference": 0
+      }
+    ],
+    "speed": [
+      {
+        "id": 0,
+        "source": 22,
+        "lastModified": 83662794,
+        "stw": 6.28,
+        "sog": -1000000000,
+        "swrt": 0
+      },
+      {
+        "id": 1,
+        "source": 255,
+        "lastModified": 0,
+        "stw": 0,
+        "sog": 0,
+        "swrt": 0
+      },
+      {
+        "id": 2,
+        "source": 255,
+        "lastModified": 0,
+        "stw": 0,
+        "sog": 0,
+        "swrt": 0
+      }
+    ],
+    "waterDepth": [
+      {
+        "id": 0,
+        "source": 22,
+        "lastModified": 83662795,
+        "depthBelowTransducer": 5.1,
+        "offset": 0.1
+      },
+      {
+        "id": 1,
+        "source": 255,
+        "lastModified": 0,
+        "depthBelowTransducer": 0,
+        "offset": 0
+      }
+    ],
+    "rudder": [
+      {
+        "id": 0,
+        "source": 22,
+        "instance": 1,
+        "lastModified": 83663613,
+        "directionOrder": 1,
+        "position": 0.09,
+        "angleOrder": -0.09
+      }
+    ],
+    "attitude": [
+      {
+        "id": 0,
+        "source": 22,
+        "lastModified": 83662733,
+        "roll": -0.14,
+        "pitch": 0.04,
+        "yaw": -0.05
+      },
+      {
+        "id": 1,
+        "source": 255,
+        "lastModified": 0,
+        "roll": 0,
+        "pitch": 0,
+        "yaw": 0
+      }
+    ]
+  }

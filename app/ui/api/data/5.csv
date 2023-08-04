@@ -1,0 +1,9 @@
+#temperature,id,lastmodified,actual,set
+#temperatureExt,id,lastmodified,actual,set
+t,83652827
+
+temperature,0,83663614,273.15,
+temperatureExt,0,83663614,273.15,
+
+
+

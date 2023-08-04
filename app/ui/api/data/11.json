@@ -1,0 +1,24 @@
+{
+    "t": 83869362,
+    "nmea2000": 1,
+    "log": [
+        {
+            "id": 0,
+            "source": 22,
+            "lastModified": 83868736,
+            "daysSince1970": 18973,
+            "secondsSinceMidnight": 77353.00,
+            "log": 23878151,
+            "tripLog": 23876299
+        },
+        {
+            "id": 1,
+            "source": 255,
+            "lastModified": 0,
+            "daysSince1970": 0,
+            "secondsSinceMidnight": 0.00,
+            "log": 0,
+            "tripLog": 0
+        }
+    ]
+}

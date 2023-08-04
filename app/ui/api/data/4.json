@@ -1,0 +1,41 @@
+{
+    "t": 83689896,
+    "nmea2000": 1,
+    "outsideEnvironment": [
+      {
+        "id": 0,
+        "source": 22,
+        "lastModified": 83689751,
+        "waterTemperature": 288.65,
+        "outsideAmbientAirTemperature": 298.45,
+        "atmosphericPressure": 101400
+      },
+      {
+        "id": 1,
+        "source": 255,
+        "lastModified": 0,
+        "waterTemperature": 0,
+        "outsideAmbientAirTemperature": 0,
+        "atmosphericPressure": 0
+      }
+    ],
+    "humidity": [
+      {
+        "id": 0,
+        "source": 22,
+        "instance": 0,
+        "lastModified": 83689754,
+        "actual": 41.8,
+        "set": -1000000000
+      }
+    ],
+    "pressure": [
+      {
+        "id": 0,
+        "source": 22,
+        "instance": 2,
+        "lastModified": 83689755,
+        "actual": 102400
+      }
+    ]
+  }

@@ -1,0 +1,106 @@
+{
+    "t": 83652827,
+    "nmea2000": 1,
+    "engine": [
+      {
+        "id": 0,
+        "source": 22,
+        "instance": 0,
+        "lastModified": 83652736,
+        "hours": 7695180,
+        "speed": 4350,
+        "coolantTemp": 355.25,
+        "altenatorVoltage": 14.21,
+        "status1": 10,
+        "status2": 0
+      },
+      {
+        "id": 1,
+        "source": 24,
+        "instance": 0,
+        "lastModified": 83652471,
+        "hours": 137925,
+        "speed": 0,
+        "coolantTemp": 273.15,
+        "altenatorVoltage": 0.02,
+        "status1": 0,
+        "status2": 0
+      }
+    ],
+    "battery": [
+      {
+        "id": 0,
+        "source": 22,
+        "instance": 1,
+        "lastModified": 83651743,
+        "voltage": 12.72,
+        "current": -1000000000,
+        "temperature": -1000000000
+      },
+      {
+        "id": 1,
+        "source": 22,
+        "instance": 0,
+        "lastModified": 83651744,
+        "voltage": 13.8,
+        "current": 0.9,
+        "temperature": -1000000000
+      },
+      {
+        "id": 2,
+        "source": 24,
+        "instance": 0,
+        "lastModified": 83068501,
+        "voltage": 0,
+        "current": -1000000000,
+        "temperature": -1000000000
+      },
+      {
+        "id": 3,
+        "source": 24,
+        "instance": 1,
+        "lastModified": 83098563,
+        "voltage": 0,
+        "current": -1000000000,
+        "temperature": -1000000000
+      }
+    ],
+    "fluidLevel": [
+      {
+        "id": 0,
+        "source": 22,
+        "instance": 0,
+        "lastModified": 83645793,
+        "level": 0,
+        "capacity": 60,
+        "fluidType": 0
+      },
+      {
+        "id": 1,
+        "source": 22,
+        "instance": 1,
+        "lastModified": 83645793,
+        "level": 81,
+        "capacity": 200,
+        "fluidType": 1
+      },
+      {
+        "id": 2,
+        "source": 22,
+        "instance": 2,
+        "lastModified": 83645794,
+        "level": 55,
+        "capacity": 200,
+        "fluidType": 1
+      },
+      {
+        "id": 3,
+        "source": 24,
+        "instance": 0,
+        "lastModified": 83650094,
+        "level": 0,
+        "capacity": 0,
+        "fluidType": 0
+      }
+    ]
+  }

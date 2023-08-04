@@ -1,0 +1,10 @@
+wifi.ssid:wifiSSID
+wifiSSID.password:wifiPassword
+wifiSSID.ip:192.168.1.11
+wifiSSID.netmask:255.255.255.0
+wifiSSID.gateway:192.168.1.254
+wifiSSID.dns1:192.168.1.254
+wifiSSID.dns2:8.8.8.8
+adc.scale:5.620350747, 5.5351667, 5.544718786, 5.548646647
+adc.gain:1,1,1,1
+httpauth:admin:admin

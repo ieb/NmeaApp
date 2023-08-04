@@ -1,0 +1,20 @@
+{
+    "t": 83806975,
+    "nmea2000": 1,
+    "xte": [
+        {
+            "id": 0,
+            "source": 22,
+            "instance": 34,
+            "lastModified": 83805795,
+            "xte": 10.20
+        },
+        {
+            "id": 1,
+            "source": 255,
+            "instance": 0,
+            "lastModified": 0,
+            "xte": 0.00
+        }
+    ]
+}

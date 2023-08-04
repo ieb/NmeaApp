@@ -1,0 +1,8 @@
+# type,id,t,lastModified,
+# engine,id,t,lastModified,speed,coolantTemp,altenatorVoltage,status1,status2,hours
+# battery,id,t,lastModified,voltage,current,temperature
+# fluid,id,t,lastModified,level,capacity,type
+t,83652827
+engine,0,83652736,100,355.25,14.21,10,0,7695180
+battery,0,83651743,12.72,13.4,8.6,
+fluidLevel,0,83651743,0.95,60,0

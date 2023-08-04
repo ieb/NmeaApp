@@ -1,0 +1,34 @@
+{
+    "t": 83742157,
+    "lastModified": 83741986,
+    "voltages": [
+      {
+        "channel": 0,
+        "type": "single",
+        "adcr": 33,
+        "adcv": 0.004125,
+        "v": 0.023184
+      },
+      {
+        "channel": 1,
+        "type": "single",
+        "adcr": 45,
+        "adcv": 0.005625,
+        "v": 0.031135
+      },
+      {
+        "channel": 2,
+        "type": "differential2_3",
+        "adcr": -94,
+        "adcv": -0.01175,
+        "v": -0.06515
+      },
+      {
+        "channel": 3,
+        "type": "disabled",
+        "adcr": 0,
+        "adcv": 0,
+        "v": 0
+      }
+    ]
+  }
