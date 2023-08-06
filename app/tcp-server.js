@@ -55,7 +55,7 @@ console.log("Creating TcpServer classes");
     // server socket (one server connection, accepts and opens one socket per client)
     this.serverSocketId = null;
 
-    log('initialized tcp server, not listening yet');
+    console.log('initialized tcp server, not listening yet');
   }
 
 
@@ -130,7 +130,7 @@ console.log("Creating TcpServer classes");
         this._onListenComplete.bind(this));
       this.isListening = true;
     } else {
-      error('Unable to create socket');
+      console.error('Unable to create socket');
     }
   };
 
@@ -143,7 +143,7 @@ console.log("Creating TcpServer classes");
    */
   TcpServer.prototype._onListenComplete = function(resultCode) {
     if (resultCode !==0) {
-      error('Unable to listen to socket. Resultcode='+resultCode);
+      console.error('Unable to listen to socket. Resultcode='+resultCode);
     }
   }
 
@@ -160,14 +160,14 @@ console.log("Creating TcpServer classes");
     this.openSockets.push(tcpConnection);
 
     tcpConnection.requestSocketInfo(this._onSocketInfo.bind(this));
-    log('Incoming connection handled.');
+    console.log('Incoming connection handled.');
   }
 
   TcpServer.prototype._onAcceptError = function(info) {
     if (info.socketId != this.serverSocketId)
       return;
 
-    error('Unable to accept incoming connection. Error code=' + info.resultCode);
+    console.error('Unable to accept incoming connection. Error code=' + info.resultCode);
   }
 
   TcpServer.prototype._onNoMoreConnectionsAvailable = function(socketId) {
@@ -202,7 +202,7 @@ console.log("Creating TcpServer classes");
       sent: null        // Called when client sends data to server.
     };
 
-    log('Established client connection. Listening...');
+    console.log('Established client connection. Listening...');
 
   };
 
@@ -314,7 +314,7 @@ console.log("Creating TcpServer classes");
 
     // Call received callback if there's data in the response.
     if (this.callbacks.recv) {
-      log('onDataRead');
+//      console.log('onDataRead');
       // Convert ArrayBuffer to string.
       _arrayBufferToString(info.data, this.callbacks.recv.bind(this));
     }
@@ -334,7 +334,7 @@ console.log("Creating TcpServer classes");
    * @param {Object} writeInfo The outgoing message
    */
   TcpConnection.prototype._onWriteComplete = function(writeInfo) {
-    log('onWriteComplete');
+//    console.log('onWriteComplete');
     // Call sent callback.
     if (this.callbacks.sent) {
       this.callbacks.sent(writeInfo);
@@ -376,19 +376,6 @@ console.log("Creating TcpServer classes");
   }
 
 
-  /**
-   * Wrapper function for logging
-   */
-  function log(msg) {
-    console.log(msg);
-  }
-
-  /**
-   * Wrapper function for error logging
-   */
-  function error(msg) {
-    console.error(msg);
-  }
 
   exports.TcpServer = TcpServer;
   exports.TcpConnection = TcpConnection;

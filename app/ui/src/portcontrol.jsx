@@ -24,13 +24,14 @@ class PortControl extends React.Component {
         };
 
         this.baudList = [
-            {id: 0, display: "4800", baud: 4800},
-            {id: 1, display: "9600", baud: 9600},
-            {id: 2, display: "19200", baud: 19200},
-            {id: 3, display: "38400", baud: 38400},
-            {id: 4, display: "57600", baud: 57600},
-            {id: 5, display: "115200", baud: 115200}
-        ];
+            {id: 0, display: "9600", baud: 9600},
+            {id: 1, display: "19200", baud: 19200},
+            {id: 2, display: "38400", baud: 38400},
+            {id: 3, display: "57600", baud: 57600},
+            {id: 4, display: "115200", baud: 115200},
+            {id: 5, display: "4800", baud: 4800}
+        ]; 
+           
 
 
         this.clickDisconnect = this.clickDisconnect.bind(this);
@@ -38,6 +39,10 @@ class PortControl extends React.Component {
         this.selectDevice = this.selectDevice.bind(this);
         this.selectBaud = this.selectBaud.bind(this);
         this.clickRefresh = this.clickRefresh.bind(this);
+
+        (async () => {
+            await this.clickRefresh();
+        })();
 
 
     }
@@ -54,7 +59,7 @@ class PortControl extends React.Component {
 
     componentWillUnmount() {
         if ( this.updateInterval ) {
-            cancelIntervale(this.updateInterval);
+            cancelInterval(this.updateInterval);
         }
     }
 
@@ -67,8 +72,11 @@ class PortControl extends React.Component {
     }
     async clickConnect(event) {
         if ( this.state.hasNetList ) {
+            console.log("Open TCP");
             await this.bgPage.startServer(this.state.netList[this.state.netId].address, this.state.portNo);
-            await this.bgPage.openConnection(this.state.deviceList[this.state.deviceId].path, this.state.baudList[this.state.baudId].baud);
+            console.log("TCP Open, Open serial ");
+            await this.bgPage.openConnection(this.baudList[this.state.baudId].baud,this.state.deviceList[this.state.deviceId].path);
+            console.log("Serial Open");
             const serialDevice = `${this.state.deviceList[this.state.deviceId].path} ${this.baudList[this.state.baudId].baud}`;
             const endpoint = `${this.state.netList[this.state.netId].address}:${this.state.portNo}`;
             this.setState({
@@ -106,6 +114,8 @@ class PortControl extends React.Component {
     async clickRefresh(event) {
         const list = await this.bgPage.getNetworkAddresses();
         const ports = await  this.bgPage.getDevices();
+        console.log("Got Devices", list);
+        console.log("Got Ports", ports);
         const networkList = [];
         const deviceList = [];
         const hasNetList = (list !== undefined);
@@ -125,20 +135,23 @@ class PortControl extends React.Component {
             for(let i = 0; i < ports.length; i++ ) {
                 let displayName = ports[i].path;
                 if (ports[i]["displayName"]) {
-                    displayName = port[i]["displayName"] + "(" + port[i].path + ")";
+                    displayName = ports[i]["displayName"] + "(" + ports[i].path + ")";
                 }
                 deviceList.push({
                     id: i,
                     display: displayName,
-                    path: port[i].path
+                    path: ports[i].path
                 });
             }            
         }
-        this.setState({
+        const newState = {
             hasNetList: hasNetList,
             hasDeviceList: hasDeviceList,
-                deviceList: deviceList,
-                netList: networkList});
+            deviceList: deviceList,
+            netList: networkList
+        };
+        console.log("New State", newState);
+        this.setState(newState);
     }
     generateList(source) {
         return source.map((item) => <option key={item.id} value={item.id} >{item.display}</option>)
@@ -183,12 +196,12 @@ class PortControl extends React.Component {
         } else {
             return (
                 <div className="serialPortControl" >
-                  {this.dropDown(this.state.haDeviceList, this.state.deviceList,this.state.deviceId,this.selectDevice)}
+                  {this.dropDown(this.state.hasDeviceList, this.state.deviceList,this.state.deviceId,this.selectDevice)}
                   {this.dropDown(true, this.baudList, this.state.baudId,this.selectBaud)}
                   {this.dropDown(this.state.hasNetList, this.state.netList,this.state.netId,this.selectNet)}
                   {this.hasNetList?(<input type="number" value={this.state.portNo} onChange={this.setPort}/>):""}
                   <button onClick={this.clickConnect} >{"\u25BA"}</button>
-                  {this.hasNetList?(<button onClick={this.clickRefresh} >{"\u21BA"}</button>):""}
+                  {this.state.hasNetList?(<button onClick={this.clickRefresh} >{"\u21BA"}</button>):""}
                 </div>
             );                
         }   

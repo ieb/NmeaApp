@@ -46,6 +46,7 @@ class WebAppBgPage {
 }
 
 
+
 class SerialPort  {
 
     constructor(nmeaHandler) {

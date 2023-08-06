@@ -1,22 +1,17 @@
 {
-  "name": "ui",
+  "name": "test",
   "version": "1.0.0",
-  "description": "Based on the UI code used for Eink Signal K, but modified for this firmware and simplified.",
+  "description": "",
   "main": "index.js",
-  "directories": {
-    "lib": "lib"
+  "scripts": {
+    "build": "parcel build src/index.html --public-url ./ ",
+    "dev": "parcel serve src/index.html --public-url ./ "
   },
-  "browserslist": "> 0.25%, not dead",
   "author": "",
   "license": "ISC",
-  "dependencies": {
+  "devDependencies": {
+    "parcel-bundler": "^1.12.5",
     "react": "^18.2.0",
     "react-dom": "^18.2.0"
-  },
-  "devDependencies": {
-    "@babel/cli": "^7.22.9",
-    "@babel/core": "^7.22.9",
-    "@babel/preset-env": "^7.22.9",
-    "@babel/preset-react": "^7.22.5"
   }
 }

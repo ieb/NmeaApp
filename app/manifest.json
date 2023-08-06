@@ -6,7 +6,10 @@
   "permissions": ["webview", "system.network", "serial"],
   "app": {
     "background": {
-      "scripts": ["tcp-server.js", "serial.js", "calcs.js", "parser.js", "index.js"]
+      "scripts": [
+          "tcp-server.js", 
+          "serial.js", 
+          "index.js"]
     }
   },
   "sockets": {

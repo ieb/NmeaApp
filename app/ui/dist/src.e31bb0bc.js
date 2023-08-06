@@ -28940,34 +28940,46 @@ var PortControl = /*#__PURE__*/function (_React$Component) {
     };
     _this.baudList = [{
       id: 0,
-      display: "4800",
-      baud: 4800
-    }, {
-      id: 1,
       display: "9600",
       baud: 9600
     }, {
-      id: 2,
+      id: 1,
       display: "19200",
       baud: 19200
     }, {
-      id: 3,
+      id: 2,
       display: "38400",
       baud: 38400
     }, {
-      id: 4,
+      id: 3,
       display: "57600",
       baud: 57600
     }, {
-      id: 5,
+      id: 4,
       display: "115200",
       baud: 115200
+    }, {
+      id: 5,
+      display: "4800",
+      baud: 4800
     }];
     _this.clickDisconnect = _this.clickDisconnect.bind(_assertThisInitialized(_this));
     _this.clickConnect = _this.clickConnect.bind(_assertThisInitialized(_this));
     _this.selectDevice = _this.selectDevice.bind(_assertThisInitialized(_this));
     _this.selectBaud = _this.selectBaud.bind(_assertThisInitialized(_this));
     _this.clickRefresh = _this.clickRefresh.bind(_assertThisInitialized(_this));
+    _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee() {
+      return _regeneratorRuntime().wrap(function _callee$(_context) {
+        while (1) switch (_context.prev = _context.next) {
+          case 0:
+            _context.next = 2;
+            return _this.clickRefresh();
+          case 2:
+          case "end":
+            return _context.stop();
+        }
+      }, _callee);
+    }))();
     return _this;
   }
   _createClass(PortControl, [{
@@ -28988,20 +29000,20 @@ var PortControl = /*#__PURE__*/function (_React$Component) {
     key: "componentWillUnmount",
     value: function componentWillUnmount() {
       if (this.updateInterval) {
-        cancelIntervale(this.updateInterval);
+        cancelInterval(this.updateInterval);
       }
     }
   }, {
     key: "clickDisconnect",
     value: function () {
-      var _clickDisconnect = _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee(event) {
-        return _regeneratorRuntime().wrap(function _callee$(_context) {
-          while (1) switch (_context.prev = _context.next) {
+      var _clickDisconnect = _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee2(event) {
+        return _regeneratorRuntime().wrap(function _callee2$(_context2) {
+          while (1) switch (_context2.prev = _context2.next) {
             case 0:
-              _context.next = 2;
+              _context2.next = 2;
               return this.bgPage.stopServer();
             case 2:
-              _context.next = 4;
+              _context2.next = 4;
               return this.bgPage.closeConnection();
             case 4:
               this.setState({
@@ -29009,9 +29021,9 @@ var PortControl = /*#__PURE__*/function (_React$Component) {
               });
             case 5:
             case "end":
-              return _context.stop();
+              return _context2.stop();
           }
-        }, _callee, this);
+        }, _callee2, this);
       }));
       function clickDisconnect(_x) {
         return _clickDisconnect.apply(this, arguments);
@@ -29021,21 +29033,24 @@ var PortControl = /*#__PURE__*/function (_React$Component) {
   }, {
     key: "clickConnect",
     value: function () {
-      var _clickConnect = _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee2(event) {
+      var _clickConnect = _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee3(event) {
         var serialDevice, endpoint, baudRate, isOpen;
-        return _regeneratorRuntime().wrap(function _callee2$(_context2) {
-          while (1) switch (_context2.prev = _context2.next) {
+        return _regeneratorRuntime().wrap(function _callee3$(_context3) {
+          while (1) switch (_context3.prev = _context3.next) {
             case 0:
               if (!this.state.hasNetList) {
-                _context2.next = 10;
+                _context3.next = 13;
                 break;
               }
-              _context2.next = 3;
+              console.log("Open TCP");
+              _context3.next = 4;
               return this.bgPage.startServer(this.state.netList[this.state.netId].address, this.state.portNo);
-            case 3:
-              _context2.next = 5;
-              return this.bgPage.openConnection(this.state.deviceList[this.state.deviceId].path, this.state.baudList[this.state.baudId].baud);
-            case 5:
+            case 4:
+              console.log("TCP Open, Open serial ");
+              _context3.next = 7;
+              return this.bgPage.openConnection(this.baudList[this.state.baudId].baud, this.state.deviceList[this.state.deviceId].path);
+            case 7:
+              console.log("Serial Open");
               serialDevice = "".concat(this.state.deviceList[this.state.deviceId].path, " ").concat(this.baudList[this.state.baudId].baud);
               endpoint = "".concat(this.state.netList[this.state.netId].address, ":").concat(this.state.portNo);
               this.setState({
@@ -29043,24 +29058,24 @@ var PortControl = /*#__PURE__*/function (_React$Component) {
                 serialDevice: serialDevice,
                 endpoint: endpoint
               });
-              _context2.next = 16;
+              _context3.next = 19;
               break;
-            case 10:
+            case 13:
               console.log("State is ", this.state);
               baudRate = this.baudList[this.state.baudId].baud;
-              _context2.next = 14;
+              _context3.next = 17;
               return this.bgPage.openConnection(baudRate);
-            case 14:
-              isOpen = _context2.sent;
+            case 17:
+              isOpen = _context3.sent;
               this.setState({
                 isOpen: isOpen,
                 baudRate: baudRate
               });
-            case 16:
+            case 19:
             case "end":
-              return _context2.stop();
+              return _context3.stop();
           }
-        }, _callee2, this);
+        }, _callee3, this);
       }));
       function clickConnect(_x2) {
         return _clickConnect.apply(this, arguments);
@@ -29098,19 +29113,21 @@ var PortControl = /*#__PURE__*/function (_React$Component) {
   }, {
     key: "clickRefresh",
     value: function () {
-      var _clickRefresh = _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee3(event) {
-        var list, ports, networkList, deviceList, hasNetList, hasDeviceList, i, _i, displayName;
-        return _regeneratorRuntime().wrap(function _callee3$(_context3) {
-          while (1) switch (_context3.prev = _context3.next) {
+      var _clickRefresh = _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee4(event) {
+        var list, ports, networkList, deviceList, hasNetList, hasDeviceList, i, _i, displayName, newState;
+        return _regeneratorRuntime().wrap(function _callee4$(_context4) {
+          while (1) switch (_context4.prev = _context4.next) {
             case 0:
-              _context3.next = 2;
+              _context4.next = 2;
               return this.bgPage.getNetworkAddresses();
             case 2:
-              list = _context3.sent;
-              _context3.next = 5;
+              list = _context4.sent;
+              _context4.next = 5;
               return this.bgPage.getDevices();
             case 5:
-              ports = _context3.sent;
+              ports = _context4.sent;
+              console.log("Got Devices", list);
+              console.log("Got Ports", ports);
               networkList = [];
               deviceList = [];
               hasNetList = list !== undefined;
@@ -29130,26 +29147,28 @@ var PortControl = /*#__PURE__*/function (_React$Component) {
                 for (_i = 0; _i < ports.length; _i++) {
                   displayName = ports[_i].path;
                   if (ports[_i]["displayName"]) {
-                    displayName = port[_i]["displayName"] + "(" + port[_i].path + ")";
+                    displayName = ports[_i]["displayName"] + "(" + ports[_i].path + ")";
                   }
                   deviceList.push({
                     id: _i,
                     display: displayName,
-                    path: port[_i].path
+                    path: ports[_i].path
                   });
                 }
               }
-              this.setState({
+              newState = {
                 hasNetList: hasNetList,
                 hasDeviceList: hasDeviceList,
                 deviceList: deviceList,
                 netList: networkList
-              });
-            case 13:
+              };
+              console.log("New State", newState);
+              this.setState(newState);
+            case 17:
             case "end":
-              return _context3.stop();
+              return _context4.stop();
           }
-        }, _callee3, this);
+        }, _callee4, this);
       }));
       function clickRefresh(_x3) {
         return _clickRefresh.apply(this, arguments);
@@ -29208,13 +29227,13 @@ var PortControl = /*#__PURE__*/function (_React$Component) {
       } else {
         return /*#__PURE__*/_react.default.createElement("div", {
           className: "serialPortControl"
-        }, this.dropDown(this.state.haDeviceList, this.state.deviceList, this.state.deviceId, this.selectDevice), this.dropDown(true, this.baudList, this.state.baudId, this.selectBaud), this.dropDown(this.state.hasNetList, this.state.netList, this.state.netId, this.selectNet), this.hasNetList ? /*#__PURE__*/_react.default.createElement("input", {
+        }, this.dropDown(this.state.hasDeviceList, this.state.deviceList, this.state.deviceId, this.selectDevice), this.dropDown(true, this.baudList, this.state.baudId, this.selectBaud), this.dropDown(this.state.hasNetList, this.state.netList, this.state.netId, this.selectNet), this.hasNetList ? /*#__PURE__*/_react.default.createElement("input", {
           type: "number",
           value: this.state.portNo,
           onChange: this.setPort
         }) : "", /*#__PURE__*/_react.default.createElement("button", {
           onClick: this.clickConnect
-        }, "\u25BA"), this.hasNetList ? /*#__PURE__*/_react.default.createElement("button", {
+        }, "\u25BA"), this.state.hasNetList ? /*#__PURE__*/_react.default.createElement("button", {
           onClick: this.clickRefresh
         }, "\u21BA") : "");
       }
@@ -30395,6 +30414,7 @@ var _react = _interopRequireDefault(require("react"));
 var _layout = require("./layout.jsx");
 var _webappbgpage = require("./webappbgpage.js");
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+function _typeof(obj) { "@babel/helpers - typeof"; return _typeof = "function" == typeof Symbol && "symbol" == typeof Symbol.iterator ? function (obj) { return typeof obj; } : function (obj) { return obj && "function" == typeof Symbol && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }, _typeof(obj); }
 var rootElement = document.getElementById('root');
 console.log("Root element is ", rootElement);
 var root = _client.default.createRoot(rootElement);
@@ -30408,7 +30428,12 @@ if (chrome !== undefined && chrome.runtime !== undefined && typeof chrome.runtim
   // store also needs to be on the background page
 
   chrome.runtime.getBackgroundPage(function (bgPage) {
-    //root.render(<NMEALayout bgPage={bgPage} > </NMEALayout>);
+    console.log("Got BGPage as", bgPage);
+    console.log("Got BGPage.getStore is a ", _typeof(bgPage.getStore));
+    console.log("Got BGPage.getStore()", bgPage.getStore());
+    root.render( /*#__PURE__*/_react.default.createElement(_layout.NMEALayout, {
+      bgPage: bgPage
+    }, " "));
   });
 } else {
   var bgPage = new _webappbgpage.WebAppBgPage();
@@ -30441,7 +30466,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "52903" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "64184" + '/');
   ws.onmessage = function (event) {
     checkedAssets = {};
     assetsToAccept = [];
@@ -30586,4 +30611,4 @@ function hmrAcceptRun(bundle, id) {
   }
 }
 },{}]},{},["../node_modules/parcel-bundler/src/builtins/hmr-runtime.js","index.js"], null)
-//# sourceMappingURL=/src.e31bb0bc.js.map
+//# sourceMappingURL=src.e31bb0bc.js.map
