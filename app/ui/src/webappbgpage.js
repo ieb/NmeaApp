@@ -90,7 +90,7 @@ class SerialPort  {
                 await nmeaDecoder.readable.cancel();
                 setTimeout( async () => {
                     console.log("Before close");
-                    await that.port.close();
+                    await port.close();
                     console.log("After close");
                     that.readingState = 2;
                 }, 100);
@@ -104,19 +104,20 @@ class SerialPort  {
 
     async close() {
         this.readingState = 1;
+        const that = this;
         return new Promise(((resolve, reject) => {
             const interval = setInterval(() => {
                 if ( that.readingState == 2) {
                     console.log("Close Detected");
-                    cancelInterval(interval);
-                    cancelTimeout(timeout);
+                    clearInterval(interval);
+                    clearTimeout(timeout);
                     resolve(true);
                 }
             },110);
             const timeout = setTimeout(() => {
                 console.log("Close Timedout");
-                cancelInterval(interval);
-                cancelTimeout(timeout);
+                clearInterval(interval);
+                clearTimeout(timeout);
                 resolve( that.readingState == 2);
             }, 30000);
         }).bind(this));

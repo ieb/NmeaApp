@@ -4,30 +4,86 @@ body {
   color: white;
 }
 
+
+.nmeaLayout {
+  display: flex;
+}
+
+.nmeaLayout > div:not(:first-child) {
+  /*padding-left: 11px;*/
+}
+
+
+/*  menu --------------------------*/
+.menu {
+  position: absolute;
+  top: 0px;
+  right: 0px;
+  /*height: 100%;*/
+  display: grid;
+  padding: 5px;
+  grid-auto-rows: max-content;
+  background-color: #5c5353de;
+  z-index: 1;
+}
+
+.menu > button {
+  padding: 0px;
+  margin: 0px;
+  text-align: right;
+  font-size: 1rem;
+}
+.menu .activePage {
+  background-color: grey;
+}
+.menu .pageButton {
+  text-align: left;
+}
+
+.menu.minimised .pageButton {
+  display: none;
+}
+
+.menu.minimised .controls {
+  display: none;
+}
+
+
+.menu .iOn {
+  color: green;
+}
+.menu .iOff {
+  color: lightgreen;
+}
+
+
+
+
+
 .serialPortControl {
     display: flex; 
+    justify-content: flex-end;
     align-items: center;
 }
 .serialPortControl .baudRate {
   color: lightgreen;  
 }
 
-.serialPortControl .iOn {
-  text-align: center;
-  padding:  10px;
-  font-size: 1rem;
-  color: green;
-}
-.serialPortControl .iOff {
-  text-align: center;
-  padding:  10px;
-  font-size: 1rem;
-  color: lightgreen;
-}
+
 
 .serialPortControl .running {
   color: #33ff44
 }
+
+.uiControls {
+    display: flex; 
+    justify-content: flex-end;
+    align-items: center;
+
+}
+
+
+/*  instuments --------------------------*/
 
 .textbox {
     position: relative;
@@ -48,8 +104,40 @@ body {
   width: 100%;
 }
 
-.textbox svg {
+.textbox svg .outline {
+  fill: #5f9ea0;
+  stroke-width:  0px;
 }
+
+.textbox svg .path {
+  stroke: white;
+  stroke-width:  1px;
+}
+
+.textbox svg .meanline {
+  stroke: white;
+  stroke-width:  1px;
+  opacity: 50%;
+}
+
+.textbox svg .stdbottomline {
+  stroke: #073ec2;
+  stroke-width:  1px;
+  opacity: 50%;
+}
+.textbox svg .stdtopline {
+  stroke: #c30f0f;
+  stroke-width:  1px;
+  opacity: 50%;
+}
+
+.textbox svg .small {
+  stroke: white;
+  font-size: 0.7rem;
+  font-weight: lighter;
+  stroke-width:  1px;
+}
+
 
 .textbox canvas {
 }
@@ -59,7 +147,6 @@ body {
   font-size: 4rem;
   text-align: center;
   margin: 10px 0px;
-  border: 1px solid  green;
 }
 
 
@@ -91,9 +178,14 @@ body {
   text-align: right;
 }
 
-.controls {
-  display: inline;
+.textbox  .edit {
+  top: 0;
+  left:  0;
+  background: #82aa897a;
+
 }
+
+
 
 
 input[type="number"] {
@@ -103,6 +195,10 @@ input[type="number"] {
 button {
   cursor: pointer;
   margin-left: 20px;
+  background: #0000;
+  color: #fff;
+  border: 0px;
+}
 }
 
 #serverStop {

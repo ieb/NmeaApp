@@ -6,13 +6,13 @@ class PortControl extends React.Component {
     constructor(props) {
         super(props);
         this.bgPage = props.bgPage;
-        this.lastPacketsRecied = 0;
+        this.lastPacketsRecived;
         this.state = {
-            dataIndicatorOn: false,
             deviceId: 0,
             baudId: 0,
             netId: 0,
             serialDevice: "-",
+            dataIndicatorOn: false,
             endpoint: "-",
             portNo: 10110,
             baudRate: 4800,
@@ -46,10 +46,11 @@ class PortControl extends React.Component {
 
 
     }
+
     componentDidMount() {
         this.updateInterval = setInterval((() => {
             const packetsRecieved = this.bgPage.getPacketsRecieved();
-            if (this.lastPacketsRecied !== packetsRecieved ) {
+            if (this.lastPacketsRecived !== packetsRecieved ) {
                 this.lastPacketsRecived = packetsRecieved;
                 this.setState({dataIndicatorOn: !this.state.dataIndicatorOn});
             }
@@ -59,9 +60,10 @@ class PortControl extends React.Component {
 
     componentWillUnmount() {
         if ( this.updateInterval ) {
-            cancelInterval(this.updateInterval);
+            clearInterval(this.updateInterval);
         }
     }
+
 
     async clickDisconnect(event) {
         await this.bgPage.stopServer();
@@ -186,25 +188,31 @@ class PortControl extends React.Component {
     render() {
         if ( this.state.isOpen ) {
             const indicatorClass = this.state.dataIndicatorOn?"iOn":"iOff";
+                    /*<div className={indicatorClass}>{"\u2299"}</div>*/
             return (
-                <div className="serialPortControl" >
-                    <div className={indicatorClass}>{"\u2299"}</div>
-                    {this.showConnection()}
-                    <button onClick={this.clickDisconnect} >{"\u2715"}</button>
+                <div className="serialPortControl">
+                    <div className="controls" >
+                        {this.showConnection()}
+                    </div>
+                    <div className="controls" >
+                        <button onClick={this.clickDisconnect} title="disconnect" >{"\u2715"}</button>
+                    </div>
                 </div>
             );
         } else {
             return (
-                <div className="serialPortControl" >
+                <div className="controls serialPortControl" >
                   {this.dropDown(this.state.hasDeviceList, this.state.deviceList,this.state.deviceId,this.selectDevice)}
                   {this.dropDown(true, this.baudList, this.state.baudId,this.selectBaud)}
                   {this.dropDown(this.state.hasNetList, this.state.netList,this.state.netId,this.selectNet)}
                   {this.hasNetList?(<input type="number" value={this.state.portNo} onChange={this.setPort}/>):""}
-                  <button onClick={this.clickConnect} >{"\u25BA"}</button>
-                  {this.state.hasNetList?(<button onClick={this.clickRefresh} >{"\u21BA"}</button>):""}
+                  <button onClick={this.clickConnect} title="connect">{"\u25BA"}</button>
+                  {this.state.hasNetList?(<button onClick={this.clickRefresh} title="refresh" >{"\u21BA"}</button>):""}
                 </div>
             );                
         }   
     }
 }
+
+
 export { PortControl }

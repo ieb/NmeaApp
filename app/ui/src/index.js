@@ -25,12 +25,9 @@ if ( chrome !== undefined && chrome.runtime !== undefined && ( typeof chrome.run
         root.render(<NMEALayout bgPage={bgPage} > </NMEALayout>);
     });
 
-
 } else {
-
     const bgPage = new WebAppBgPage();
     root.render(<NMEALayout bgPage={bgPage} > </NMEALayout>);
-
 }
 
 

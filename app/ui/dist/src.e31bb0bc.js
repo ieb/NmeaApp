@@ -28923,13 +28923,13 @@ var PortControl = /*#__PURE__*/function (_React$Component) {
     _classCallCheck(this, PortControl);
     _this = _super.call(this, props);
     _this.bgPage = props.bgPage;
-    _this.lastPacketsRecied = 0;
+    _this.lastPacketsRecived;
     _this.state = {
-      dataIndicatorOn: false,
       deviceId: 0,
       baudId: 0,
       netId: 0,
       serialDevice: "-",
+      dataIndicatorOn: false,
       endpoint: "-",
       portNo: 10110,
       baudRate: 4800,
@@ -28988,7 +28988,7 @@ var PortControl = /*#__PURE__*/function (_React$Component) {
       var _this2 = this;
       this.updateInterval = setInterval(function () {
         var packetsRecieved = _this2.bgPage.getPacketsRecieved();
-        if (_this2.lastPacketsRecied !== packetsRecieved) {
+        if (_this2.lastPacketsRecived !== packetsRecieved) {
           _this2.lastPacketsRecived = packetsRecieved;
           _this2.setState({
             dataIndicatorOn: !_this2.state.dataIndicatorOn
@@ -29000,7 +29000,7 @@ var PortControl = /*#__PURE__*/function (_React$Component) {
     key: "componentWillUnmount",
     value: function componentWillUnmount() {
       if (this.updateInterval) {
-        cancelInterval(this.updateInterval);
+        clearInterval(this.updateInterval);
       }
     }
   }, {
@@ -29217,24 +29217,30 @@ var PortControl = /*#__PURE__*/function (_React$Component) {
     value: function render() {
       if (this.state.isOpen) {
         var indicatorClass = this.state.dataIndicatorOn ? "iOn" : "iOff";
+        /*<div className={indicatorClass}>{"\u2299"}</div>*/
         return /*#__PURE__*/_react.default.createElement("div", {
           className: "serialPortControl"
         }, /*#__PURE__*/_react.default.createElement("div", {
-          className: indicatorClass
-        }, "\u2299"), this.showConnection(), /*#__PURE__*/_react.default.createElement("button", {
-          onClick: this.clickDisconnect
-        }, "\u2715"));
+          className: "controls"
+        }, this.showConnection()), /*#__PURE__*/_react.default.createElement("div", {
+          className: "controls"
+        }, /*#__PURE__*/_react.default.createElement("button", {
+          onClick: this.clickDisconnect,
+          title: "disconnect"
+        }, "\u2715")));
       } else {
         return /*#__PURE__*/_react.default.createElement("div", {
-          className: "serialPortControl"
+          className: "controls serialPortControl"
         }, this.dropDown(this.state.hasDeviceList, this.state.deviceList, this.state.deviceId, this.selectDevice), this.dropDown(true, this.baudList, this.state.baudId, this.selectBaud), this.dropDown(this.state.hasNetList, this.state.netList, this.state.netId, this.selectNet), this.hasNetList ? /*#__PURE__*/_react.default.createElement("input", {
           type: "number",
           value: this.state.portNo,
           onChange: this.setPort
         }) : "", /*#__PURE__*/_react.default.createElement("button", {
-          onClick: this.clickConnect
+          onClick: this.clickConnect,
+          title: "connect"
         }, "\u25BA"), this.state.hasNetList ? /*#__PURE__*/_react.default.createElement("button", {
-          onClick: this.clickRefresh
+          onClick: this.clickRefresh,
+          title: "refresh"
         }, "\u21BA") : "");
       }
     }
@@ -29242,17 +29248,22 @@ var PortControl = /*#__PURE__*/function (_React$Component) {
   return PortControl;
 }(_react.default.Component);
 exports.PortControl = PortControl;
-},{"react":"../node_modules/react/index.js"}],"layout.jsx":[function(require,module,exports) {
+},{"react":"../node_modules/react/index.js"}],"uicontrol.jsx":[function(require,module,exports) {
 "use strict";
 "use strict;";
 
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.NMEALayout = void 0;
+exports.EditUIControl = void 0;
 var _react = _interopRequireDefault(require("react"));
-var _portcontrol = require("./portcontrol.jsx");
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+function _typeof(obj) { "@babel/helpers - typeof"; return _typeof = "function" == typeof Symbol && "symbol" == typeof Symbol.iterator ? function (obj) { return typeof obj; } : function (obj) { return obj && "function" == typeof Symbol && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }, _typeof(obj); }
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, _toPropertyKey(descriptor.key), descriptor); } }
+function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); Object.defineProperty(Constructor, "prototype", { writable: false }); return Constructor; }
+function _toPropertyKey(arg) { var key = _toPrimitive(arg, "string"); return _typeof(key) === "symbol" ? key : String(key); }
+function _toPrimitive(input, hint) { if (_typeof(input) !== "object" || input === null) return input; var prim = input[Symbol.toPrimitive]; if (prim !== undefined) { var res = prim.call(input, hint || "default"); if (_typeof(res) !== "object") return res; throw new TypeError("@@toPrimitive must return a primitive value."); } return (hint === "string" ? String : Number)(input); }
 function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function"); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, writable: true, configurable: true } }); Object.defineProperty(subClass, "prototype", { writable: false }); if (superClass) _setPrototypeOf(subClass, superClass); }
 function _setPrototypeOf(o, p) { _setPrototypeOf = Object.setPrototypeOf ? Object.setPrototypeOf.bind() : function _setPrototypeOf(o, p) { o.__proto__ = p; return o; }; return _setPrototypeOf(o, p); }
 function _createSuper(Derived) { var hasNativeReflectConstruct = _isNativeReflectConstruct(); return function _createSuperInternal() { var Super = _getPrototypeOf(Derived), result; if (hasNativeReflectConstruct) { var NewTarget = _getPrototypeOf(this).constructor; result = Reflect.construct(Super, arguments, NewTarget); } else { result = Super.apply(this, arguments); } return _possibleConstructorReturn(this, result); }; }
@@ -29260,19 +29271,137 @@ function _possibleConstructorReturn(self, call) { if (call && (_typeof(call) ===
 function _assertThisInitialized(self) { if (self === void 0) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return self; }
 function _isNativeReflectConstruct() { if (typeof Reflect === "undefined" || !Reflect.construct) return false; if (Reflect.construct.sham) return false; if (typeof Proxy === "function") return true; try { Boolean.prototype.valueOf.call(Reflect.construct(Boolean, [], function () {})); return true; } catch (e) { return false; } }
 function _getPrototypeOf(o) { _getPrototypeOf = Object.setPrototypeOf ? Object.getPrototypeOf.bind() : function _getPrototypeOf(o) { return o.__proto__ || Object.getPrototypeOf(o); }; return _getPrototypeOf(o); }
+var EditUIControl = /*#__PURE__*/function (_React$Component) {
+  _inherits(EditUIControl, _React$Component);
+  var _super = _createSuper(EditUIControl);
+  function EditUIControl(props) {
+    var _this;
+    _classCallCheck(this, EditUIControl);
+    _this = _super.call(this, props);
+    _this.props = props;
+    _this.onAddItem = props.onAddItem;
+    _this.onSave = props.onSave;
+    _this.doEdit = _this.doEdit.bind(_assertThisInitialized(_this));
+    _this.state = {
+      editing: false
+    };
+    return _this;
+  }
+  _createClass(EditUIControl, [{
+    key: "doEdit",
+    value: function doEdit(e) {
+      var editing = !this.state.editing;
+      this.props.onEdit(editing);
+      this.setState({
+        editing: editing
+      });
+    }
+  }, {
+    key: "render",
+    value: function render() {
+      if (this.state.editing) {
+        return /*#__PURE__*/_react.default.createElement("div", {
+          className: "uiControls"
+        }, /*#__PURE__*/_react.default.createElement("div", {
+          className: "controls"
+        }, /*#__PURE__*/_react.default.createElement("button", {
+          onClick: this.doEdit,
+          title: "finish edit page"
+        }, "\u2705"), /*#__PURE__*/_react.default.createElement("button", {
+          onClick: this.onAddItem,
+          title: "add box",
+          value: "addbox"
+        }, "\uFF0B")));
+      } else {
+        return /*#__PURE__*/_react.default.createElement("div", {
+          className: "uiControls"
+        }, /*#__PURE__*/_react.default.createElement("div", {
+          className: "controls"
+        }, /*#__PURE__*/_react.default.createElement("button", {
+          onClick: this.doEdit,
+          title: "edit page"
+        }, "\u270D"), /*#__PURE__*/_react.default.createElement("button", {
+          onClick: this.onAddItem,
+          title: "add page",
+          value: "addpage"
+        }, "\uFF0B"), /*#__PURE__*/_react.default.createElement("button", {
+          onClick: this.onAddItem,
+          title: "delete page",
+          value: "deletepage"
+        }, "-")), /*#__PURE__*/_react.default.createElement("div", {
+          className: "controls"
+        }, /*#__PURE__*/_react.default.createElement("button", {
+          onClick: this.onSave,
+          title: "save layout"
+        }, "\uD83D\uDCBE")));
+      }
+    }
+  }]);
+  return EditUIControl;
+}(_react.default.Component);
+exports.EditUIControl = EditUIControl;
+;
+},{"react":"../node_modules/react/index.js"}],"datatypes.js":[function(require,module,exports) {
+"use strict";
+"use strict;";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.DisplayUtils = exports.DataTypes = void 0;
+function _defineProperty(obj, key, value) { key = _toPropertyKey(key); if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
 function _typeof(obj) { "@babel/helpers - typeof"; return _typeof = "function" == typeof Symbol && "symbol" == typeof Symbol.iterator ? function (obj) { return typeof obj; } : function (obj) { return obj && "function" == typeof Symbol && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }, _typeof(obj); }
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, _toPropertyKey(descriptor.key), descriptor); } }
 function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); Object.defineProperty(Constructor, "prototype", { writable: false }); return Constructor; }
 function _toPropertyKey(arg) { var key = _toPrimitive(arg, "string"); return _typeof(key) === "symbol" ? key : String(key); }
 function _toPrimitive(input, hint) { if (_typeof(input) !== "object" || input === null) return input; var prim = input[Symbol.toPrimitive]; if (prim !== undefined) { var res = prim.call(input, hint || "default"); if (_typeof(res) !== "object") return res; throw new TypeError("@@toPrimitive must return a primitive value."); } return (hint === "string" ? String : Number)(input); }
-var DisplayConverters = /*#__PURE__*/function () {
-  function DisplayConverters() {
-    _classCallCheck(this, DisplayConverters);
+var DisplayUtils = /*#__PURE__*/function () {
+  function DisplayUtils() {
+    _classCallCheck(this, DisplayUtils);
   }
-  _createClass(DisplayConverters, null, [{
-    key: "relativeAngle",
-    value: function relativeAngle(v) {
+  _createClass(DisplayUtils, null, [{
+    key: "calMinMax",
+    value: function calMinMax(data) {
+      if (data && data.length > 1) {
+        var minV = data[0];
+        var maxV = data[0];
+        for (var i = 0; i < data.length; i++) {
+          if (minV < data[i]) {
+            minV = data[i];
+          }
+          if (maxV > data[i]) {
+            maxV = data[i];
+          }
+        }
+        return {
+          minV: minV,
+          maxV: maxV
+        };
+      }
+      return undefined;
+    }
+  }, {
+    key: "x",
+    value: function x(i, minMax) {
+      return i * 160 / minMax.nsamples;
+    }
+  }, {
+    key: "y",
+    value: function y(v, minMax) {
+      return 90 - (v - minMax.minV) * 90 / (minMax.maxV - minMax.minV);
+    }
+  }]);
+  return DisplayUtils;
+}();
+exports.DisplayUtils = DisplayUtils;
+var RelativeAngle = /*#__PURE__*/function () {
+  function RelativeAngle() {
+    _classCallCheck(this, RelativeAngle);
+  }
+  _createClass(RelativeAngle, null, [{
+    key: "display",
+    value: function display(v) {
       if (v == undefined) {
         return "--";
       }
@@ -29283,16 +29412,359 @@ var DisplayConverters = /*#__PURE__*/function () {
       }
     }
   }, {
-    key: "speed",
-    value: function speed(v) {
+    key: "toDisplayUnits",
+    value: function toDisplayUnits(v) {
+      return v * (180 / Math.PI);
+    }
+  }, {
+    key: "range",
+    value: function range(h) {
+      var minMax = DisplayUtils.calMinMax(h);
+      if (!minMax) {
+        return undefined;
+      }
+      if (minMax.minV > -60 && minMax.maxV < 60) {
+        minMax.minV = -60;
+        minMax.maxV = 60;
+      } else if (minMax.minV > -90 && minMax.maxV < 90) {
+        minMax.minV = -90;
+        minMax.maxV = 90;
+      } else {
+        minMax.minV = -180;
+        minMax.maxV = 180;
+      }
+      minMax.nsamples = h.length;
+      return minMax;
+    }
+  }]);
+  return RelativeAngle;
+}();
+_defineProperty(RelativeAngle, "tl", "");
+_defineProperty(RelativeAngle, "tr", "");
+_defineProperty(RelativeAngle, "withHistory", true);
+_defineProperty(RelativeAngle, "units", "deg");
+var RelativeBearing = /*#__PURE__*/function () {
+  function RelativeBearing() {
+    _classCallCheck(this, RelativeBearing);
+  }
+  _createClass(RelativeBearing, null, [{
+    key: "display",
+    value: function display(v) {
+      if (v == undefined) {
+        return "--";
+      }
+      if (v < 0) {
+        return "W".concat((-v * (180 / Math.PI)).toFixed(0));
+      } else {
+        return "E".concat((v * (180 / Math.PI)).toFixed(0));
+      }
+    }
+  }, {
+    key: "toDisplayUnits",
+    value: function toDisplayUnits(v) {
+      return v * (180 / Math.PI);
+    }
+  }, {
+    key: "range",
+    value: function range(h) {
+      var minMax = DisplayUtils.calMinMax(h);
+      if (!minMax) {
+        return undefined;
+      }
+      if (minMax.minV > -60 && minMax.maxV < 60) {
+        minMax.minV = -60;
+        minMax.maxV = 60;
+      } else if (minMax.minV > -90 && minMax.maxV < 90) {
+        minMax.minV = -90;
+        minMax.maxV = 90;
+      } else {
+        minMax.minV = -180;
+        minMax.maxV = 180;
+      }
+      minMax.nsamples = h.length;
+      return minMax;
+    }
+  }]);
+  return RelativeBearing;
+}();
+_defineProperty(RelativeBearing, "tl", "");
+_defineProperty(RelativeBearing, "tr", "");
+_defineProperty(RelativeBearing, "withHistory", true);
+_defineProperty(RelativeBearing, "units", "deg");
+var WindSpeed = /*#__PURE__*/function () {
+  function WindSpeed() {
+    _classCallCheck(this, WindSpeed);
+  }
+  _createClass(WindSpeed, null, [{
+    key: "display",
+    value: function display(v) {
       if (v == undefined) {
         return "-.-";
       }
       return (v * 1.9438452).toFixed(1);
     }
+  }, {
+    key: "toDisplayUnits",
+    value: function toDisplayUnits(v) {
+      return v * 1.9438452;
+    }
+  }, {
+    key: "range",
+    value: function range(h) {
+      var minMax = DisplayUtils.calMinMax(h);
+      if (!minMax) {
+        return undefined;
+      }
+      minMax.minV = 0;
+      if (minMax.maxV < 10) {
+        minMax.maxV = 10;
+      } else if (minMax.maxV < 20) {
+        minMax.maxV = 20;
+      } else if (minMax.maxV < 50) {
+        minMax.maxV = 50;
+      }
+      minMax.nsamples = h.length;
+      return minMax;
+    }
   }]);
-  return DisplayConverters;
+  return WindSpeed;
 }();
+_defineProperty(WindSpeed, "tl", "");
+_defineProperty(WindSpeed, "tr", "");
+_defineProperty(WindSpeed, "units", "kn");
+_defineProperty(WindSpeed, "withHistory", true);
+var Speed = /*#__PURE__*/function () {
+  function Speed() {
+    _classCallCheck(this, Speed);
+  }
+  _createClass(Speed, null, [{
+    key: "display",
+    value: function display(v) {
+      if (v == undefined) {
+        return "-.-";
+      }
+      return (v * 1.9438452).toFixed(1);
+    }
+  }, {
+    key: "toDisplayUnits",
+    value: function toDisplayUnits(v) {
+      return v * 1.9438452;
+    }
+  }, {
+    key: "range",
+    value: function range(h) {
+      var minMax = DisplayUtils.calMinMax(h);
+      if (!minMax) {
+        return undefined;
+      }
+      minMax.minV = 0;
+      if (minMax.maxV < 10) {
+        minMax.maxV = 10;
+      } else if (minMax.maxV < 20) {
+        minMax.maxV = 20;
+      } else if (minMax.maxV < 50) {
+        minMax.maxV = 50;
+      }
+      minMax.nsamples = h.length;
+      return minMax;
+    }
+  }]);
+  return Speed;
+}();
+_defineProperty(Speed, "tl", "");
+_defineProperty(Speed, "tr", "");
+_defineProperty(Speed, "units", "kn");
+_defineProperty(Speed, "withHistory", true);
+var Bearing = /*#__PURE__*/function () {
+  function Bearing() {
+    _classCallCheck(this, Bearing);
+  }
+  _createClass(Bearing, null, [{
+    key: "display",
+    value: function display(v) {
+      if (v == undefined) {
+        return "-.-";
+      }
+      return (v * 180 / Math.PI).toFixed(0);
+    }
+  }, {
+    key: "toDisplayUnits",
+    value: function toDisplayUnits(v) {
+      return v * 180 / Math.PI;
+    }
+  }, {
+    key: "range",
+    value: function range(h) {
+      var minMax = DisplayUtils.calMinMax(h);
+      if (!minMax) {
+        return undefined;
+      }
+      minMax.minV = 0;
+      minMax.maxV = 360;
+      minMax.nsamples = h.length;
+      return minMax;
+    }
+  }]);
+  return Bearing;
+}();
+_defineProperty(Bearing, "tl", "");
+_defineProperty(Bearing, "tr", "");
+_defineProperty(Bearing, "units", "deg");
+_defineProperty(Bearing, "withHistory", true);
+var Percent = /*#__PURE__*/function () {
+  function Percent() {
+    _classCallCheck(this, Percent);
+  }
+  _createClass(Percent, null, [{
+    key: "display",
+    value: function display(v) {
+      if (v == undefined) {
+        return "-.-";
+      }
+      return (v * 100).toFixed(1);
+    }
+  }, {
+    key: "toDisplayUnits",
+    value: function toDisplayUnits(v) {
+      return v * 100;
+    }
+  }, {
+    key: "range",
+    value: function range(h) {
+      var minMax = DisplayUtils.calMinMax(h);
+      if (!minMax) {
+        return undefined;
+      }
+      minMax.minV = 0;
+      if (minMax.maxV < 10) {
+        minMax.maxV = 10;
+      } else if (minMax.maxV < 20) {
+        minMax.maxV = 20;
+      } else if (minMax.maxV < 50) {
+        minMax.maxV = 50;
+      }
+      minMax.nsamples = h.length;
+      return minMax;
+    }
+  }]);
+  return Percent;
+}();
+_defineProperty(Percent, "tl", "");
+_defineProperty(Percent, "tr", "");
+_defineProperty(Percent, "units", "%");
+_defineProperty(Percent, "withHistory", true);
+var TimeStamp = /*#__PURE__*/function () {
+  function TimeStamp() {
+    _classCallCheck(this, TimeStamp);
+  }
+  _createClass(TimeStamp, null, [{
+    key: "toDisplayUnits",
+    value: function toDisplayUnits(v) {
+      return (Date.now() - v) / 1000;
+    }
+  }, {
+    key: "display",
+    value: function display(v) {
+      if (v == undefined) {
+        return "-.-";
+      }
+      return ((Date.now() - v) / 1000).toFixed(0);
+    }
+  }]);
+  return TimeStamp;
+}();
+_defineProperty(TimeStamp, "tl", "");
+_defineProperty(TimeStamp, "tr", "");
+_defineProperty(TimeStamp, "units", "age s");
+var DefaultDataType = /*#__PURE__*/function () {
+  function DefaultDataType() {
+    _classCallCheck(this, DefaultDataType);
+  }
+  _createClass(DefaultDataType, null, [{
+    key: "display",
+    value: function display(v) {
+      if (v == undefined) {
+        return "-.-";
+      }
+      return v.toFixed(1);
+    }
+  }]);
+  return DefaultDataType;
+}();
+var DataTypes = /*#__PURE__*/function () {
+  function DataTypes() {
+    _classCallCheck(this, DataTypes);
+  }
+  _createClass(DataTypes, null, [{
+    key: "getDataType",
+    value: function getDataType(field) {
+      if (DataTypes.dataTypes[field]) {
+        return DataTypes.dataTypes[field];
+      }
+      return DefaultDataType;
+    }
+  }]);
+  return DataTypes;
+}();
+exports.DataTypes = DataTypes;
+_defineProperty(DataTypes, "dataTypes", {
+  "aws": WindSpeed,
+  "tws": WindSpeed,
+  "awa": RelativeAngle,
+  "twa": RelativeAngle,
+  "roll": RelativeAngle,
+  "leeway": RelativeAngle,
+  "cogt": Bearing,
+  "hdt": Bearing,
+  "gwdt": Bearing,
+  "gwdm": Bearing,
+  "hdm": Bearing,
+  "cogm": Bearing,
+  "variation": RelativeBearing,
+  "polarSpeed": Speed,
+  "polarSpeedRatio": Percent,
+  "polarVmg": Speed,
+  "vmg": Speed,
+  "targetVmg": Speed,
+  "targetStw": Speed,
+  "polarVmgRatio": Percent,
+  "oppositeHeadingTrue": Bearing,
+  "oppositeTrackTrue": Bearing,
+  "oppositeTrackMagnetic": Bearing,
+  "oppositeHeadingMagnetic": Bearing,
+  "sog": Speed,
+  "stw": Speed,
+  "lastUpdate": TimeStamp,
+  "lastChange": TimeStamp,
+  "lastCalc": TimeStamp,
+  "lastOutput": TimeStamp
+});
+},{}],"layout.jsx":[function(require,module,exports) {
+"use strict";
+"use strict;";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.NMEALayout = void 0;
+var _react = _interopRequireDefault(require("react"));
+var _portcontrol = require("./portcontrol.jsx");
+var _uicontrol = require("./uicontrol.jsx");
+var _datatypes = require("./datatypes.js");
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+function _typeof(obj) { "@babel/helpers - typeof"; return _typeof = "function" == typeof Symbol && "symbol" == typeof Symbol.iterator ? function (obj) { return typeof obj; } : function (obj) { return obj && "function" == typeof Symbol && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }, _typeof(obj); }
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, _toPropertyKey(descriptor.key), descriptor); } }
+function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); Object.defineProperty(Constructor, "prototype", { writable: false }); return Constructor; }
+function _toPropertyKey(arg) { var key = _toPrimitive(arg, "string"); return _typeof(key) === "symbol" ? key : String(key); }
+function _toPrimitive(input, hint) { if (_typeof(input) !== "object" || input === null) return input; var prim = input[Symbol.toPrimitive]; if (prim !== undefined) { var res = prim.call(input, hint || "default"); if (_typeof(res) !== "object") return res; throw new TypeError("@@toPrimitive must return a primitive value."); } return (hint === "string" ? String : Number)(input); }
+function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function"); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, writable: true, configurable: true } }); Object.defineProperty(subClass, "prototype", { writable: false }); if (superClass) _setPrototypeOf(subClass, superClass); }
+function _setPrototypeOf(o, p) { _setPrototypeOf = Object.setPrototypeOf ? Object.setPrototypeOf.bind() : function _setPrototypeOf(o, p) { o.__proto__ = p; return o; }; return _setPrototypeOf(o, p); }
+function _createSuper(Derived) { var hasNativeReflectConstruct = _isNativeReflectConstruct(); return function _createSuperInternal() { var Super = _getPrototypeOf(Derived), result; if (hasNativeReflectConstruct) { var NewTarget = _getPrototypeOf(this).constructor; result = Reflect.construct(Super, arguments, NewTarget); } else { result = Super.apply(this, arguments); } return _possibleConstructorReturn(this, result); }; }
+function _possibleConstructorReturn(self, call) { if (call && (_typeof(call) === "object" || typeof call === "function")) { return call; } else if (call !== void 0) { throw new TypeError("Derived constructors may only return object or undefined"); } return _assertThisInitialized(self); }
+function _assertThisInitialized(self) { if (self === void 0) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return self; }
+function _isNativeReflectConstruct() { if (typeof Reflect === "undefined" || !Reflect.construct) return false; if (Reflect.construct.sham) return false; if (typeof Proxy === "function") return true; try { Boolean.prototype.valueOf.call(Reflect.construct(Boolean, [], function () {})); return true; } catch (e) { return false; } }
+function _getPrototypeOf(o) { _getPrototypeOf = Object.setPrototypeOf ? Object.getPrototypeOf.bind() : function _getPrototypeOf(o) { return o.__proto__ || Object.getPrototypeOf(o); }; return _getPrototypeOf(o); }
 var NMEALayout = /*#__PURE__*/function (_React$Component) {
   _inherits(NMEALayout, _React$Component);
   var _super = _createSuper(NMEALayout);
@@ -29302,34 +29774,228 @@ var NMEALayout = /*#__PURE__*/function (_React$Component) {
     _this = _super.call(this, props);
     _this.props = props;
     _this.store = props.bgPage.getStore();
+    _this.onEditLayout = _this.onEditLayout.bind(_assertThisInitialized(_this));
+    _this.onAddItem = _this.onAddItem.bind(_assertThisInitialized(_this));
+    _this.onChangeItem = _this.onChangeItem.bind(_assertThisInitialized(_this));
+    _this.onSave = _this.onSave.bind(_assertThisInitialized(_this));
+    _this.onMenuChange = _this.onMenuChange.bind(_assertThisInitialized(_this));
+    _this.onPageChange = _this.onPageChange.bind(_assertThisInitialized(_this));
+    _this.lastPacketsRecived = 0;
+    var start = Date.now();
+    _this.state = {
+      editing: false,
+      dataIndicatorOn: false,
+      layout: localStorage.getItem('layout') || JSON.stringify({
+        pageId: 1,
+        pages: [{
+          id: 1,
+          name: 'Home',
+          boxes: [{
+            id: start,
+            field: "awa"
+          }, {
+            id: start + 1,
+            field: "aws"
+          }, {
+            id: start + 2,
+            field: "twa"
+          }, {
+            id: start + 3,
+            field: "tws"
+          }]
+        }]
+      })
+    };
     return _this;
   }
   _createClass(NMEALayout, [{
+    key: "componentDidMount",
+    value: function componentDidMount() {
+      var _this2 = this;
+      this.updateInterval = setInterval(function () {
+        var packetsRecieved = _this2.props.bgPage.getPacketsRecieved();
+        if (_this2.lastPacketsRecived !== packetsRecieved) {
+          _this2.lastPacketsRecived = packetsRecieved;
+          _this2.setState({
+            dataIndicatorOn: !_this2.state.dataIndicatorOn
+          });
+        }
+      }.bind(this), 1000);
+    }
+  }, {
+    key: "componentWillUnmount",
+    value: function componentWillUnmount() {
+      if (this.updateInterval) {
+        clearInterval(this.updateInterval);
+      }
+    }
+  }, {
+    key: "getLayout",
+    value: function getLayout() {
+      var layout = JSON.parse(this.state.layout);
+      var page = layout.pages.find(function (p) {
+        return p.id === layout.pageId;
+      });
+      return {
+        layout: layout,
+        page: page
+      };
+    }
+  }, {
+    key: "setLayout",
+    value: function setLayout(l) {
+      this.setState({
+        layout: JSON.stringify(l.layout)
+      });
+    }
+  }, {
+    key: "onEditLayout",
+    value: function onEditLayout(editing) {
+      this.setState({
+        editing: editing
+      });
+    }
+  }, {
+    key: "onAddItem",
+    value: function onAddItem(e) {
+      console.log("Add Item ", e.target.value);
+      if (e.target.value == "addbox") {
+        var l = this.getLayout();
+        l.page.boxes.push({
+          id: Date.now(),
+          field: "awa"
+        });
+        this.setLayout(l);
+      } else if (e.target.value == "addpage") {
+        var _l = this.getLayout();
+        var id = Date.now();
+        _l.layout.pages.push({
+          id: id,
+          name: 'New page',
+          boxes: [{
+            id: id,
+            field: "awa"
+          }, {
+            id: id + 1,
+            field: "aws"
+          }, {
+            id: id + 2,
+            field: "twa"
+          }, {
+            id: id + 3,
+            field: "tws"
+          }]
+        });
+        _l.layout.pageId = id;
+        this.setLayout(_l);
+      } else if (e.target.value == "removepage") {
+        var _l2 = this.getLayout();
+        var toRemove = _l2.layout.pageId;
+        _l2.layout.pageId = undefined;
+        var removed = false;
+        _l2.layout.pages = _l2.layout.pages.filter(function (p) {
+          if (p.id != toRemove) {
+            if (!removed) {
+              _l2.layout.pageId = p.id;
+            }
+            return true;
+          } else {
+            removed = true;
+            return false;
+          }
+        });
+        if (_l2.layout.pageId === undefined && _l2.layout.pages.length > 0) {
+          _l2.layout.pageId = _l2.layout.pages[0].id;
+        }
+        this.setLayout(_l2);
+      }
+    }
+  }, {
+    key: "onChangeItem",
+    value: function onChangeItem(event, id, field) {
+      if (event === "remove") {
+        var l = this.getLayout();
+        var newBoxes = l.page.boxes.filter(function (b) {
+          return b.id !== id;
+        });
+        l.page.boxes = newBoxes;
+        this.setLayout(l);
+      } else if (event === "update") {
+        var _l3 = this.getLayout();
+        var _newBoxes = [];
+        console.log("update ", id, field, this.state.boxes);
+        var box = _l3.page.boxes.find(function (b) {
+          return b.id === id;
+        });
+        box.id = Date.now();
+        box.field = field;
+        this.setLayout(_l3);
+      }
+    }
+  }, {
+    key: "onSave",
+    value: function onSave() {
+      localStorage.setItem('layout', JSON.stringify(this.state.layout));
+    }
+  }, {
+    key: "onMenuChange",
+    value: function onMenuChange(e) {
+      this.setState({
+        showMenu: !this.state.showMenu
+      });
+    }
+  }, {
+    key: "onPageChange",
+    value: function onPageChange(e) {
+      var l = this.getLayout();
+      l.layout.pageId = +e.target.value;
+      this.setLayout(l);
+    }
+  }, {
+    key: "renderMenu",
+    value: function renderMenu(l) {
+      var _this3 = this;
+      var indicatorClass = this.state.dataIndicatorOn ? "iOn" : "iOff";
+      var menuClass = this.state.showMenu ? "menu normal" : "menu minimised";
+      var menuButton = this.state.showMenu ? "\u2630" : "\u2630";
+      return /*#__PURE__*/_react.default.createElement("div", {
+        className: menuClass
+      }, /*#__PURE__*/_react.default.createElement("button", {
+        onClick: this.onMenuChange,
+        className: indicatorClass
+      }, menuButton), /*#__PURE__*/_react.default.createElement(_portcontrol.PortControl, {
+        bgPage: this.props.bgPage
+      }), l.layout.pages.map(function (page) {
+        return /*#__PURE__*/_react.default.createElement("button", {
+          key: page.id,
+          className: "pageButton ".concat(page.id == l.layout.pageId ? "activePage" : ""),
+          onClick: _this3.onPageChange,
+          value: page.id
+        }, page.name);
+      }), /*#__PURE__*/_react.default.createElement(_uicontrol.EditUIControl, {
+        onEdit: this.onEditLayout,
+        onSave: this.onSave,
+        onAddItem: this.onAddItem
+      }));
+    }
+  }, {
     key: "render",
     value: function render() {
-      return /*#__PURE__*/_react.default.createElement("div", null, /*#__PURE__*/_react.default.createElement(TextBox, {
-        field: "awa",
-        units: "deg",
-        store: this.store,
-        display: DisplayConverters.relativeAngle
-      }), /*#__PURE__*/_react.default.createElement(TextBox, {
-        field: "aws",
-        units: "kn",
-        store: this.store,
-        display: DisplayConverters.speed
-      }), /*#__PURE__*/_react.default.createElement(TextBox, {
-        field: "twa",
-        units: "deg",
-        store: this.store,
-        display: DisplayConverters.relativeAngle
-      }), /*#__PURE__*/_react.default.createElement(TextBox, {
-        field: "tws",
-        units: "kn",
-        store: this.store,
-        display: DisplayConverters.speed
-      }), /*#__PURE__*/_react.default.createElement(TextBox, null), /*#__PURE__*/_react.default.createElement(TextBox, null), /*#__PURE__*/_react.default.createElement(NMEAControls, {
-        bgPage: this.props.bgPage
-      }));
+      var _this4 = this;
+      var l = this.getLayout();
+      console.log("Layout ", l);
+      return /*#__PURE__*/_react.default.createElement("div", {
+        className: "nmeaLayout"
+      }, this.renderMenu(l), /*#__PURE__*/_react.default.createElement("div", null, l.page.boxes.map(function (item) {
+        return /*#__PURE__*/_react.default.createElement(TextBox, {
+          field: item.field,
+          id: item.id,
+          key: item.id,
+          onChange: _this4.onChangeItem,
+          editing: _this4.state.editing,
+          store: _this4.store
+        });
+      })));
     }
   }]);
   return NMEALayout;
@@ -29339,11 +30005,11 @@ var NMEAControls = /*#__PURE__*/function (_React$Component2) {
   _inherits(NMEAControls, _React$Component2);
   var _super2 = _createSuper(NMEAControls);
   function NMEAControls(props) {
-    var _this2;
+    var _this5;
     _classCallCheck(this, NMEAControls);
-    _this2 = _super2.call(this, props);
-    _this2.props = props;
-    return _this2;
+    _this5 = _super2.call(this, props);
+    _this5.props = props;
+    return _this5;
   }
   _createClass(NMEAControls, [{
     key: "render",
@@ -29361,45 +30027,40 @@ var TextBox = /*#__PURE__*/function (_React$Component3) {
   _inherits(TextBox, _React$Component3);
   var _super3 = _createSuper(TextBox);
   function TextBox(props) {
-    var _this3;
+    var _this6;
     _classCallCheck(this, TextBox);
-    _this3 = _super3.call(this, props);
-    _this3.store = props.store;
-    _this3.field = props.field;
-    _this3.displayFn = props.display;
-    _this3.state = {
-      tl: props.tl || "",
-      tr: props.tr || "",
-      bl: props.bl || props.field || "",
-      br: props.br || props.units || "",
-      main: props.main || "-.-"
+    _this6 = _super3.call(this, props);
+    _this6.store = props.store;
+    _this6.editing = props.editing;
+    _this6.onChange = props.onChange;
+    _this6.id = props.id;
+    _this6.field = props.field;
+    _this6.debugEnable = false;
+    _this6.state = {
+      main: props.main || "-.-",
+      graph: {
+        path: "M 0 0",
+        outline: "M 0 0"
+      }
     };
-    _this3.updateRate = props.updateRate || 1000;
-    return _this3;
+    _this6.updateDisplayState = _this6.updateDisplayState.bind(_assertThisInitialized(_this6));
+    _this6.changeField = _this6.changeField.bind(_assertThisInitialized(_this6));
+    _this6.remove = _this6.remove.bind(_assertThisInitialized(_this6));
+    _this6.onDebug = _this6.onDebug.bind(_assertThisInitialized(_this6));
+    _this6.updateRate = props.updateRate || 1000;
+    return _this6;
   }
   _createClass(TextBox, [{
     key: "componentDidMount",
     value: function componentDidMount() {
-      var _this4 = this;
-      this.updateInterval = setInterval(function () {
-        if (_this4.store) {
-          var display = _this4.displayFn(_this4.store.state[_this4.field]);
-          if (display != _this4.state.main) {
-            _this4.setState({
-              main: display
-            });
-          }
-          if (_this4.store.history[_this4.field]) {
-            //console.log(this.field, this.store.history[this.field]);
-          }
-        }
-      }.bind(this), this.updateRate);
+      this.updateDisplayState();
+      this.updateInterval = setInterval(this.updateDisplayState, this.updateRate);
     }
   }, {
     key: "componentWillUnmount",
     value: function componentWillUnmount() {
       if (this.updateInterval) {
-        cancelIntervale(this.updateInterval);
+        clearInterval(this.updateInterval);
       }
     }
 
@@ -29410,26 +30071,201 @@ var TextBox = /*#__PURE__*/function (_React$Component3) {
               </svg>
     */
   }, {
+    key: "updateDisplayState",
+    value: function updateDisplayState() {
+      if (this.store) {
+        var dataType = _datatypes.DataTypes.getDataType(this.field);
+        var display = dataType.display(this.store.state[this.field]);
+        var h = [];
+        var v = this.store.history[this.field];
+        this.debug(this.field, "Values", v);
+        if (dataType.withHistory && v && v.data.length > 1) {
+          h.push(dataType.toDisplayUnits(v.value));
+          for (var i = 0; i < v.data.length; i++) {
+            if (v.data[i] !== undefined && !Number.isNaN(v.data[i])) {
+              h.push(dataType.toDisplayUnits(v.data[i]));
+            }
+          }
+          var graph = this.generateGraphPath(v, h);
+          if (display != this.state.main || graph.path != this.state.graph.path) {
+            this.setState({
+              main: display,
+              graph: graph
+            });
+          }
+        } else {
+          if (display != this.state.main) {
+            this.setState({
+              main: display
+            });
+          }
+        }
+      }
+    }
+  }, {
+    key: "horizontalLine",
+    value: function horizontalLine(v, range) {
+      var y = _datatypes.DisplayUtils.y(v, range).toFixed(0);
+      return "M 0 ".concat(y, " L 160 ").concat(y);
+    }
+  }, {
+    key: "generateGraphPath",
+    value: function generateGraphPath(v, h) {
+      if (h && h.length > 1) {
+        var pairs = [];
+        var dataType = _datatypes.DataTypes.getDataType(this.field);
+        var range = dataType.range(h);
+        if (range) {
+          for (var i = 0; i < h.length; i++) {
+            var x = _datatypes.DisplayUtils.x(i, range).toFixed(0);
+            var y = _datatypes.DisplayUtils.y(h[i], range).toFixed(0);
+            pairs.push("".concat(x, " ").concat(y));
+          }
+          // add one entry to the start to get a line that starts straight.
+          pairs.push(pairs[pairs.length - 1]);
+          var lastX = _datatypes.DisplayUtils.x(h.length - 1, range).toFixed(0);
+          var path = "M ".concat(pairs[0], " L ").concat(pairs.join(","));
+          var outline = "M 0 90 L ".concat(pairs.join(","), ", ").concat(lastX, " 90 z");
+          var mean = dataType.toDisplayUnits(v.mean);
+          var stdDev = dataType.toDisplayUnits(v.stdev);
+          var meanTxt = dataType.toDisplayUnits(v.mean).toFixed(1);
+          var stdDevTxt = dataType.toDisplayUnits(v.stdev).toFixed(1);
+          var meanLine = this.horizontalLine(mean, range);
+          var stdTopLine = this.horizontalLine(mean + stdDev, range);
+          var stdBottomLine = this.horizontalLine(mean - stdDev, range);
+          if (path.includes("Infinity")) {
+            console.log(this.field, "path", path);
+          }
+          if (meanLine.includes("Infinity")) {
+            console.log(this.field, "meanLine", meanLine);
+          }
+          if (stdTopLine.includes("Infinity")) {
+            console.log(this.field, "stdTopLine", stdTopLine);
+          }
+          if (outline.includes("Infinity")) {
+            console.log(this.field, "outline", outline);
+          }
+          return {
+            path: path,
+            outline: outline,
+            meanTxt: meanTxt,
+            stdDevTxt: stdDevTxt,
+            meanLine: meanLine,
+            stdTopLine: stdTopLine,
+            stdBottomLine: stdBottomLine
+          };
+        } else {
+          this.debug(this.field, "no range, no graph");
+        }
+      } else {
+        this.debug(this.field, "no history, no graph");
+      }
+      return {
+        path: "M 0 0",
+        outline: "M 0 0",
+        meanTxt: "",
+        stdDevTxt: "",
+        meanLine: "M 0 0",
+        stdTopLine: "M 0 0",
+        stdBottomLine: "M 0 0"
+      };
+    }
+  }, {
+    key: "changeField",
+    value: function changeField(e) {
+      this.onChange("update", this.id, e.target.value);
+    }
+  }, {
+    key: "remove",
+    value: function remove(e) {
+      this.onChange("remove", this.id);
+    }
+  }, {
+    key: "debug",
+    value: function debug() {
+      if (this.debugEnable) {
+        for (var _len = arguments.length, msg = new Array(_len), _key = 0; _key < _len; _key++) {
+          msg[_key] = arguments[_key];
+        }
+        console.log(msg);
+      }
+    }
+  }, {
+    key: "onDebug",
+    value: function onDebug(e) {
+      this.debugEnable = !this.debugEnable;
+    }
+  }, {
+    key: "renderEditOverlay",
+    value: function renderEditOverlay() {
+      if (this.props.editing) {
+        var options = Object.keys(this.store.state);
+        return /*#__PURE__*/_react.default.createElement("div", {
+          className: "overlay edit"
+        }, /*#__PURE__*/_react.default.createElement("select", {
+          onChange: this.changeField,
+          value: this.field
+        }, options.map(function (item) {
+          return /*#__PURE__*/_react.default.createElement("option", {
+            key: item,
+            value: item
+          }, item);
+        })), /*#__PURE__*/_react.default.createElement("button", {
+          onClick: this.remove
+        }, "\u2573"), /*#__PURE__*/_react.default.createElement("button", {
+          onClick: this.onDebug
+        }, "debug"));
+      } else {
+        return /*#__PURE__*/_react.default.createElement("div", null);
+      }
+    }
+  }, {
     key: "render",
     value: function render() {
+      var dataType = _datatypes.DataTypes.getDataType(this.field);
       return /*#__PURE__*/_react.default.createElement("div", {
         className: "textbox"
       }, /*#__PURE__*/_react.default.createElement("div", {
         className: "overlay main"
-      }, this.state.main), /*#__PURE__*/_react.default.createElement("div", {
+      }, this.state.main), /*#__PURE__*/_react.default.createElement("svg", {
+        className: "overlay"
+      }, /*#__PURE__*/_react.default.createElement("path", {
+        d: this.state.graph.path,
+        className: "path"
+      }), /*#__PURE__*/_react.default.createElement("path", {
+        d: this.state.graph.outline,
+        className: "outline"
+      }), /*#__PURE__*/_react.default.createElement("path", {
+        d: this.state.graph.meanLine,
+        className: "meanline"
+      }), /*#__PURE__*/_react.default.createElement("path", {
+        d: this.state.graph.stdTopLine,
+        className: "stdtopline"
+      }), /*#__PURE__*/_react.default.createElement("path", {
+        d: this.state.graph.stdBottomLine,
+        className: "stdbottomline"
+      }), /*#__PURE__*/_react.default.createElement("text", {
+        x: "5",
+        y: "10",
+        className: "small"
+      }, this.state.graph.meanTxt), /*#__PURE__*/_react.default.createElement("text", {
+        x: "5",
+        y: "20",
+        className: "small"
+      }, this.state.graph.stdDevTxt)), /*#__PURE__*/_react.default.createElement("div", {
         className: "corner tl"
-      }, this.state.tl), /*#__PURE__*/_react.default.createElement("div", {
+      }, dataType.tl), /*#__PURE__*/_react.default.createElement("div", {
         className: "corner tr"
-      }, this.state.tr), /*#__PURE__*/_react.default.createElement("div", {
+      }, dataType.tr), /*#__PURE__*/_react.default.createElement("div", {
         className: "corner bl"
-      }, this.state.bl), /*#__PURE__*/_react.default.createElement("div", {
+      }, this.field), /*#__PURE__*/_react.default.createElement("div", {
         className: "corner br"
-      }, this.state.br));
+      }, dataType.units), this.renderEditOverlay());
     }
   }]);
   return TextBox;
 }(_react.default.Component);
-},{"react":"../node_modules/react/index.js","./portcontrol.jsx":"portcontrol.jsx"}],"nmeahandler.js":[function(require,module,exports) {
+},{"react":"../node_modules/react/index.js","./portcontrol.jsx":"portcontrol.jsx","./uicontrol.jsx":"uicontrol.jsx","./datatypes.js":"datatypes.js"}],"nmeahandler.js":[function(require,module,exports) {
 "use strict";
 "use strict;";
 
@@ -29910,6 +30746,7 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.Store = void 0;
 function _typeof(obj) { "@babel/helpers - typeof"; return _typeof = "function" == typeof Symbol && "symbol" == typeof Symbol.iterator ? function (obj) { return typeof obj; } : function (obj) { return obj && "function" == typeof Symbol && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }, _typeof(obj); }
+function _defineProperty(obj, key, value) { key = _toPropertyKey(key); if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, _toPropertyKey(descriptor.key), descriptor); } }
 function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); Object.defineProperty(Constructor, "prototype", { writable: false }); return Constructor; }
@@ -29917,13 +30754,14 @@ function _toPropertyKey(arg) { var key = _toPrimitive(arg, "string"); return _ty
 function _toPrimitive(input, hint) { if (_typeof(input) !== "object" || input === null) return input; var prim = input[Symbol.toPrimitive]; if (prim !== undefined) { var res = prim.call(input, hint || "default"); if (_typeof(res) !== "object") return res; throw new TypeError("@@toPrimitive must return a primitive value."); } return (hint === "string" ? String : Number)(input); }
 var Store = /*#__PURE__*/function () {
   function Store() {
+    var _this$history;
     _classCallCheck(this, Store);
     this.state = {};
-    this.history = {
+    this.history = (_this$history = {
       awa: new AngularHistory(),
       aws: new LinearHistory(),
       stw: new LinearHistory()
-    };
+    }, _defineProperty(_this$history, "aws", new LinearHistory()), _defineProperty(_this$history, "tws", new LinearHistory()), _defineProperty(_this$history, "roll", new AngularHistory()), _defineProperty(_this$history, "leeway", new AngularHistory()), _defineProperty(_this$history, "cogt", new AngularHistory()), _defineProperty(_this$history, "hdt", new AngularHistory()), _defineProperty(_this$history, "gwdt", new AngularHistory()), _defineProperty(_this$history, "gwdm", new AngularHistory()), _defineProperty(_this$history, "hdm", new AngularHistory()), _defineProperty(_this$history, "cogm", new AngularHistory()), _defineProperty(_this$history, "variation", new AngularHistory()), _defineProperty(_this$history, "polarSpeed", new LinearHistory()), _defineProperty(_this$history, "polarSpeedRatio", new LinearHistory()), _defineProperty(_this$history, "polarVmg", new LinearHistory()), _defineProperty(_this$history, "vmg", new LinearHistory()), _defineProperty(_this$history, "targetVmg", new LinearHistory()), _defineProperty(_this$history, "targetStw", new LinearHistory()), _defineProperty(_this$history, "polarVmgRatio", new LinearHistory()), _defineProperty(_this$history, "oppositeHeadingTrue", new AngularHistory()), _defineProperty(_this$history, "oppositeTrackTrue", new AngularHistory()), _defineProperty(_this$history, "oppositeTrackMagnetic", new AngularHistory()), _defineProperty(_this$history, "oppositeHeadingMagnetic", new AngularHistory()), _defineProperty(_this$history, "sog", new LinearHistory()), _defineProperty(_this$history, "stw", new LinearHistory()), _this$history);
   }
   _createClass(Store, [{
     key: "update",
@@ -29988,10 +30826,14 @@ var LinearHistory = /*#__PURE__*/function () {
     this.nextSample = 0;
     this.nextStore = 0;
     this.samplePeriod = samplePeriod || 1000;
-    this.storePeriod = storePeriod || 10000; // 10s
+    this.storePeriod = storePeriod || 5000; // 10s
     this.nsamples = Math.round(this.storePeriod / this.samplePeriod);
     this.maxLength = maxLength || 180; // default 1800s or 30m
-    this.value = undefined;
+    this.value = 0.0;
+    this.mean = 0.0;
+    this.stdev = 0.0;
+    this.min = 0.0;
+    this.max = 0.0;
     this.data = [];
   }
   _createClass(LinearHistory, [{
@@ -30000,18 +30842,43 @@ var LinearHistory = /*#__PURE__*/function () {
       var now = Date.now();
       if (this.nextSample < now) {
         this.nextSample = now + this.samplePeriod;
-        if (this.value == undefined) {
-          this.value = v;
-        } else {
-          this.value = (this.value * (this.nsamples - 1) + v) / this.nsamples;
+        if (v !== undefined && !Number.isNaN(v)) {
+          if (this.value == undefined) {
+            this.value = v;
+          } else {
+            this.value = (this.value * (this.nsamples - 1) + v) / this.nsamples;
+          }
         }
       }
       if (this.nextStore < now) {
         this.nextStore = now + this.storePeriod;
-        this.data.unshift(this.value);
+        this.data.push(this.value);
         if (this.data.length > this.maxLength) {
-          this.data.pop();
+          this.data.shift();
         }
+        var sum = 0.0;
+        var n = 0.0;
+        for (var i = 0; i < this.data.length; i++) {
+          var weight = (i + 1) / 2;
+          sum += this.data[i] * weight;
+          n += weight;
+        }
+        this.mean = sum / n;
+        sum = 0.0;
+        n = 0.0;
+        for (var _i = 0; _i < this.data.length; _i++) {
+          var _weight = (_i + 1) / 2;
+          sum += (this.data[_i] - this.mean) * (this.data[_i] - this.mean) * _weight;
+          n += _weight;
+        }
+        this.stdev = Math.sqrt(sum / n);
+        this.min = this.mean;
+        this.max = this.mean;
+        for (var _i2 = this.data.length - 1; _i2 >= 0; _i2--) {
+          this.min = Math.min(this.data[_i2], this.min);
+          this.max = Math.max(this.data[_i2], this.max);
+        }
+        ;
       }
     }
   }]);
@@ -30026,8 +30893,16 @@ var AngularHistory = /*#__PURE__*/function () {
     this.storePeriod = storePeriod || 10000; // 10s
     this.nsamples = Math.round(this.storePeriod / this.samplePeriod);
     this.maxLength = maxLength || 180; // default 1800s or 30m
-    this.value = undefined;
+    this.value = 0.0;
+    this.sinValue = 0.0;
+    this.cosValue = 0.0;
+    this.mean = 0.0;
+    this.stdev = 0.0;
+    this.min = 0.0;
+    this.max = 0.0;
     this.data = [];
+    this.sinData = [];
+    this.cosData = [];
   }
   _createClass(AngularHistory, [{
     key: "updateSample",
@@ -30038,17 +30913,66 @@ var AngularHistory = /*#__PURE__*/function () {
         // calculate the angular mean.
         // if standard deviation was required then we would need to hold
         // store the samples.
-        if (this.value == undefined) {
-          this.value = v;
-        } else {
-          this.value = Math.atan2((Math.sin(this.value) * (this.nsamples - 1) + Math.sin(v)) / this.nsamples, (Math.cos(this.value) * (this.nsamples - 1) + Math.cos(v)) / this.nsamples);
+        if (!Number.isNaN(v)) {
+          if (this.value == undefined) {
+            this.sinValue = Math.sin(v);
+            this.cosValue = Math.cos(v);
+            this.value = v;
+          } else {
+            this.sinValue = (this.sinValue * (this.nsamples - 1) + Math.sin(v)) / this.nsamples;
+            this.cosValue = (this.cosValue * (this.nsamples - 1) + Math.cos(v)) / this.nsamples;
+            this.value = Math.atan2(this.sinValue, this.cosValue);
+          }
         }
       }
       if (this.nextStore < now) {
         this.nextStore = now + this.storePeriod;
-        this.data.unshift(this.value);
-        if (this.data.length > this.maxLength) {
-          this.data.pop();
+        if (this.value != undefined) {
+          this.data.push(this.value);
+          this.sinData.push(this.sinValue);
+          this.cosData.push(this.cosValue);
+          if (this.data.length > this.maxLength) {
+            this.data.shift();
+            this.sinData.shift();
+            this.cosData.shift();
+          }
+          var sinsum = 0.0,
+            cossum = 0.0;
+          var n = 0.0;
+          for (var _i3 = 0; _i3 < this.data.length; _i3++) {
+            var weight = (_i3 + 1) / 2;
+            sinsum += this.sinData[_i3] * weight;
+            cossum += this.cosData[_i3] * weight;
+            n += weight;
+          }
+          this.mean = Math.atan2(sinsum / n, cossum / n);
+
+          // probably not the right way of calculating a SD of a circular
+          // value, however it does produces a viable result.
+          // other methods are estimates.
+          // Not 100% certain about the weighting here.
+          var diffsum = 0.0;
+          n = 0.0;
+          for (var _i4 = 0; _i4 < this.data.length; _i4++) {
+            var _weight2 = (_i4 + 1) / 2;
+            var a = this.data[_i4] - this.mean;
+            // find the smallest sweep from the mean.
+            if (a > Math.PI) {
+              a = a - 2 * Math.PI;
+            } else if (a < -Math.PI) {
+              a = a + 2 * Math.PI;
+            }
+            diffsum += a * a * _weight2;
+            n += _weight2;
+          }
+          this.stdev = Math.sqrt(diffsum / n);
+          this.min = this.mean;
+          this.max = this.mean;
+          for (var i = this.data.length - 1; i >= 0; i--) {
+            this.min = Math.min(this.data[i], this.min);
+            this.max = Math.max(this.data[i], this.max);
+          }
+          ;
         }
       }
     }
@@ -30242,7 +31166,7 @@ var SerialPort = /*#__PURE__*/function () {
     key: "open",
     value: function () {
       var _open = _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee9(baudRate) {
-        var port, serialOptions, decoder, nmeaDecoder, reader, _that;
+        var port, serialOptions, decoder, nmeaDecoder, reader, that;
         return _regeneratorRuntime().wrap(function _callee9$(_context9) {
           while (1) switch (_context9.prev = _context9.next) {
             case 0:
@@ -30264,15 +31188,15 @@ var SerialPort = /*#__PURE__*/function () {
               nmeaDecoder = new TransformStream(new NMEASentenceTransform());
               decoder.readable.pipeTo(nmeaDecoder.writable);
               reader = nmeaDecoder.readable.getReader();
-              _that = this;
+              that = this;
               setTimeout( /*#__PURE__*/_asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee8() {
                 var _yield$reader$read, done, value;
                 return _regeneratorRuntime().wrap(function _callee8$(_context8) {
                   while (1) switch (_context8.prev = _context8.next) {
                     case 0:
-                      _that.readingState = 0;
+                      that.readingState = 0;
                     case 1:
-                      if (!(_that.readingState == 0)) {
+                      if (!(that.readingState == 0)) {
                         _context8.next = 13;
                         break;
                       }
@@ -30290,8 +31214,8 @@ var SerialPort = /*#__PURE__*/function () {
                       return _context8.abrupt("return");
                     case 10:
                       if (value !== undefined) {
-                        _that.packetsRecieved++;
-                        _that.nmeaHandler.parseSentence(value.trim());
+                        that.packetsRecieved++;
+                        that.nmeaHandler.parseSentence(value.trim());
                       }
                       _context8.next = 1;
                       break;
@@ -30307,10 +31231,10 @@ var SerialPort = /*#__PURE__*/function () {
                             case 0:
                               console.log("Before close");
                               _context7.next = 3;
-                              return _that.port.close();
+                              return port.close();
                             case 3:
                               console.log("After close");
-                              _that.readingState = 2;
+                              that.readingState = 2;
                             case 5:
                             case "end":
                               return _context7.stop();
@@ -30344,27 +31268,29 @@ var SerialPort = /*#__PURE__*/function () {
     key: "close",
     value: function () {
       var _close = _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee10() {
+        var that;
         return _regeneratorRuntime().wrap(function _callee10$(_context10) {
           while (1) switch (_context10.prev = _context10.next) {
             case 0:
               this.readingState = 1;
+              that = this;
               return _context10.abrupt("return", new Promise(function (resolve, reject) {
                 var interval = setInterval(function () {
                   if (that.readingState == 2) {
                     console.log("Close Detected");
-                    cancelInterval(interval);
-                    cancelTimeout(timeout);
+                    clearInterval(interval);
+                    clearTimeout(timeout);
                     resolve(true);
                   }
                 }, 110);
                 var timeout = setTimeout(function () {
                   console.log("Close Timedout");
-                  cancelInterval(interval);
-                  cancelTimeout(timeout);
+                  clearInterval(interval);
+                  clearTimeout(timeout);
                   resolve(that.readingState == 2);
                 }, 30000);
               }.bind(this)));
-            case 2:
+            case 3:
             case "end":
               return _context10.stop();
           }
@@ -30466,7 +31392,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "64184" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "53568" + '/');
   ws.onmessage = function (event) {
     checkedAssets = {};
     assetsToAccept = [];
@@ -30611,4 +31537,4 @@ function hmrAcceptRun(bundle, id) {
   }
 }
 },{}]},{},["../node_modules/parcel-bundler/src/builtins/hmr-runtime.js","index.js"], null)
-//# sourceMappingURL=src.e31bb0bc.js.map
+//# sourceMappingURL=/src.e31bb0bc.js.map
