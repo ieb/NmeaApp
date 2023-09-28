@@ -1,4 +1,3 @@
-"use strict;"
 import React from 'react';
 import { PortControl } from './portcontrol.jsx';
 import { EditUIControl } from './uicontrol.jsx';
@@ -11,7 +10,7 @@ class NMEALayout extends React.Component {
     constructor(props) {
         super(props);
         this.props = props;
-        this.store = props.bgPage.getStore();
+        this.storeAPI = props.storeAPI;
         this.onEditLayout = this.onEditLayout.bind(this);
         this.onAddItem = this.onAddItem.bind(this);
         this.onChangeItem = this.onChangeItem.bind(this);
@@ -151,8 +150,8 @@ class NMEALayout extends React.Component {
         const menuClass = this.state.showMenu?"menu normal":"menu minimised";
         return (
             <div className={menuClass} >
-                <MenuButton bgPage={this.props.bgPage} onClick={this.onMenuChange} />
-                <PortControl bgPage={this.props.bgPage} />
+                <MenuButton mainAPI={this.props.mainAPI} onClick={this.onMenuChange} />
+                <PortControl mainAPI={this.props.mainAPI} />
                 {l.layout.pages.map((page) => {
                     const className= (page.id == l.layout.pageId)?"pageButton activePage":"pageButton";
                     if (page.id == l.layout.pageId && this.state.editing) {
@@ -186,7 +185,7 @@ class NMEALayout extends React.Component {
             <div className="nmeaLayout">
                 {this.renderMenu(l)}
                 <div>
-                 {l.page.boxes.map((item) => <TextBox field={item.field} id={item.id} key={item.id} onChange={this.onChangeItem} editing={this.state.editing}  store={this.store} />)}
+                 {l.page.boxes.map((item) => <TextBox field={item.field} id={item.id} key={item.id} onChange={this.onChangeItem} editing={this.state.editing}  storeAPI={this.storeAPI} />)}
                 </div>
             </div>
         );
@@ -207,7 +206,7 @@ class MenuButton extends React.Component {
 
     componentDidMount() {
         this.updateInterval = setInterval((() => {
-            const packetsRecieved = this.props.bgPage.getPacketsRecieved();
+            const packetsRecieved = this.props.mainAPI.getPacketsRecieved();
             if (this.lastPacketsRecived !== packetsRecieved ) {
                 this.lastPacketsRecived = packetsRecieved;
                 this.setState({dataIndicatorOn: !this.state.dataIndicatorOn});
@@ -236,7 +235,7 @@ class NMEAControls extends React.Component {
     render() {
         return (
             <div className="controls">
-                <PortControl bgPage={this.props.bgPage}  />
+                <PortControl mainAPI={this.props.mainAPI}  />
             </div>
         );
     }
@@ -247,7 +246,7 @@ class NMEAControls extends React.Component {
 class TextBox extends React.Component {
     constructor(props) {
         super(props);
-        this.store = props.store;
+        this.storeAPI = props.storeAPI;
         this.editing = props.editing;
         this.onChange = props.onChange;
         this.id = props.id;
@@ -263,6 +262,7 @@ class TextBox extends React.Component {
         this.debugEnable = false;
         this.state = {
             main: props.main || "-.-",
+            options: [],
             graph: {
                 path: "M 0 0",
                 outline: "M 0 0"
@@ -277,8 +277,9 @@ class TextBox extends React.Component {
     }
 
     componentDidMount() {
-        this.updateDisplayState();
-        this.updateInterval = setInterval(this.updateDisplayState, this.updateRate);
+        this.updateDisplayState().then(() => {
+            this.updateInterval = setInterval(this.updateDisplayState, this.updateRate);
+        });
 
     }
     
@@ -296,13 +297,15 @@ class TextBox extends React.Component {
               </svg>
     */
 
-    updateDisplayState() {
-        if ( this.store ) {
+    async updateDisplayState() {
+        if ( this.storeAPI ) {
             const dataType = DataTypes.getDataType(this.field);
-            const display = dataType.display(this.store.state[this.field]);
+            const display = dataType.display(await this.storeAPI.getState(this.field));
+            const options = await this.storeAPI.getKeys();
             const h = [];
-            const v = this.store.history[this.field];
+            const v = await this.storeAPI.getHistory(this.field);
             this.debug(this.field, "Values", v);
+            console.log(this.field, "Values", v);
             if (dataType.withHistory && v &&  v.data.length > 1) {
                 h.push(dataType.toDisplayUnits(v.value));
                 for (let i = 0; i < v.data.length; i++) {
@@ -312,11 +315,11 @@ class TextBox extends React.Component {
                 }
                 const graph = this.generateGraphPath(v, h);
                 if ( display != this.state.main || graph.path != this.state.graph.path ) {
-                    this.setState({main: display, graph: graph });
+                    this.setState({main: display, options: options, graph: graph });
                 }
             } else {
                 if ( display != this.state.main ) {
-                    this.setState({main: display });
+                    this.setState({main: display, options: options });
                 }
             }
         }        
@@ -409,7 +412,7 @@ class TextBox extends React.Component {
     }
     renderEditOverlay() {
         if ( this.props.editing ) {
-            const options = Object.keys(this.store.state);
+            const options = this.state.options;
             return (
                 <div className="overlay edit">
                 <select onChange={this.changeField} value={this.field} title="select data item" >

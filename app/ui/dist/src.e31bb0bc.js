@@ -29727,6 +29727,9 @@ _defineProperty(DataTypes, "dataTypes", {
   "vmg": Speed,
   "targetVmg": Speed,
   "targetStw": Speed,
+  "targetTwa": RelativeAngle,
+  "targetAwa": RelativeAngle,
+  "targetAws": Speed,
   "polarVmgRatio": Percent,
   "oppositeHeadingTrue": Bearing,
   "oppositeTrackTrue": Bearing,
@@ -29781,11 +29784,25 @@ var NMEALayout = /*#__PURE__*/function (_React$Component) {
     _this.onMenuChange = _this.onMenuChange.bind(_assertThisInitialized(_this));
     _this.onPageChange = _this.onPageChange.bind(_assertThisInitialized(_this));
     _this.lastPacketsRecived = 0;
-    var start = Date.now();
     _this.state = {
       editing: false,
       dataIndicatorOn: false,
-      layout: localStorage.getItem('layout') || JSON.stringify({
+      layout: _this.loadLayout()
+    };
+    return _this;
+  }
+  _createClass(NMEALayout, [{
+    key: "loadLayout",
+    value: function loadLayout() {
+      var layout = localStorage.getItem('layout');
+      if (layout) {
+        var l = JSON.parse(layout);
+        if (l.pageId !== undefined && l.pages !== undefined) {
+          return layout;
+        }
+      }
+      var start = Date.now();
+      return JSON.stringify({
         pageId: 1,
         pages: [{
           id: 1,
@@ -29804,30 +29821,7 @@ var NMEALayout = /*#__PURE__*/function (_React$Component) {
             field: "tws"
           }]
         }]
-      })
-    };
-    return _this;
-  }
-  _createClass(NMEALayout, [{
-    key: "componentDidMount",
-    value: function componentDidMount() {
-      var _this2 = this;
-      this.updateInterval = setInterval(function () {
-        var packetsRecieved = _this2.props.bgPage.getPacketsRecieved();
-        if (_this2.lastPacketsRecived !== packetsRecieved) {
-          _this2.lastPacketsRecived = packetsRecieved;
-          _this2.setState({
-            dataIndicatorOn: !_this2.state.dataIndicatorOn
-          });
-        }
-      }.bind(this), 1000);
-    }
-  }, {
-    key: "componentWillUnmount",
-    value: function componentWillUnmount() {
-      if (this.updateInterval) {
-        clearInterval(this.updateInterval);
-      }
+      });
     }
   }, {
     key: "getLayout",
@@ -29888,7 +29882,7 @@ var NMEALayout = /*#__PURE__*/function (_React$Component) {
         });
         _l.layout.pageId = id;
         this.setLayout(_l);
-      } else if (e.target.value == "removepage") {
+      } else if (e.target.value == "deletepage") {
         var _l2 = this.getLayout();
         var toRemove = _l2.layout.pageId;
         _l2.layout.pageId = undefined;
@@ -29935,7 +29929,7 @@ var NMEALayout = /*#__PURE__*/function (_React$Component) {
   }, {
     key: "onSave",
     value: function onSave() {
-      localStorage.setItem('layout', JSON.stringify(this.state.layout));
+      localStorage.setItem('layout', this.state.layout);
     }
   }, {
     key: "onMenuChange",
@@ -29952,26 +29946,44 @@ var NMEALayout = /*#__PURE__*/function (_React$Component) {
       this.setLayout(l);
     }
   }, {
+    key: "onPageNameChange",
+    value: function onPageNameChange(e, pageId) {
+      var l = this.getLayout();
+      l.page.name = e.target.value;
+      this.setLayout(l);
+    }
+  }, {
     key: "renderMenu",
     value: function renderMenu(l) {
-      var _this3 = this;
-      var indicatorClass = this.state.dataIndicatorOn ? "iOn" : "iOff";
+      var _this2 = this;
       var menuClass = this.state.showMenu ? "menu normal" : "menu minimised";
-      var menuButton = this.state.showMenu ? "\u2630" : "\u2630";
       return /*#__PURE__*/_react.default.createElement("div", {
         className: menuClass
-      }, /*#__PURE__*/_react.default.createElement("button", {
-        onClick: this.onMenuChange,
-        className: indicatorClass
-      }, menuButton), /*#__PURE__*/_react.default.createElement(_portcontrol.PortControl, {
+      }, /*#__PURE__*/_react.default.createElement(MenuButton, {
+        bgPage: this.props.bgPage,
+        onClick: this.onMenuChange
+      }), /*#__PURE__*/_react.default.createElement(_portcontrol.PortControl, {
         bgPage: this.props.bgPage
       }), l.layout.pages.map(function (page) {
-        return /*#__PURE__*/_react.default.createElement("button", {
-          key: page.id,
-          className: "pageButton ".concat(page.id == l.layout.pageId ? "activePage" : ""),
-          onClick: _this3.onPageChange,
-          value: page.id
-        }, page.name);
+        var className = page.id == l.layout.pageId ? "pageButton activePage" : "pageButton";
+        if (page.id == l.layout.pageId && _this2.state.editing) {
+          return /*#__PURE__*/_react.default.createElement("input", {
+            key: page.id,
+            type: "text",
+            className: className,
+            onChange: function onChange(e) {
+              _this2.onPageNameChange(e, page.id);
+            },
+            value: page.name
+          });
+        } else {
+          return /*#__PURE__*/_react.default.createElement("button", {
+            key: page.id,
+            className: className,
+            onClick: _this2.onPageChange,
+            value: page.id
+          }, page.name);
+        }
       }), /*#__PURE__*/_react.default.createElement(_uicontrol.EditUIControl, {
         onEdit: this.onEditLayout,
         onSave: this.onSave,
@@ -29981,7 +29993,7 @@ var NMEALayout = /*#__PURE__*/function (_React$Component) {
   }, {
     key: "render",
     value: function render() {
-      var _this4 = this;
+      var _this3 = this;
       var l = this.getLayout();
       console.log("Layout ", l);
       return /*#__PURE__*/_react.default.createElement("div", {
@@ -29991,9 +30003,9 @@ var NMEALayout = /*#__PURE__*/function (_React$Component) {
           field: item.field,
           id: item.id,
           key: item.id,
-          onChange: _this4.onChangeItem,
-          editing: _this4.state.editing,
-          store: _this4.store
+          onChange: _this3.onChangeItem,
+          editing: _this3.state.editing,
+          store: _this3.store
         });
       })));
     }
@@ -30001,15 +30013,62 @@ var NMEALayout = /*#__PURE__*/function (_React$Component) {
   return NMEALayout;
 }(_react.default.Component);
 exports.NMEALayout = NMEALayout;
-var NMEAControls = /*#__PURE__*/function (_React$Component2) {
-  _inherits(NMEAControls, _React$Component2);
-  var _super2 = _createSuper(NMEAControls);
+var MenuButton = /*#__PURE__*/function (_React$Component2) {
+  _inherits(MenuButton, _React$Component2);
+  var _super2 = _createSuper(MenuButton);
+  function MenuButton(props) {
+    var _this4;
+    _classCallCheck(this, MenuButton);
+    _this4 = _super2.call(this, props);
+    _this4.props = props;
+    _this4.lastPacketsRecived = 0;
+    _this4.state = {
+      dataIndicatorOn: false
+    };
+    return _this4;
+  }
+  _createClass(MenuButton, [{
+    key: "componentDidMount",
+    value: function componentDidMount() {
+      var _this5 = this;
+      this.updateInterval = setInterval(function () {
+        var packetsRecieved = _this5.props.bgPage.getPacketsRecieved();
+        if (_this5.lastPacketsRecived !== packetsRecieved) {
+          _this5.lastPacketsRecived = packetsRecieved;
+          _this5.setState({
+            dataIndicatorOn: !_this5.state.dataIndicatorOn
+          });
+        }
+      }.bind(this), 1000);
+    }
+  }, {
+    key: "componentWillUnmount",
+    value: function componentWillUnmount() {
+      if (this.updateInterval) {
+        clearInterval(this.updateInterval);
+      }
+    }
+  }, {
+    key: "render",
+    value: function render() {
+      var indicatorClass = this.state.dataIndicatorOn ? "iOn" : "iOff";
+      return /*#__PURE__*/_react.default.createElement("button", {
+        onClick: this.props.onClick,
+        className: indicatorClass
+      }, "\u2630");
+    }
+  }]);
+  return MenuButton;
+}(_react.default.Component);
+var NMEAControls = /*#__PURE__*/function (_React$Component3) {
+  _inherits(NMEAControls, _React$Component3);
+  var _super3 = _createSuper(NMEAControls);
   function NMEAControls(props) {
-    var _this5;
+    var _this6;
     _classCallCheck(this, NMEAControls);
-    _this5 = _super2.call(this, props);
-    _this5.props = props;
-    return _this5;
+    _this6 = _super3.call(this, props);
+    _this6.props = props;
+    return _this6;
   }
   _createClass(NMEAControls, [{
     key: "render",
@@ -30023,32 +30082,35 @@ var NMEAControls = /*#__PURE__*/function (_React$Component2) {
   }]);
   return NMEAControls;
 }(_react.default.Component);
-var TextBox = /*#__PURE__*/function (_React$Component3) {
-  _inherits(TextBox, _React$Component3);
-  var _super3 = _createSuper(TextBox);
+var TextBox = /*#__PURE__*/function (_React$Component4) {
+  _inherits(TextBox, _React$Component4);
+  var _super4 = _createSuper(TextBox);
   function TextBox(props) {
-    var _this6;
+    var _this7;
     _classCallCheck(this, TextBox);
-    _this6 = _super3.call(this, props);
-    _this6.store = props.store;
-    _this6.editing = props.editing;
-    _this6.onChange = props.onChange;
-    _this6.id = props.id;
-    _this6.field = props.field;
-    _this6.debugEnable = false;
-    _this6.state = {
+    _this7 = _super4.call(this, props);
+    _this7.store = props.store;
+    _this7.editing = props.editing;
+    _this7.onChange = props.onChange;
+    _this7.id = props.id;
+    _this7.field = props.field;
+    _this7.theme = props.theme || "default";
+    _this7.themes = ["default", "red", "green", "blue", "yellow"];
+    _this7.debugEnable = false;
+    _this7.state = {
       main: props.main || "-.-",
       graph: {
         path: "M 0 0",
         outline: "M 0 0"
       }
     };
-    _this6.updateDisplayState = _this6.updateDisplayState.bind(_assertThisInitialized(_this6));
-    _this6.changeField = _this6.changeField.bind(_assertThisInitialized(_this6));
-    _this6.remove = _this6.remove.bind(_assertThisInitialized(_this6));
-    _this6.onDebug = _this6.onDebug.bind(_assertThisInitialized(_this6));
-    _this6.updateRate = props.updateRate || 1000;
-    return _this6;
+    _this7.updateDisplayState = _this7.updateDisplayState.bind(_assertThisInitialized(_this7));
+    _this7.changeField = _this7.changeField.bind(_assertThisInitialized(_this7));
+    _this7.changeTheme = _this7.changeTheme.bind(_assertThisInitialized(_this7));
+    _this7.remove = _this7.remove.bind(_assertThisInitialized(_this7));
+    _this7.onDebug = _this7.onDebug.bind(_assertThisInitialized(_this7));
+    _this7.updateRate = props.updateRate || 1000;
+    return _this7;
   }
   _createClass(TextBox, [{
     key: "componentDidMount",
@@ -30176,6 +30238,11 @@ var TextBox = /*#__PURE__*/function (_React$Component3) {
       this.onChange("update", this.id, e.target.value);
     }
   }, {
+    key: "changeTheme",
+    value: function changeTheme(e) {
+      this.onChange("theme", this.id, e.target.value);
+    }
+  }, {
     key: "remove",
     value: function remove(e) {
       this.onChange("remove", this.id);
@@ -30204,16 +30271,28 @@ var TextBox = /*#__PURE__*/function (_React$Component3) {
           className: "overlay edit"
         }, /*#__PURE__*/_react.default.createElement("select", {
           onChange: this.changeField,
-          value: this.field
+          value: this.field,
+          title: "select data item"
         }, options.map(function (item) {
           return /*#__PURE__*/_react.default.createElement("option", {
             key: item,
             value: item
           }, item);
+        })), /*#__PURE__*/_react.default.createElement("select", {
+          onChange: this.changeTheme,
+          value: this.theme,
+          title: "change theme"
+        }, this.themes.map(function (item) {
+          return /*#__PURE__*/_react.default.createElement("option", {
+            key: item,
+            value: item
+          }, item);
         })), /*#__PURE__*/_react.default.createElement("button", {
-          onClick: this.remove
+          onClick: this.remove,
+          title: "remove"
         }, "\u2573"), /*#__PURE__*/_react.default.createElement("button", {
-          onClick: this.onDebug
+          onClick: this.onDebug,
+          title: "debug"
         }, "debug"));
       } else {
         return /*#__PURE__*/_react.default.createElement("div", null);
@@ -30224,7 +30303,7 @@ var TextBox = /*#__PURE__*/function (_React$Component3) {
     value: function render() {
       var dataType = _datatypes.DataTypes.getDataType(this.field);
       return /*#__PURE__*/_react.default.createElement("div", {
-        className: "textbox"
+        className: "textbox ".concat(this.theme)
       }, /*#__PURE__*/_react.default.createElement("div", {
         className: "overlay main"
       }, this.state.main), /*#__PURE__*/_react.default.createElement("svg", {
@@ -30523,6 +30602,7 @@ var Calculations = /*#__PURE__*/function () {
         this.state.leeway = 0.0;
         if (Math.abs(this.state.awa) < Math.PI / 2 && this.state.aws < 30 / 1.943844) {
           if (this.state.stw > 0.5) {
+            // TODO check units.
             // This comes from Pedrick see http://www.sname.org/HigherLogic/System/DownloadDocumentFile.ashx?DocumentFileKey=5d932796-f926-4262-88f4-aaca17789bb0
             // for aws < 30 and awa < 90. UK  =15 for masthead and 5 for fractional
             this.state.leeway = 5 * this.state.roll / (this.state.stw * this.state.stw);
@@ -30530,9 +30610,9 @@ var Calculations = /*#__PURE__*/function () {
         }
       }
       if (this.state.awa !== undefined && this.state.aws !== undefined && this.state.stw !== undefined) {
-        var apparentX = Math.cos(this.state.awa) * this.state.aws;
-        var apparentY = Math.sin(this.state.awa) * this.state.aws;
-        this.state.twa = Math.atan2(apparentY, -this.state.stw + apparentX), this.state.tws = Math.sqrt(Math.pow(apparentY, 2) + Math.pow(-this.state.stw + apparentX, 2));
+        var trueWind = this.performance.calcTrueWind(this.state.awa, this.state.aws, this.state.stw);
+        this.state.twa = trueWind.twa;
+        this.state.tws = trueWind.tws;
       }
       if (this.state.tws !== undefined && this.state.twa !== undefined && this.state.stw !== undefined && this.state.hdt !== undefined) {
         this.performance.calcPerformance(this.state);
@@ -30540,7 +30620,7 @@ var Calculations = /*#__PURE__*/function () {
     }
   }]);
   return Calculations;
-}();
+}(); // units are degrees and kn.
 exports.Calculations = Calculations;
 var pogo1250Polar = {
   name: "pogo1250",
@@ -30552,11 +30632,12 @@ var Performance = /*#__PURE__*/function () {
   function Performance() {
     _classCallCheck(this, Performance);
     this.polarTable = this._finishLoad(pogo1250Polar);
+    // polarTable is a fine polarTable with lookups in 
+    // radians and m/s result in m/s
   }
 
   /**
-   Only calcuates polr Vmg ration is targets is defined.
-   All inputs outputs are SI
+   All inputs outputs are SI, rad and m/s.
    */
   _createClass(Performance, [{
     key: "calcPerformance",
@@ -30600,6 +30681,10 @@ var Performance = /*#__PURE__*/function () {
       if (state.twa < 0) {
         state.targetTwa = -state.targetTwa;
       }
+      var apparent = this.calcAparentWind(state.targetTwa, state.tws, state.targetStw);
+      // give an indicator of sail selection, and is easier to steer to upwind.
+      state.targetAwa = apparent.awa;
+      state.targetAws = apparent.aws;
       if (Math.abs(state.targetVmg) > 1.0E-8) {
         state.polarVmgRatio = state.vmg / state.targetVmg;
       } else {
@@ -30644,9 +30729,53 @@ var Performance = /*#__PURE__*/function () {
         }
       }
       ;
-      // Optimisatin,
+      // Optimisation.
       return this._buildFinePolarTable(polar);
     }
+  }, {
+    key: "calcTrueWind",
+    value:
+    /* 
+     The best way of thinking about these conversions is to decompose the wind speed and angle into 
+    components of x and y with x being in the direction of the boat. Then subtract boat speed from x to get from 
+    apparent to true, and add boat speed to x to get from true to apparent.
+     Then convert the x and y components back to an angle and length (speed), using atan and pythagorus.
+    Cos takes care of any sign issue, since when it becomes > 90 it is < 0 hence the value of x in all cases
+    is correct. 
+    atan2 takes care of x == 0.
+    */
+
+    function calcTrueWind(awa, aws, stw) {
+      var apparentX = Math.cos(awa) * aws;
+      var apparentY = Math.sin(awa) * aws;
+      var x = apparentX - stw;
+      var twa = Math.atan2(apparentY, x);
+      var tws = Math.sqrt(Math.pow(apparentY, 2) + Math.pow(x, 2));
+      //console.log(`Calc TRue awa:${awa} aws:${aws} stw:${stw} twa:${twa} tws:${tws}`);
+      return {
+        twa: twa,
+        tws: tws
+      };
+    }
+  }, {
+    key: "calcAparentWind",
+    value: function calcAparentWind(twa, tws, stw) {
+      var trueX = Math.cos(twa) * tws;
+      var trueY = Math.sin(twa) * tws;
+      var x = trueX + stw;
+      var awa = Math.atan2(trueY, x);
+      var aws = Math.sqrt(Math.pow(trueY, 2) + Math.pow(x, 2));
+      //console.log(`Calc Aparent twa:${twa} tws:${tws} stw:${stw} awa:${awa} aws:${aws}`);
+      return {
+        awa: awa,
+        aws: aws
+      };
+    }
+
+    /**
+     * Input is in degrees and knots,
+     * finePolar should contain radians and m/s
+     */
   }, {
     key: "_buildFinePolarTable",
     value: function _buildFinePolarTable(polarInput) {
@@ -30663,16 +30792,18 @@ var Performance = /*#__PURE__*/function () {
       };
 
       var startFineBuild = Date.now();
+      // build the twa lookup in radians
       for (var twa = 0; twa < polarInput.twa[polarInput.twa.length - 1]; twa += 1) {
         finePolar.twa.push(twa * Math.PI / 180);
         finePolar.stw.push([]);
       }
+      // build fine polar in m/s
       for (var tws = 0; tws < polarInput.tws[polarInput.tws.length - 1]; tws += 0.1) {
         finePolar.tws.push(tws / 1.9438444924);
       }
       for (var ia = 0; ia < finePolar.twa.length; ia++) {
         for (var is = 0; is < finePolar.tws.length; is++) {
-          finePolar.stw[ia][is] = this._calcPolarSpeed(polarInput, finePolar.tws[is], finePolar.twa[ia], 0);
+          finePolar.stw[ia][is] = this._calcPolarSpeed(polarInput, finePolar.tws[is], finePolar.twa[ia]);
         }
       }
       this.fineBuildTime = Date.now() - startFineBuild;
@@ -30719,9 +30850,16 @@ var Performance = /*#__PURE__*/function () {
       if (d < 0) d = d + Math.PI * 2;
       return d;
     }
+
+    /**
+     * returns the calculated polar speed in m/s
+     * Polar table is in kn and deg
+     * tws is in m/s
+     * twa is in rad
+     */
   }, {
     key: "_calcPolarSpeed",
-    value: function _calcPolarSpeed(polarInput, tws, twa, stw, targets) {
+    value: function _calcPolarSpeed(polarInput, tws, twa, stw) {
       // polar Data is in KN and deg
       tws = tws * 1.9438444924;
       twa = twa * 180 / Math.PI;
@@ -30732,6 +30870,7 @@ var Performance = /*#__PURE__*/function () {
       // interpolate a stw high value for a given tws and range
       var stwh = this._interpolate(twa, polarInput.twa[twai[0]], polarInput.twa[twai[1]], polarInput.stw[twai[0]][twsi[1]], polarInput.stw[twai[1]][twsi[1]]);
       // interpolate a stw final value for a given tws and range using the high an low values for twa.
+      // return in m/s
       return this._interpolate(tws, polarInput.tws[twsi[0]], polarInput.tws[twsi[1]], stwl, stwh) / 1.9438444924;
     }
   }]);
@@ -30761,7 +30900,7 @@ var Store = /*#__PURE__*/function () {
       awa: new AngularHistory(),
       aws: new LinearHistory(),
       stw: new LinearHistory()
-    }, _defineProperty(_this$history, "aws", new LinearHistory()), _defineProperty(_this$history, "tws", new LinearHistory()), _defineProperty(_this$history, "roll", new AngularHistory()), _defineProperty(_this$history, "leeway", new AngularHistory()), _defineProperty(_this$history, "cogt", new AngularHistory()), _defineProperty(_this$history, "hdt", new AngularHistory()), _defineProperty(_this$history, "gwdt", new AngularHistory()), _defineProperty(_this$history, "gwdm", new AngularHistory()), _defineProperty(_this$history, "hdm", new AngularHistory()), _defineProperty(_this$history, "cogm", new AngularHistory()), _defineProperty(_this$history, "variation", new AngularHistory()), _defineProperty(_this$history, "polarSpeed", new LinearHistory()), _defineProperty(_this$history, "polarSpeedRatio", new LinearHistory()), _defineProperty(_this$history, "polarVmg", new LinearHistory()), _defineProperty(_this$history, "vmg", new LinearHistory()), _defineProperty(_this$history, "targetVmg", new LinearHistory()), _defineProperty(_this$history, "targetStw", new LinearHistory()), _defineProperty(_this$history, "polarVmgRatio", new LinearHistory()), _defineProperty(_this$history, "oppositeHeadingTrue", new AngularHistory()), _defineProperty(_this$history, "oppositeTrackTrue", new AngularHistory()), _defineProperty(_this$history, "oppositeTrackMagnetic", new AngularHistory()), _defineProperty(_this$history, "oppositeHeadingMagnetic", new AngularHistory()), _defineProperty(_this$history, "sog", new LinearHistory()), _defineProperty(_this$history, "stw", new LinearHistory()), _this$history);
+    }, _defineProperty(_this$history, "aws", new LinearHistory()), _defineProperty(_this$history, "tws", new LinearHistory()), _defineProperty(_this$history, "twa", new AngularHistory()), _defineProperty(_this$history, "stw", new LinearHistory()), _defineProperty(_this$history, "cogt", new AngularHistory()), _defineProperty(_this$history, "cogm", new AngularHistory()), _defineProperty(_this$history, "sog", new LinearHistory()), _defineProperty(_this$history, "hdt", new AngularHistory()), _defineProperty(_this$history, "hdm", new AngularHistory()), _defineProperty(_this$history, "gwdt", new AngularHistory()), _defineProperty(_this$history, "gwdm", new AngularHistory()), _defineProperty(_this$history, "vmg", new LinearHistory()), _defineProperty(_this$history, "roll", new AngularHistory()), _defineProperty(_this$history, "leeway", new AngularHistory()), _defineProperty(_this$history, "variation", new AngularHistory()), _defineProperty(_this$history, "polarSpeed", new LinearHistory()), _defineProperty(_this$history, "polarSpeedRatio", new LinearHistory()), _defineProperty(_this$history, "polarVmg", new LinearHistory()), _defineProperty(_this$history, "targetVmg", new LinearHistory()), _defineProperty(_this$history, "targetStw", new LinearHistory()), _defineProperty(_this$history, "targetTwa", new AngularHistory()), _defineProperty(_this$history, "targetAwa", new AngularHistory()), _defineProperty(_this$history, "targetAws", new LinearHistory()), _defineProperty(_this$history, "polarVmgRatio", new LinearHistory()), _defineProperty(_this$history, "oppositeHeadingTrue", new AngularHistory()), _defineProperty(_this$history, "oppositeTrackTrue", new AngularHistory()), _defineProperty(_this$history, "oppositeTrackMagnetic", new AngularHistory()), _defineProperty(_this$history, "oppositeHeadingMagnetic", new AngularHistory()), _this$history);
   }
   _createClass(Store, [{
     key: "update",
@@ -30913,7 +31052,7 @@ var AngularHistory = /*#__PURE__*/function () {
         // calculate the angular mean.
         // if standard deviation was required then we would need to hold
         // store the samples.
-        if (!Number.isNaN(v)) {
+        if (v !== undefined && !Number.isNaN(v)) {
           if (this.value == undefined) {
             this.sinValue = Math.sin(v);
             this.cosValue = Math.cos(v);
@@ -31392,7 +31531,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "53568" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "63791" + '/');
   ws.onmessage = function (event) {
     checkedAssets = {};
     assetsToAccept = [];

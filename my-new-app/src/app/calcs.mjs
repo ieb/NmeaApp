@@ -1,6 +1,7 @@
 "use strict";
 
 
+NOT USED.
 
 class Calculations {
     constructor(options) {
@@ -14,7 +15,56 @@ class Calculations {
     }
 
 
-    fixBearing(v) {
+
+    update(handler) {
+
+        const sentences = handler.updatesSince(this.state.lastUpdate);
+        this.state.lastUpdate = sentences.slice(-1)[0].lastUpdate;
+        if ( sentences[0].id === 'timestamp' ) {
+            return;
+        }
+        console.log("Updates ",sentences.length);
+        const newState = {};
+        for (var k in sentences) {
+            if (sentences[k].id === 'MWV' ) {
+                if ( sentences[k].fields[4] === 'A' && sentences[k].fields[1] === 'R' && sentences[k].fields[3] === 'N' ) {
+                    newState.awa = sentences[k].fields[0]*Math.PI/180;
+                    newState.aws = sentences[k].fields[2]*0.514444;
+                } else {
+                    console.log("MWV rejected");
+                }
+            } else if (sentences[k].id === 'ROL') {
+                newState.roll = sentences[k].fields[0]*Math.PI/180;
+            } else if ( sentences[k].id === 'VHW') {
+                newState.hdm = sentences[k].fields[2]*Math.PI/180;
+                newState.stw = sentences[k].fields[4]*0.514444;
+            } else if ( sentences[k].id === 'HDG') {
+                newState.hdm = sentences[k].fields[0]*Math.PI/180;
+                newState.variation = sentences[k].fields[3]*Math.PI/180;
+                if ( sentences[k].fields[4] == 'W') {
+                    newState.variation = -newState.variation;
+                }
+            } else if (sentences[k].id == 'VTG') {
+                newState.cogt = sentences[k].fields[0]*Math.PI/180;
+                newState.sog = sentences[k].fields[4]*0.514444;
+            }
+        }
+        for ( var k in newState ) {
+            if ( newState[k] !== this.state[k]) {
+                this.state.lastChange = this.state.lastUpdate;
+                this.state[k]= newState[k];
+            }
+        }
+        if ( this.state.lastChange > this.state.lastCalc+500) {
+            this._enhance();
+            this.state.lastCalc = this.state.lastChange;
+            // write the sentences to the parser
+            this._savePerformanceSentences(handler);
+        }
+
+    }
+
+    _fixBearing(v) {
         if (v > 2*Math.PI ) {
             v = v - 2*Math.PI;
         } else if ( v < 0 ) {
@@ -23,37 +73,8 @@ class Calculations {
         return v;        
     }
 
-    update(store, handler) {
-        if ( store.state.lastChange <= this.state.lastUpdate) {
-            return;
-        }
-        const newState = {
-            awa: store.state.awa,
-            aws: store.state.aws,
-            roll: store.state.roll,
-            hdm: store.state.hdm,
-            stw: store.state.stw,
-            variation: store.state.variation,
-            cogt: store.state.cogt,
-            sog: store.state.sog
-        };
 
-        for ( var k in newState ) {
-            if ( newState[k] !== this.state[k]) {
-                this.state.lastChange = store.state.lastUpdate;
-                this.state[k]= newState[k];
-            }
-        }
-        if ( this.state.lastChange > this.state.lastCalc+500) {
-            this.enhance();
-            this.state.lastCalc = this.state.lastChange;
-            // write the sentences to the parser
-            this.savePerformanceSentences(store, handler);
-        }
-    }
-
-
-    savePerformanceSentences(store, handler) {
+    _savePerformanceSentences(handler) {
         // for NKE instruments.
         handler.updateSentence('PNKEP01', ['$PNKEP',
                                     '01',
@@ -71,7 +92,7 @@ class Calculations {
                                     (this.state.polarVmgRatio*100).toFixed(2),
                                     (this.state.polarSpeedRatio*100).toFixed(2)
                                     ], this.state.lastCalc);
-        handler.updateSentence('PNKEP99', ['$PNKEP',   
+        handler.updateSentence('PNKEP03', ['$PNKEP',   
                                     '99',
                                     (this.state.awa*180/Math.PI).toFixed(2),
                                     (this.state.aws*1.9438452).toFixed(2),
@@ -87,9 +108,6 @@ class Calculations {
                     (this.state.tws*1.9438452).toFixed(2),
                     'K',
                     'A'], this.state.lastCalc);
-        // update the store for internal use.
-        //console.log("Calc state", this.state);
-        store.mergeUpdate(this.state, this.state.lastCalc);
     }
 
 
@@ -101,13 +119,13 @@ class Calculations {
     */
 
 
-    enhance() {
+    _enhance() {
         if ( this.state.variation !== undefined ) {
             if ( this.state.cogt !== undefined ) {
-                this.state.cogm = this.fixBearing(this.state.cogt+this.state.variation);
+                this.state.cogm = this._fixBearing(this.state.cogt+this.state.variation);
             }
             if (this.state.hdm !== undefined ) {
-                this.state.hdt = this.fixBearing(this.state.hdm-this.state.variation);
+                this.state.hdt = this._fixBearing(this.state.hdm-this.state.variation);
             }
         }
         if ( this.state.stw !== undefined && 
@@ -119,23 +137,19 @@ class Calculations {
             if ( Math.abs(this.state.awa) < Math.PI/2 &&
                  this.state.aws < 30/1.943844) {
                 if ( this.state.stw > 0.5 ) {
-
-                    // TODO check units.
                       // This comes from Pedrick see http://www.sname.org/HigherLogic/System/DownloadDocumentFile.ashx?DocumentFileKey=5d932796-f926-4262-88f4-aaca17789bb0
                       // for aws < 30 and awa < 90. UK  =15 for masthead and 5 for fractional
                     this.state.leeway = 5 * this.state.roll / (this.state.stw * this.state.stw);
                 }
             } 
         }
-
-
-
         if ( this.state.awa !== undefined && 
             this.state.aws !== undefined &&
             this.state.stw !== undefined ) {
-            const trueWind = this.performance.calcTrueWind(this.state.awa, this.state.aws, this.state.stw);
-            this.state.twa = trueWind.twa;
-            this.state.tws = trueWind.tws;
+            var apparentX = Math.cos(this.state.awa) * this.state.aws;
+            var apparentY = Math.sin(this.state.awa) * this.state.aws;
+            this.state.twa = Math.atan2(apparentY, -this.state.stw + apparentX),
+            this.state.tws = Math.sqrt(Math.pow(apparentY, 2) + Math.pow(-this.state.stw + apparentX, 2));
         }
         if ( this.state.tws !== undefined && 
             this.state.twa !== undefined && 
@@ -146,7 +160,7 @@ class Calculations {
     }
 }
 
-// units are degrees and kn.
+
 var pogo1250Polar = {
   name : "pogo1250",
   tws : [0,4,6,8,10,12,14,16,20,25,30,35,40,45,50,55,60],
@@ -183,12 +197,11 @@ var pogo1250Polar = {
 class Performance {
     constructor() {
         this.polarTable = this._finishLoad(pogo1250Polar);
-        // polarTable is a fine polarTable with lookups in 
-        // radians and m/s result in m/s
     }
 
     /**
-     All inputs outputs are SI, rad and m/s.
+     Only calcuates polr Vmg ration is targets is defined.
+     All inputs outputs are SI
      */
 
     calcPerformance(state) {
@@ -231,13 +244,6 @@ class Performance {
         if ( state.twa < 0 ) {
           state.targetTwa = -state.targetTwa;
         }
-
-
-        const apparent = this.calcAparentWind(state.targetTwa, state.tws, state.targetStw);
-        // give an indicator of sail selection, and is easier to steer to upwind.
-        state.targetAwa = apparent.awa;
-        state.targetAws = apparent.aws; 
-
         if (Math.abs(state.targetVmg) > 1.0E-8 ) {
            state.polarVmgRatio = state.vmg/state.targetVmg;
         } else {
@@ -281,53 +287,10 @@ class Performance {
             throw("Polar TWA must be in ascending order and match the rows of stw.");
           }
         };
-        // Optimisation.
+        // Optimisatin,
         return this._buildFinePolarTable(polar);
     };
 
-
-    /* 
-
-    The best way of thinking about these conversions is to decompose the wind speed and angle into 
-    components of x and y with x being in the direction of the boat. Then subtract boat speed from x to get from 
-    apparent to true, and add boat speed to x to get from true to apparent.
-
-    Then convert the x and y components back to an angle and length (speed), using atan and pythagorus.
-    Cos takes care of any sign issue, since when it becomes > 90 it is < 0 hence the value of x in all cases
-    is correct. 
-    atan2 takes care of x == 0.
-    */
-
-    calcTrueWind(awa, aws, stw) {
-        const apparentX = Math.cos(awa) * aws;
-        const apparentY = Math.sin(awa) * aws;
-        const x = apparentX - stw;
-        const twa = Math.atan2(apparentY, x);
-        const tws = Math.sqrt(Math.pow(apparentY, 2) + Math.pow(x, 2));
-        //console.log(`Calc TRue awa:${awa} aws:${aws} stw:${stw} twa:${twa} tws:${tws}`);
-        return {
-            twa,
-            tws
-        };
-    }
-
-    calcAparentWind(twa, tws, stw) {
-        const trueX = Math.cos(twa) * tws;
-        const trueY = Math.sin(twa) * tws;
-        const x = trueX + stw;
-        const awa = Math.atan2(trueY, x);
-        const aws = Math.sqrt(Math.pow(trueY, 2) + Math.pow(x, 2));                  
-        //console.log(`Calc Aparent twa:${twa} tws:${tws} stw:${stw} awa:${awa} aws:${aws}`);
-        return {
-            awa,
-            aws
-        }
-    }
-
-    /**
-     * Input is in degrees and knots,
-     * finePolar should contain radians and m/s
-     */
     _buildFinePolarTable(polarInput) {
         var finePolar = {
           lookup: true,
@@ -339,18 +302,16 @@ class Performance {
           stw : []  // 108000 elements
         }
         var startFineBuild = Date.now();
-        // build the twa lookup in radians
         for(var twa = 0; twa < polarInput.twa[polarInput.twa.length-1]; twa += 1) {
           finePolar.twa.push(twa*Math.PI/180);
           finePolar.stw.push([]);
         }
-        // build fine polar in m/s
         for(var tws = 0; tws < polarInput.tws[polarInput.tws.length-1]; tws += 0.1) {
           finePolar.tws.push(tws/1.9438444924);
         }
         for (var ia = 0; ia < finePolar.twa.length; ia++) {
           for (var is = 0; is < finePolar.tws.length; is++) {
-            finePolar.stw[ia][is] = this._calcPolarSpeed(polarInput,finePolar.tws[is],finePolar.twa[ia]);
+            finePolar.stw[ia][is] = this._calcPolarSpeed(polarInput,finePolar.tws[is],finePolar.twa[ia],0);
           }
         }
         this.fineBuildTime = Date.now() - startFineBuild;
@@ -395,13 +356,7 @@ class Performance {
         return d;
     }
 
-    /**
-     * returns the calculated polar speed in m/s
-     * Polar table is in kn and deg
-     * tws is in m/s
-     * twa is in rad
-     */
-    _calcPolarSpeed(polarInput, tws, twa, stw) {
+    _calcPolarSpeed(polarInput, tws, twa, stw, targets) {
         // polar Data is in KN and deg
         tws = tws*1.9438444924;
         twa = twa*180/Math.PI;      
@@ -412,10 +367,7 @@ class Performance {
           // interpolate a stw high value for a given tws and range
         var stwh = this._interpolate(twa, polarInput.twa[twai[0]], polarInput.twa[twai[1]], polarInput.stw[twai[0]][twsi[1]], polarInput.stw[twai[1]][twsi[1]]);
           // interpolate a stw final value for a given tws and range using the high an low values for twa.
-        // return in m/s
         return this._interpolate(tws, polarInput.tws[twsi[0]], polarInput.tws[twsi[1]], stwl, stwh)/1.9438444924;      
     }
 }
-
-export { Calculations };
 

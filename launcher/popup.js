@@ -9,7 +9,7 @@ function $(id) {
 // Returns the largest size icon, or a default icon, for the given |app|.
 function getIconURL(app) {
   if (!app.icons || app.icons.length == 0) {
-    return chrome.extension.getURL('icon.png');
+    return chrome.runtime.getURL('icon.png');
   }
   var largest = {size:0};
   for (var i = 0; i < app.icons.length; i++) {
@@ -22,7 +22,12 @@ function getIconURL(app) {
 }
 
 function launchApp(id) {
-  chrome.management.launchApp(id);
+  try {
+    chrome.management.launchApp(id);
+
+  } catch(e) {
+    console.log(e);
+  }
   window.close(); // Only needed on OSX because of crbug.com/63594
 }
 
@@ -32,6 +37,7 @@ function addApp(appsDiv, app, selected) {
   div.className = 'app' + (selected ? ' app_selected' : '');
 
   div.onclick = function() {
+    console.log("Launching App");
     launchApp(app.id);
   };
 

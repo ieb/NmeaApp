@@ -1,4 +1,4 @@
-"use strict;"
+"use strict";
 
 
 class Store {
@@ -38,7 +38,29 @@ class Store {
             oppositeHeadingMagnetic: new AngularHistory()
         };
 
+        // Store API exposed to the UI.
+        this.getState = this.getState.bind(this);
+        this.getHistory = this.getHistory.bind(this);
+        this.getKeys = this.getKeys.bind(this);
+
     }
+
+    /*  Exposed API methods */
+    getState(field) {
+        return this.state[field];
+    }
+    getHistory(field) {
+        if ( this.history[field]) {
+            return this.history[field];
+        } else {
+            return {value: 0, data: []};
+        }
+    }
+    getKeys() {
+        return Object.keys(this.state);
+    }
+
+    /* Non exposed API methods */
 
     update(handler) {
         const sentences = handler.updatesSince(this.state.lastUpdate);
