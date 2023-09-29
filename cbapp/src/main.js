@@ -9,7 +9,7 @@ if (require('electron-squirrel-startup')) {
 const createWindow = () => {
   // Create the browser window.
   const mainWindow = new BrowserWindow({
-    width: 800,
+    width: 1000,
     height: 600,
     webPreferences: {
       preload: MAIN_WINDOW_PRELOAD_WEBPACK_ENTRY,
@@ -50,4 +50,8 @@ app.on('activate', () => {
 
 const {load} = require('./app/appLoader.js');
 const appMain = load(app, ipcMain);
+appMain.start();
 
+app.on('will-quit', () => {
+  appMain.shutdown();
+});

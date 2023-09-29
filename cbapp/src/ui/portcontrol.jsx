@@ -37,6 +37,7 @@ class PortControl extends React.Component {
         this.clickConnect = this.clickConnect.bind(this);
         this.selectDevice = this.selectDevice.bind(this);
         this.selectBaud = this.selectBaud.bind(this);
+        this.selectNet = this.selectNet.bind(this);
         this.clickRefresh = this.clickRefresh.bind(this);
 
         (async () => {
@@ -75,30 +76,31 @@ class PortControl extends React.Component {
     // eslint-disable-next-line  no-unused-vars 
     async clickConnect(event) {
         if ( this.state.hasNetList ) {
-            console.log("Open TCP");
-            await this.mainAPI.startServer(this.state.netList[this.state.netId].address, this.state.portNo);
-            console.log("TCP Open, Open serial ");
-            await this.mainAPI.openConnection(this.baudList[this.state.baudId].baud,this.state.deviceList[this.state.deviceId].path);
-            console.log("Serial Open");
-            const serialDevice = `${this.state.deviceList[this.state.deviceId].path} ${this.baudList[this.state.baudId].baud}`;
-            const endpoint = `${this.state.netList[this.state.netId].address}:${this.state.portNo}`;
+            const address = this.state.netList[this.state.netId].address;
+            console.log("Open TCP", address, this.state.netId, this.state.netList);
+            await this.mainAPI.startServer( address, this.state.portNo);
+            console.log("TCP Open");            
+            const endpoint = `${address}:${this.state.portNo}`;
             this.setState({
-                isOpen: true,
-                serialDevice,
                 endpoint
             });
-
         } else {
-            console.log("State is ",this.state);
-            const baudRate = this.baudList[this.state.baudId].baud;
-            const isOpen = await this.mainAPI.openConnection(baudRate);
+            console.log("No Network list available");
+        }
+        if ( this.state.hasDeviceList ) {
+            console.log("Open serial ");            
+            await this.mainAPI.openConnection(this.state.deviceList[this.state.deviceId].path,this.baudList[this.state.baudId].baud);
+            console.log("Serial Open");
+            open = true;
+            const serialDevice = `${this.state.deviceList[this.state.deviceId].path} ${this.baudList[this.state.baudId].baud}`;
             this.setState({
-                isOpen: isOpen,
-                baudRate : baudRate
+                isOpen: open,
+                serialDevice
             });
+        } else {
+            console.log("No device available.");
 
         }
-
     }
 
 
@@ -116,28 +118,33 @@ class PortControl extends React.Component {
     }
     // eslint-disable-next-line  no-unused-vars 
     async clickRefresh(event) {
-        const list = await this.mainAPI.getNetworkAddresses();
+        const networks = await this.mainAPI.getNetworkAddresses();
         const ports = await  this.mainAPI.getDevices();
-        console.log("Got Devices", list);
+        console.log("Got Network Devices", networks);
         console.log("Got Ports", ports);
         const networkList = [];
         const deviceList = [];
-        const hasNetList = (list !== undefined);
+        const hasNetList = (networks !== undefined);
         const hasDeviceList = (ports !== undefined);
         if ( hasNetList ) {
-            for (var i = 0; i < list.length; i++) {
-              if (/^\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}$/.test(list[i].address)) {
-                networkList.push({
-                    id: i,
-                    display: list[i].name + " (" + list[i].address + ")",
-                    address: list[i].address
-                });
+            for (var k in networks) {
+              const addresses = networks[k];
+              for (var i = 0; i < addresses.length; i++) {
+                if ( addresses[i].family == 'IPv4' ) {
+                    networkList.push({
+                        id: networkList.length,
+                        display: k + " (" + addresses[i].address + ")",
+                        address: addresses[i].address
+                    });
+                }
               }
             }            
         }
+        console.log("Network list", networkList);
         if ( hasDeviceList ) {
             for(let i = 0; i < ports.length; i++ ) {
                 let displayName = ports[i].path;
+                console.log("Port",i,ports[i].path, ports[i].manufacturer );
                 if (ports[i]["displayName"]) {
                     displayName = ports[i]["displayName"] + "(" + ports[i].path + ")";
                 }
@@ -207,7 +214,7 @@ class PortControl extends React.Component {
                   {this.dropDown(this.state.hasDeviceList, this.state.deviceList,this.state.deviceId,this.selectDevice)}
                   {this.dropDown(true, this.baudList, this.state.baudId,this.selectBaud)}
                   {this.dropDown(this.state.hasNetList, this.state.netList,this.state.netId,this.selectNet)}
-                  {this.hasNetList?(<input type="number" value={this.state.portNo} onChange={this.setPort}/>):""}
+                  {this.state.hasNetList?(<input type="number" value={this.state.portNo} onChange={this.setPort}/>):""}
                   <button onClick={this.clickConnect} title="connect">{"\u25BA"}</button>
                   {this.state.hasNetList?(<button onClick={this.clickRefresh} title="refresh" >{"\u21BA"}</button>):""}
                 </div>

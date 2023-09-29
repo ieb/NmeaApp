@@ -305,7 +305,6 @@ class TextBox extends React.Component {
             const h = [];
             const v = await this.storeAPI.getHistory(this.field);
             this.debug(this.field, "Values", v);
-            console.log(this.field, "Values", v);
             if (dataType.withHistory && v &&  v.data.length > 1) {
                 h.push(dataType.toDisplayUnits(v.value));
                 for (let i = 0; i < v.data.length; i++) {

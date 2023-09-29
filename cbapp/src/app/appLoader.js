@@ -4,16 +4,36 @@ const { AppMain }  = require('./appMain.js');
 function load(app, ipcMain) {
     const appMain = new AppMain();
     app.on("ready", () => {
-        ipcMain.handle('mainAPI->getNetworkAddresses', appMain.getNetworkAddresses),
-        ipcMain.handle('mainAPI->getDevices', appMain.getDevices),
-        ipcMain.handle('mainAPI->stopServer', appMain.stopServer),
-        ipcMain.handle('mainAPI->closeConnection', appMain.closeConnection),
-        ipcMain.handle('mainAPI->startServer', appMain.startServer),
-        ipcMain.handle('mainAPI->openConnection', appMain.openConnection),
-        ipcMain.handle('mainAPI->getPacketsRecieved', appMain.getPacketsRecieved)
-        ipcMain.handle('storeApi->getState', appMain.store.getState),
-        ipcMain.handle('storeApi->getHistory', appMain.store.getHistory),
-        ipcMain.handle('storeApi->getKeys', appMain.store.getKeys)
+        ipcMain.handle('mainAPI->getNetworkAddresses', async (event, ...args) => {
+            return await appMain.getNetworkAddresses(...args);
+        }),
+        ipcMain.handle('mainAPI->getDevices', async (event, ...args) => {
+            return appMain.getDevices(...args);
+        }),
+        ipcMain.handle('mainAPI->stopServer', async (event, ...args) => {
+            return appMain.stopServer(...args);
+        }),
+        ipcMain.handle('mainAPI->closeConnection',  async (event, ...args) => {
+            return appMain.closeConnection(...args);
+        }),
+        ipcMain.handle('mainAPI->startServer',  async (event, ...args) => {
+            return  appMain.startServer(...args);
+        }),
+        ipcMain.handle('mainAPI->openConnection',  async (event, ...args) => {
+            return  appMain.openConnection(...args);
+        }),
+        ipcMain.handle('mainAPI->getPacketsRecieved',  async (event, ...args) => {
+            return  appMain.getPacketsRecieved(...args);
+        }),
+        ipcMain.handle('storeApi->getState',  async (event, ...args) => {
+            return  appMain.store.getState(...args);
+        }),
+        ipcMain.handle('storeApi->getHistory',  async (event, ...args) => {
+            return  appMain.store.getHistory(...args);
+        }),
+        ipcMain.handle('storeApi->getKeys',  async (event, ...args) => {
+            return  appMain.store.getKeys(...args);
+        })
     });
     return appMain;
 }

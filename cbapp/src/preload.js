@@ -4,13 +4,14 @@
 
 const { contextBridge, ipcRenderer } = require('electron');
 
+// Only 1 parameter in each ipc message, the second parameter is an event.
 contextBridge.exposeInMainWorld('mainAPI',{
         getNetworkAddresses: () => ipcRenderer.invoke('mainAPI->getNetworkAddresses'),
         getDevices: () => ipcRenderer.invoke('mainAPI->getDevices'),
         stopServer: () => ipcRenderer.invoke('mainAPI->stopServer'),
         closeConnection: () => ipcRenderer.invoke('mainAPI->closeConnection'),
         startServer: (address, port) => ipcRenderer.invoke('mainAPI->startServer', address, port),
-        openConnection: (baud) => ipcRenderer.invoke('mainAPI->openConnection',baud),
+        openConnection: (path, baud) => ipcRenderer.invoke('mainAPI->openConnection',path, baud),
         getPacketsRecieved: () => ipcRenderer.invoke('mainAPI->getPacketsRecieved'),
     });
 contextBridge.exposeInMainWorld('storeAPI',{

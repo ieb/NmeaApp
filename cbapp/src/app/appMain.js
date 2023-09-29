@@ -40,7 +40,7 @@ class AppMain {
         }
         console.log("Backend running");
     }
-    stop() {
+    async shutdown() {
         if (this.updateInterval) {
             clearInterval(this.updateInterval);
             this.updateInterval = undefined;
@@ -49,6 +49,8 @@ class AppMain {
             clearInterval(this.clientInterval);
             this.clientInterval = undefined;
         }
+        await this.nmea0183Reader.close();
+        await this.tcpServer.close();
     }
 
 
@@ -69,26 +71,29 @@ class AppMain {
     }
 
     async getDevices() {
-        return undefined;
+        return await this.nmea0183Reader.listPorts();
     }
 
 
     async getNetworkAddresses() {
-        return undefined;
+        return await this.tcpServer.networkInterfces();
     }
-    async startServer(port) {
-        this.tcpServer.open(port);
+    async startServer(address, port) {
+        console.log("Got startServer message",address, port);
+        return await this.tcpServer.open(address, port);
     }
 
       async stopServer() {
-        this.tcpServer.close();
+        return await this.tcpServer.close();
       }
 
-      async openConnection(baud, devicePath) {
-        await this.nmea0183Reader.open(devicePath, baud);
+      async openConnection(path, baud) {
+        console.log("Got openConnection message",path, baud);
+        return await this.nmea0183Reader.open(path, baud);
       }
 
       async closeConnection() {
+        return await this.nmea0183Reader.close();
       }
 
       getPacketsRecieved() {
