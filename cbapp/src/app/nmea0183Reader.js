@@ -1,7 +1,7 @@
 "use strict";
-import { SerialPort } from 'serialport';
-import { ReadlineParser } from '@serialport/parser-readline';
-import { EventEmitter } from 'node:events';
+const { SerialPort }  = require('serialport');
+const { ReadlineParser }  = require('@serialport/parser-readline');
+const { EventEmitter }  = require('node:events');
 
 
 class NMEA0183Reader extends EventEmitter {
@@ -45,4 +45,4 @@ class NMEA0183Reader extends EventEmitter {
 
 }
 
-export { NMEA0183Reader };
+module.exports =  { NMEA0183Reader };

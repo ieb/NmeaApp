@@ -417,5 +417,5 @@ class Performance {
     }
 }
 
-export { Calculations };
+module.exports =  { Calculations };
 

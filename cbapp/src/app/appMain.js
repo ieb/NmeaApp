@@ -1,10 +1,10 @@
 "use strict";
 
-import { NMEA0183Handler } from "./nmeahandler.mjs";
-import { Calculations } from "./calculations.mjs";
-import { Store } from "./store.mjs";
-import { NMEA0183Reader } from './nmea0183Reader.mjs';
-import { TcpServer } from './tcpServer.mjs';
+const { NMEA0183Handler }  = require( "./nmeahandler.js");
+const { Calculations }  = require("./calculations.js");
+const { Store }  = require("./store.js");
+const { NMEA0183Reader }  = require('./nmea0183Reader.js');
+const { TcpServer }  = require('./tcpServer.js');
 
 class AppMain {
     constructor() {
@@ -25,24 +25,30 @@ class AppMain {
         // start the update intervals
         this.update = this.update.bind(this);
         this.updateTcpClients = this.updateTcpClients.bind(this);
-        setInterval(this.update, 500);
-        setInterval(this.updateTcpClients, 500);
-
-
         // connect the reader to the parser
         this.nmea0183Reader.on('message', (line) => {
             this.nmeaHandler.parseSentence(line);
         });
 
-
-
     }
-
-    getMainAPI () {
-        return this;
+    start() {
+        if (!this.updateInterval) {
+            this.updateInterval = setInterval(this.update, 500);
+        }
+        if (!this.clientInterval) {
+            this.clientInterval = setInterval(this.updateTcpClients, 500);
+        }
+        console.log("Backend running");
     }
-    getStoreAPI() {
-        return this.store;
+    stop() {
+        if (this.updateInterval) {
+            clearInterval(this.updateInterval);
+            this.updateInterval = undefined;
+        }
+        if (this.clientInterval) {
+            clearInterval(this.clientInterval);
+            this.clientInterval = undefined;
+        }
     }
 
 
@@ -91,4 +97,4 @@ class AppMain {
 
 }
 
-export { AppMain };
+module.exports =  { AppMain };

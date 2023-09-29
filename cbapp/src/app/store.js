@@ -267,4 +267,4 @@ class AngularHistory {
     }    
 }
 
-export { Store };
+module.exports =  { Store };

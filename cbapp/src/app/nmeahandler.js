@@ -135,4 +135,4 @@ class NMEA0183Handler {
     }
 }
 
-export { NMEA0183Handler };
+module.exports =  { NMEA0183Handler };

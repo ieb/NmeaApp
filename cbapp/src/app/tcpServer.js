@@ -1,6 +1,6 @@
 "use strict";
-import net from 'node:net';
-import { EventEmitter } from 'node:events';
+const net  = require('node:net');
+const { EventEmitter }  = require('node:events');
 
 
 /**
@@ -74,4 +74,4 @@ class TcpServer extends EventEmitter {
 }
 
 
-export { TcpServer };
+module.exports = { TcpServer };
