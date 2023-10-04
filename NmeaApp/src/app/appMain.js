@@ -13,6 +13,7 @@ class AppMain {
         this.calculations = new Calculations();
         this.tcpServer = new TcpServer();
         this.nmea0183Reader = new NMEA0183Reader();
+        this.packetsRecieved = 0;
         // must bind the API methods.
         this.getNetworkAddresses = this.getNetworkAddresses.bind(this);
         this.getDevices = this.getDevices.bind(this);
@@ -28,6 +29,7 @@ class AppMain {
         // connect the reader to the parser
         this.nmea0183Reader.on('message', (line) => {
             this.nmeaHandler.parseSentence(line);
+            this.packetsRecieved++;
         });
 
     }
@@ -64,9 +66,12 @@ class AppMain {
         const that = this;
         if ( this.tcpServer.hasConnections() ) {
           const sentences = that.nmeaHandler.getSentencesToSend();
-          for (const sentence of sentences) {
-            this.tcpServer.send(sentence.line+"\n\r");
-          }                    
+          if ( sentences && sentences.length > 0) {
+              for (const sentence of sentences) {
+                this.tcpServer.send(sentence.line+"\n\r");
+              }                    
+
+          }
         }
     }
 

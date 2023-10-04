@@ -205,8 +205,8 @@ class MenuButton extends React.Component {
     }
 
     componentDidMount() {
-        this.updateInterval = setInterval((() => {
-            const packetsRecieved = this.props.mainAPI.getPacketsRecieved();
+        this.updateInterval = setInterval((async () => {
+            const packetsRecieved = await this.props.mainAPI.getPacketsRecieved();
             if (this.lastPacketsRecived !== packetsRecieved ) {
                 this.lastPacketsRecived = packetsRecieved;
                 this.setState({dataIndicatorOn: !this.state.dataIndicatorOn});

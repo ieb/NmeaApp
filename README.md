@@ -44,6 +44,9 @@ available.
 
 # Plans/Todo
 
+* [x] Fixed tcp server
+* [x] Confirm works on ChromeOS
 * [ ] Finish testing.
 * [ ] Write a gs_usb driver to read NMEA2000 bytes directly from the CAN bus via one of the cheap, very low power, USB-Can adapters (eg CandelLite). The firmware is available in source code which reveals the USB protocol, so no USB drivers needed (they are not available in ChromeOS). There is also a Python module that uses usblib to access gs_usb.
+* [ ] Write a B&G view.
 * [ ] Do some fun visualizations, charts, etc.

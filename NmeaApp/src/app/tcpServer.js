@@ -30,42 +30,58 @@ class TcpServer extends EventEmitter {
     }
 
     hasConnections() {
-        return (Object.keys(this.connections) > 0);
+        return (Object.keys(this.connections).length > 0);
     }
 
-    async open(port) {
-        if ( this.port !== port || this.server === undefined ) {
+    async open(address, port) {
+        if (  this.server === undefined || this.port !== port || this.address !== address  ) {
             await this.close();
             this.port = port || 10110;
+            this.address = address || "0.0.0.0";
+            console.log("Opening TCP Server on ",this.address ,this.port);
             const that = this;
-            this.server = net.createServer();
-            this.server.on('connection', (conn) => {
+            this.server = net.createServer((conn) => {
                 const remoteAddress = `${conn.remoteAddress}:${conn.remotePort}`;
+                console.log(`connection ${remoteAddress} opened`);
                 that.connections[remoteAddress] = conn;
                 conn.setEncoding('utf8');
                 conn.on('data', (d) => {
                     console.log(`connection ${remoteAddress} data  ${d}`);
                     that.emit('data', remoteAddress, d);
                 });
-                conn.once('close', () => {
-                    console.log(`connection ${remoteAddress} closed`);
+                conn.on('close', (hadError) => {
+                    console.log(`connection ${remoteAddress} closed Error:${hadError}`);
                     delete that.connections[remoteAddress];
-                    that.emit('close', remoteAddress, err);
+                    that.emit('close', remoteAddress);
                 });
-                conn.on('error', (err) => {
-                    console.log(`connection  ${remoteAddress} error ${err.message}`);
-                    that.emit('err', remoteAddress, err);
+                conn.on('timeout', (hadError) => {
+                    console.log(`connection ${remoteAddress} timeout `);
+                    conn.close();
                 });
+                conn.on('error', (error) => {
+                    console.log(`connection ${remoteAddress} error`, error);
+                });
+            });
+            this.server.on('error', (e) => {
+                console.log('tcpserver error',e);
+            });
+            this.server.on('drop', (c) => {
+                console.log('tcpserver dropped',c);
             });
             this.server.on('close', (conn) => {
+                console.log(`tcpserver closed`);
                 that.emit('unlisten');
             });
+            this.server.on('listening', (conn) => {
+                console.log(`tcpserver listening`);
+            });
             return new Promise((resolve, reject ) => {
-                that.server.listen(port, (err) => {
+                console.log("Bind on ",that.port);
+                that.server.listen(that.port, that.address, (err) => {
                     if ( err ) {
                         reject(err);
                     } else {
-                        console.log("Listening on 10110");
+                        console.log("Listening on ",that.port);
                         resolve();
                     }
                 });  
@@ -80,6 +96,7 @@ class TcpServer extends EventEmitter {
 
     }
 
+
     send(message) {
         if ( this.server !== undefined) {
             //should this be async, probably.
@@ -93,9 +110,6 @@ class TcpServer extends EventEmitter {
         return new Promise((resolve) => {
             if ( this.server != undefined ) {
                 console.log("Closing TCP Server");
-                for (const remoteAddress in this.connections) {
-                    this.connections[remoteAddress].close();
-                }
                 this.server.close();
                 this.server = undefined;
                 this.port = 0;            
