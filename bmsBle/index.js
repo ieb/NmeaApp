@@ -4,7 +4,18 @@
 
 window.addEventListener("load", () => {
     const bleReader = new JDBBMSReader();
-    document.getElementById('connect').addEventListener("click", bleReader.pairBms);
+    const timeSeriesManager = new TimeSeriesManager(bleReader);
+
+    const voltagesGraph = new VoltagesGraph();
+    const cellVoltageGraph =  new CellVoltagesGraph();
+    const currentGraph =  new CurrentGraph();
+    const temperatureGraph =  new TemperatureGraph();
+    const stateOfChargeGraph =  new StateOfChargeGraph();
+    const chargeRemainingGraph =  new ChargeRemainingGraph();
+
+
+    document.getElementById('connect').addEventListener("click", bleReader.connectBMS);
+    document.getElementById('disconnect').addEventListener("click", bleReader.disconnectBMS);
 
 
     const setInnerHtmlById = (id, value) => {
@@ -29,12 +40,16 @@ window.addEventListener("load", () => {
     };
 
     bleReader.on('connected', (connected) => {
+        if ( connected ) {
+            timeSeriesManager.start();
+        } else {
+            timeSeriesManager.stop();
+        }
         setClass('connect',connected,'hidden','');
         setClass('disconnect',connected,'','hidden');
     });
 
     bleReader.on("statusUpdate", (statusUpdate) => {
-        setInnerHtmlById("status.voltage", statusUpdate.voltage.toFixed(2));
         setInnerHtmlById("status.voltage", statusUpdate.voltage.toFixed(2));
         setInnerHtmlById("status.current", statusUpdate.current.toFixed(1));
         setInnerHtmlById("status.capacity.stateOfCharge", statusUpdate.capacity.stateOfCharge.toFixed(0));
@@ -72,8 +87,25 @@ window.addEventListener("load", () => {
         setInnerHtmlById('cell.range', `${(0.001*cellMin).toFixed(3)} - ${(0.001*cellMax).toFixed(3)}`);
         setInnerHtmlById('cell.diff', (0.001*range).toFixed(3));
         setInnerHtmlById("status.lastUpdate", (new Date()).toString());
-
     });
+
+    timeSeriesManager.timeSeries.on("update", (history) => {
+        console.log("Update Graphs");
+        voltagesGraph.update(history);
+        cellVoltageGraph.update(history);
+        currentGraph.update(history);
+        temperatureGraph.update(history);
+        stateOfChargeGraph.update(history);
+        chargeRemainingGraph.update(history);
+    });
+
+        voltagesGraph.update(timeSeriesManager.timeSeries.history);
+        cellVoltageGraph.update(timeSeriesManager.timeSeries.history);
+        currentGraph.update(timeSeriesManager.timeSeries.history);
+        temperatureGraph.update(timeSeriesManager.timeSeries.history);
+        stateOfChargeGraph.update(timeSeriesManager.timeSeries.history);
+        chargeRemainingGraph.update(timeSeriesManager.timeSeries.history);
+
 
 });
 

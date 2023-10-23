@@ -42,11 +42,12 @@ class JDBBMSReader {
     _listeners = {};
 
     constructor() {
-        this.pairBms = this.pairBms.bind(this);
+        this.connectBMS = this.connectBMS.bind(this);
+        this.disconnectBMS = this.disconnectBMS.bind(this);
     }
 
 
-    async pairBms() {
+    async connectBMS() {
 
       let options = {
         filters: [
@@ -96,13 +97,17 @@ class JDBBMSReader {
 
         setInterval(function  () {
             pullData(); 
-         }, 5000);
+         }, 3000);
 
         this._emitEvent("connected", 1);
 
       } catch(error)  {
         console.log('Error connecting to BMS ' + error);
       }
+    }
+
+    async disconnectBMS() {
+
     }
 
 
