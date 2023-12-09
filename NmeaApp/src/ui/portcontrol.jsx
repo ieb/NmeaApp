@@ -1,10 +1,18 @@
 import React from 'react';
+import PropTypes from 'prop-types';
 
 
 class PortControl extends React.Component {
+    static propTypes = {
+        mainAPI: PropTypes.object,
+        nmea0183: PropTypes.bool
+    };
+
+
     constructor(props) {
         super(props);
         this.mainAPI = props.mainAPI;
+        this.nmea0183 = props.nmea0183;
         this.lastPacketsRecived;
         this.state = {
             deviceId: 0,
@@ -48,8 +56,8 @@ class PortControl extends React.Component {
     }
 
     componentDidMount() {
-        this.updateInterval = setInterval((() => {
-            const packetsRecieved = this.mainAPI.getPacketsRecieved();
+        this.updateInterval = setInterval((async () => {
+            const packetsRecieved = await this.mainAPI.getPacketsRecieved();
             if (this.lastPacketsRecived !== packetsRecieved ) {
                 this.lastPacketsRecived = packetsRecieved;
                 this.setState({dataIndicatorOn: !this.state.dataIndicatorOn});
@@ -67,9 +75,17 @@ class PortControl extends React.Component {
 
     // eslint-disable-next-line  no-unused-vars 
     async clickDisconnect(event) {
-        await this.mainAPI.stopServer();
-        await this.mainAPI.closeConnection();
         this.setState({
+            closing: true
+        });
+        await this.mainAPI.stopServer();
+        if ( this.nmea0183 ) {
+            await this.mainAPI.closeConnection();
+        } else {
+            await this.mainAPI.closeNMEA2000();
+        }
+        this.setState({
+            closing: false,
             isOpen: false
         });
     }
@@ -87,19 +103,25 @@ class PortControl extends React.Component {
         } else {
             console.log("No Network list available");
         }
-        if ( this.state.hasDeviceList ) {
-            console.log("Open serial ");            
-            await this.mainAPI.openConnection(this.state.deviceList[this.state.deviceId].path,this.baudList[this.state.baudId].baud);
-            console.log("Serial Open");
-            open = true;
-            const serialDevice = `${this.state.deviceList[this.state.deviceId].path} ${this.baudList[this.state.baudId].baud}`;
-            this.setState({
-                isOpen: open,
-                serialDevice
-            });
+        if ( this.nmea0183 ) {
+            console.log("baudList is ", this.baudList, this.state.baudId, this.baudList[this.state.baudId]);
+            if ( this.state.hasDeviceList ) {
+                console.log("Open serial ");            
+                await this.mainAPI.openConnection(this.state.deviceList[this.state.deviceId].path,this.baudList[this.state.baudId].baud);
+                console.log("Serial Open");
+                const serialDevice = `${this.state.deviceList[this.state.deviceId].path} ${this.baudList[this.state.baudId].baud}`;
+                this.setState({
+                    isOpen: true,
+                    serialDevice
+                });
+            } else {
+                console.log("No device available.");
+            }
         } else {
-            console.log("No device available.");
-
+            await this.mainAPI.openNMEA2000();
+            this.setState({
+                isOpen: true
+            });
         }
     }
 
@@ -125,7 +147,6 @@ class PortControl extends React.Component {
         const networkList = [];
         const deviceList = [];
         const hasNetList = (networks !== undefined);
-        const hasDeviceList = (ports !== undefined);
         if ( hasNetList ) {
             for (var k in networks) {
               const addresses = networks[k];
@@ -140,20 +161,24 @@ class PortControl extends React.Component {
               }
             }            
         }
-        console.log("Network list", networkList);
-        if ( hasDeviceList ) {
-            for(let i = 0; i < ports.length; i++ ) {
-                let displayName = ports[i].path;
-                console.log("Port",i,ports[i].path, ports[i].manufacturer );
-                if (ports[i]["displayName"]) {
-                    displayName = ports[i]["displayName"] + "(" + ports[i].path + ")";
-                }
-                deviceList.push({
-                    id: i,
-                    display: displayName,
-                    path: ports[i].path
-                });
-            }            
+        let hasDeviceList = false;
+        if ( this.nmea0183 ) {
+            hasDeviceList = (ports !== undefined);
+            console.log("Network list", networkList);
+            if ( hasDeviceList ) {
+                for(let i = 0; i < ports.length; i++ ) {
+                    let displayName = ports[i].path;
+                    console.log("Port",i,ports[i].path, ports[i].manufacturer );
+                    if (ports[i]["displayName"]) {
+                        displayName = ports[i]["displayName"] + "(" + ports[i].path + ")";
+                    }
+                    deviceList.push({
+                        id: i,
+                        display: displayName,
+                        path: ports[i].path
+                    });
+                }            
+            }
         }
         const newState = {
             hasNetList: hasNetList,
@@ -180,12 +205,20 @@ class PortControl extends React.Component {
     }
     showConnection() {
         if (this.state.hasNetList) {
-            return (
-                <p>Serial:  <span className="running" >{this.state.serialDevice}</span> 
-                   Tcp: <span className="running" >{this.state.endpoint}</span>
-                </p>
-            );
+            if ( this.nmea0183) {
+                return (
+                    <p>Serial:  <span className="running" >{this.state.serialDevice}</span> 
+                       Tcp: <span className="running" >{this.state.endpoint}</span>
+                    </p>
+                );                
+            } else {
+                return (
+                    <p>NMEA2000 -> Tcp: <span className="running" >{this.state.endpoint}</span>
+                    </p>
+                );                
+            }
         } else {
+
             return (
                 <p>
                 Connected at <span className="running" >{this.state.baudRate}</span> 
@@ -195,7 +228,16 @@ class PortControl extends React.Component {
 
     }
     render() {
-        if ( this.state.isOpen ) {
+        if ( this.state.closing ) {
+            return (
+                <div className="serialPortControl">
+                    <div className="controls" >
+                        Closing.....
+                        {this.showConnection()}
+                    </div>
+                </div>
+            );
+        } else if ( this.state.isOpen ) {
             //const indicatorClass = this.state.dataIndicatorOn?"iOn":"iOff";
                     /*<div className={indicatorClass}>{"\u2299"}</div>*/
             return (
@@ -209,16 +251,27 @@ class PortControl extends React.Component {
                 </div>
             );
         } else {
-            return (
-                <div className="controls serialPortControl" >
-                  {this.dropDown(this.state.hasDeviceList, this.state.deviceList,this.state.deviceId,this.selectDevice)}
-                  {this.dropDown(true, this.baudList, this.state.baudId,this.selectBaud)}
-                  {this.dropDown(this.state.hasNetList, this.state.netList,this.state.netId,this.selectNet)}
-                  {this.state.hasNetList?(<input type="number" value={this.state.portNo} onChange={this.setPort}/>):""}
-                  <button onClick={this.clickConnect} title="connect">{"\u25BA"}</button>
-                  {this.state.hasNetList?(<button onClick={this.clickRefresh} title="refresh" >{"\u21BA"}</button>):""}
-                </div>
-            );                
+            if ( this.nmea0183 ) {
+                return (
+                    <div className="controls serialPortControl" >
+                      {this.dropDown(this.state.hasDeviceList, this.state.deviceList,this.state.deviceId,this.selectDevice)}
+                      {this.dropDown(true, this.baudList, this.state.baudId,this.selectBaud)}
+                      {this.dropDown(this.state.hasNetList, this.state.netList,this.state.netId,this.selectNet)}
+                      {this.state.hasNetList?(<input type="number" value={this.state.portNo} onChange={this.setPort}/>):""}
+                      <button onClick={this.clickConnect} title="connect">{"\u25BA"}</button>
+                      {this.state.hasNetList?(<button onClick={this.clickRefresh} title="refresh" >{"\u21BA"}</button>):""}
+                    </div>
+                );                
+            } else {
+                return (
+                    <div className="controls serialPortControl" >
+                      {this.dropDown(this.state.hasNetList, this.state.netList,this.state.netId,this.selectNet)}
+                      {this.state.hasNetList?(<input type="number" value={this.state.portNo} onChange={this.setPort}/>):""}
+                      <button onClick={this.clickConnect} title="connect">{"\u25BA"}</button>
+                      {this.state.hasNetList?(<button onClick={this.clickRefresh} title="refresh" >{"\u21BA"}</button>):""}
+                    </div>
+                );
+            }
         }   
     }
 }

@@ -1,8 +1,10 @@
 "use strict";
+const { EventEmitter }  = require('node:events');
 
 
-class NMEA0183Handler {
+class NMEA0183Handler  extends EventEmitter {
     constructor() {
+        super();
         this.sentences = {};
     }
 
@@ -11,6 +13,7 @@ class NMEA0183Handler {
         const sentenceIdent = this._getSentenceId(line);
         if ( sentenceIdent !== undefined) {
             this._mergeSentence(sentenceIdent.key, sentenceIdent);
+            this.emit("nmea0183Sentence", sentenceIdent);
         }
     }
 
@@ -20,8 +23,8 @@ class NMEA0183Handler {
         let line = fields.join(',');
         for (var i = 1; i < line.length; i++) {
             check = check ^ line.charCodeAt(i);
-        };
-        check = check.toString(16);
+        }
+        check = ("00"+check.toString(16)).slice(-2);
         line = line+'*'+check;
         this._mergeSentence(id, {
                 key: fields[0].substring(1,6),
@@ -126,7 +129,7 @@ class NMEA0183Handler {
             let check = 0;
             for (var i = 1; i < parts[0].length; i++) {
               check = check ^ parts[0].charCodeAt(i);
-            };
+            }
             if (parseInt(parts[1], 16) == check) {
                 return parts[0].split(',');
             }

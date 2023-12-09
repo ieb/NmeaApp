@@ -4,10 +4,9 @@
 class Store {
     constructor() {
         this.state = {};
+        this.newState = {};
         this.history = {
             awa: new AngularHistory(),
-            aws: new LinearHistory(),
-            stw: new LinearHistory(),
             aws: new LinearHistory(),
             tws: new LinearHistory(),
             twa: new AngularHistory(),
@@ -62,45 +61,195 @@ class Store {
 
     /* Non exposed API methods */
 
-    update(handler) {
-        const sentences = handler.updatesSince(this.state.lastUpdate);
-        this.state.lastUpdate = sentences.slice(-1)[0].lastUpdate;
-        if ( sentences[0].id === 'timestamp' ) {
-            return;
-        }
-        const newState = {};
-        for (var k in sentences) {
-            if (sentences[k].id === 'MWV' ) {
-                if ( sentences[k].fields[4] === 'A' && sentences[k].fields[1] === 'R' && sentences[k].fields[3] === 'N' ) {
-                    newState.awa = sentences[k].fields[0]*Math.PI/180;
-                    newState.aws = sentences[k].fields[2]*0.514444;
+    // When using a NMEA0183 feed.
+    updateFromNMEA0183Stream(sentence) {
+        const newState = this.newState || {};
+        switch(sentence.id) {
+            case 'MWV':
+                if ( sentence.fields[4] === 'A' && sentence.fields[1] === 'R' && sentence.fields[3] === 'N' ) {
+                    newState.awa = sentence.fields[0]*Math.PI/180;
+                    newState.aws = sentence.fields[2]*0.514444;
                 }
-            } else if (sentences[k].id === 'ROL') {
-                newState.roll = sentences[k].fields[0]*Math.PI/180;
-            } else if ( sentences[k].id === 'VHW') {
-                newState.hdm = sentences[k].fields[2]*Math.PI/180;
-                newState.stw = sentences[k].fields[4]*0.514444;
-            } else if ( sentences[k].id === 'HDG') {
-                newState.hdm = sentences[k].fields[0]*Math.PI/180;
-                newState.variation = sentences[k].fields[3]*Math.PI/180;
-                if ( sentences[k].fields[4] == 'W') {
+                break;
+            case 'ROL':
+                newState.roll = sentence.fields[0]*Math.PI/180;
+                break;
+            case 'VHW':
+                newState.hdm = sentence.fields[2]*Math.PI/180;
+                newState.stw = sentence.fields[4]*0.514444;
+                break;
+            case 'HDG':
+                newState.hdm = sentence.fields[0]*Math.PI/180;
+                newState.variation = sentence.fields[3]*Math.PI/180;
+                if ( sentence.fields[4] == 'W') {
                     newState.variation = -newState.variation;
                 }
-            } else if (sentences[k].id == 'VTG') {
-                newState.cogt = sentences[k].fields[0]*Math.PI/180;
-                newState.sog = sentences[k].fields[4]*0.514444;
-            }
+                break;
+            case 'VTG':
+                newState.cogt = sentence.fields[0]*Math.PI/180;
+                newState.sog = sentence.fields[4]*0.514444;
+                break;
         }
-        //console.log("Updates ",sentences.length, newState);
-
-        this.mergeUpdate(newState, this.state.lastUpdate);
     }
 
-    mergeUpdate(newState, ts) {
-        for ( var k in newState ) {
-            if ( newState[k] !== this.state[k]) {
-                this.state.lastChange = ts;
-                this.state[k]= newState[k];
+    // When streaming NMEA2000 messages.
+    updateFromNMEA2000Stream(message) {
+
+        // only messages where there is a value in putting them into the store\
+        // should be added to the store. Forother messages simply subscribe directly to the message
+        // in the visualisation. (how TBD)
+        // Reasoning, is to mimimise CPU usage by not doing unecessary work that isnt used.
+        const newState = this.newState || {};
+        switch(message.pgn) {
+            case 126992: // System time
+                // Use GNSS message
+                //if ( message.timeSource.name === "GPS") {
+                //    newState.systemDate = message.systemDate;
+                //    newState.systemTime = message.systemTime;
+                //}
+                break;
+            case 127250: // Heading
+                if ( message.ref.name === "Magnetic") {
+                    newState.hdm = message.heading;
+                    newState.deviation = message.deviation;
+                    newState.variation = message.variation;
+                }
+                break;
+            case 127257: // attitude
+                newState.yaw = message.yaw;
+                newState.pitch = message.pitch;
+                newState.roll = message.roll;
+                break;
+            case 127258: // variation
+                // Use heading message
+                //newState.variationValue = message.variation;
+                //newState.variationdaysSince1970 = message.daysSince1970;
+                //newState.variationModel = message.source.name;
+                break;
+            case 128259: // speed
+                newState.stw = message.waterReferenced;
+                newState.speedGroundReferenced = message.groundReferenced;
+                newState.swrt = message.swrt;
+                break;
+            case 128267: // depth
+                newState.dbt = message.depthBelowTransducer;
+                newState.depthOffset = message.offset;
+
+
+
+                break;
+            case 128275: // log
+                //newState.logSecondsSinceMidnight = message.secondsSinceMidnight;
+                //newState.logDaysSince1970 = message.daysSince1970;
+                newState.log = message.log;
+                newState.tripLog = message.tripLog;
+                break;
+            case 129029: // GNSS
+                // if a more complete view of GNSS is required, then create a subscriber to the 
+                // messages directly.
+                newState.latitude = message.latitude;
+                newState.longitude = message.longitude;
+                newState.gpsDaysSince1970 = message.daysSince1970;
+                newState.gpsSecondsSinceMidnight = message.secondsSinceMidnight;
+                break;
+            case 129026: // sog cog rapid
+                if ( message.ref.name === "True" ) {
+                    newState.cogt = message.cog;
+                    newState.sog = message.sog;
+                } else if ( message.ref.name === "Magnetic" ) {
+                    newState.cogm = message.cog;
+                    newState.sog = message.sog;
+                }
+                break;
+            case 129283: // XTE
+                // ignore for now.
+                break;
+            case 130306: // wind
+                if (message.windReference.name === "Apparent" ) {
+                    newState.aws = message.windSpeed;
+                    newState.awa = message.windAngle;
+                } else if (message.windReference.name === "True" ) {
+                    newState.tws = message.windSpeed;
+                    newState.twa = message.windAngle;
+                }
+                break;
+            case 127506: // DC Status
+                // ignore for now, may be able to get from LifePO4 BT adapter
+                break;
+            case 127508: // DC Bat status
+                newState["voltage_"+message.instance] = message.batteryVoltage;
+                newState["current_"+message.instance] = message.batteryCurrent;
+                newState["temperature_"+message.instance] = message.batteryTemperature;
+                break;
+            case 130312: // temp
+
+
+/*
+Dont store 
+
+        "temperatureSource": {
+            0: { id: 0, name:"Sea Temperature"},
+            1: { id: 1, name:"Outside Temperature"},
+            2: { id: 2, name:"Inside Temperature"},
+            3: { id: 3, name:"Engine Room Temperature"},
+            4: { id: 4, name:"Main Cabin Temperature"},
+            5: { id: 5, name:"Live Well Temperature"},
+            6: { id: 6, name:"Bait Well Temperature"},
+            7: { id: 7, name:"Refrigeration Temperature"},
+            8: { id: 8, name:"Heating System Temperature"},
+            9: { id: 9, name:"Dew Point Temperature"},
+            10: { id: 10, name:"Apparent Wind Chill Temperature"},
+            11: { id: 11, name:"Theoretical Wind Chill Temperature"},
+            12: { id: 12, name:"Heat Index Temperature"},
+            13: { id: 13, name:"Freezer Temperature"},
+            14: { id: 14, name:"Exhaust Gas Temperature"},
+            15: { id: 15, name:"Shaft Seal Temperature"},
+        },
+
+                        return  {
+            pgn: 130312,
+            message: "Temperature",
+            sid: this.getByte(message,0),
+            instance: this.getByte(message,1),
+            source: NMEA2000Reference.lookup("temperatureSource",this.getByte(message,2)),
+            actualTemperature: this.get2ByteUDouble(message, 3,0.01),
+            requestedTemperature: this.get2ByteUDouble(message, 5,0.01)
+        };
+*/
+
+
+                break;
+            case 127505: // fluid level
+                if (message.fluidType.name === "Fuel" ) {
+                    newState["fuelLevel_"+message.instance] = message.fluidLevel;
+                    newState["fuelCapacity_"+message.instance] = message.fluidCapacity;
+                }
+                break;
+            case 127489: // Engine Dynamic params
+                // ignore most fields for storage
+                newState["engineCoolantTemperature_"+message.engineInstance] = message.engineCoolantTemperature;
+                newState["alternatorVoltage_"+message.engineInstance] = message.alternatorVoltage;
+                break;
+            case 127488: // Engine Rapiod
+                newState["engineSpeed_"+message.engineInstance] = message.engineSpeed;
+                break;
+            case 130314: // pressure
+                if (message.pressureSource.name === "Atmospheric" ) {
+                    newState["atmosphericPressure_"+message.pressureInstance] = message.actualPressure;
+                }
+                break;
+            case 127245: // rudder
+                newState.rudderPosition = message.rudderPosition;
+                break;
+            }
+    }
+
+    mergeUpdate() {
+        const now = Date.now();
+        for ( var k in this.newState ) {
+            if ( this.newState[k] !== this.state[k]) {
+                this.state.lastChange = now;
+                this.state[k]= this.newState[k];
             }
         }
         this.updateHistory();        
@@ -169,7 +318,7 @@ class LinearHistory {
             for (let i = this.data.length - 1; i >= 0; i--) {
                 this.min = Math.min(this.data[i],this.min);
                 this.max = Math.max(this.data[i],this.max);
-            };
+            }
         }
     }
 }
@@ -261,7 +410,7 @@ class AngularHistory {
                 for (var i = this.data.length - 1; i >= 0; i--) {
                     this.min = Math.min(this.data[i],this.min);
                     this.max = Math.max(this.data[i],this.max);
-                };
+                }
             }
         }
     }    

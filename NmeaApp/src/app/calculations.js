@@ -23,7 +23,7 @@ class Calculations {
         return v;        
     }
 
-    update(store, handler) {
+    update(store, nmea0183Handler) {
         if ( store.state.lastChange <= this.state.lastUpdate) {
             return;
         }
@@ -48,45 +48,54 @@ class Calculations {
             this.enhance();
             this.state.lastCalc = this.state.lastChange;
             // write the sentences to the parser
-            this.savePerformanceSentences(store, handler);
+            this.savePerformanceSentences(store, nmea0183Handler);
         }
     }
 
 
-    savePerformanceSentences(store, handler) {
-        // for NKE instruments.
-        handler.updateSentence('PNKEP01', ['$PNKEP',
-                                    '01',
-                                    (this.state.polarSpeed*1.9438452).toFixed(2),
-                                    'N',
-                                    (this.state.polarSpeed*3.6).toFixed(2),
-                                    'K'], this.state.lastCalc);
-        handler.updateSentence('PNKEP02', ['$PNKEP',
-                                    '02',
-                                    (this.state.oppositeTrackMagnetic*180/Math.PI).toFixed(2)
-                                    ], this.state.lastCalc);
-        handler.updateSentence('PNKEP03', ['$PNKEP',
-                                    '03',
-                                    (this.state.targetTwa*180/Math.PI).toFixed(2),
-                                    (this.state.polarVmgRatio*100).toFixed(2),
-                                    (this.state.polarSpeedRatio*100).toFixed(2)
-                                    ], this.state.lastCalc);
-        handler.updateSentence('PNKEP99', ['$PNKEP',   
-                                    '99',
-                                    (this.state.awa*180/Math.PI).toFixed(2),
-                                    (this.state.aws*1.9438452).toFixed(2),
-                                    (this.state.twa*180/Math.PI).toFixed(2),
-                                    (this.state.tws*1.9438452).toFixed(2),
-                                    (this.state.stw*1.9438452).toFixed(2),
-                                    (this.state.polarSpeed*1.9438452).toFixed(2),
-                                    (this.state.polarSpeedRatio*1.0).toFixed(3)], this.state.lastCalc);
-        // for other instruments.
-        handler.updateSentence('MWVT', ['$IIMWV',
-                    (this.state.twa*180/Math.PI).toFixed(2),
-                    'T',
-                    (this.state.tws*1.9438452).toFixed(2),
-                    'K',
-                    'A'], this.state.lastCalc);
+    savePerformanceSentences(store, nmea0183Handler) {
+        if ( nmea0183Handler) {
+            // If using a store of NMEA0183 messages, then update them
+            // by default these are saved in the store which can be used to generate
+            // NMEA0183 messages on demand.
+            // for NKE instruments.
+            nmea0183Handler.updateSentence('PNKEP01', ['$PNKEP',
+                                        '01',
+                                        (this.state.polarSpeed*1.9438452).toFixed(2),
+                                        'N',
+                                        (this.state.polarSpeed*3.6).toFixed(2),
+                                        'K'], this.state.lastCalc);
+            nmea0183Handler.updateSentence('PNKEP02', ['$PNKEP',
+                                        '02',
+                                        (this.state.oppositeTrackMagnetic*180/Math.PI).toFixed(2)
+                                        ], this.state.lastCalc);
+            nmea0183Handler.updateSentence('PNKEP03', ['$PNKEP',
+                                        '03',
+                                        (this.state.targetTwa*180/Math.PI).toFixed(2),
+                                        (this.state.polarVmgRatio*100).toFixed(2),
+                                        (this.state.polarSpeedRatio*100).toFixed(2)
+                                        ], this.state.lastCalc);
+            nmea0183Handler.updateSentence('PNKEP99', ['$PNKEP',   
+                                        '99',
+                                        (this.state.awa*180/Math.PI).toFixed(2),
+                                        (this.state.aws*1.9438452).toFixed(2),
+                                        (this.state.twa*180/Math.PI).toFixed(2),
+                                        (this.state.tws*1.9438452).toFixed(2),
+                                        (this.state.stw*1.9438452).toFixed(2),
+                                        (this.state.polarSpeed*1.9438452).toFixed(2),
+                                        (this.state.polarSpeedRatio*1.0).toFixed(3)], this.state.lastCalc);
+            // for other instruments.
+            nmea0183Handler.updateSentence('MWVT', ['$IIMWV',
+                        (this.state.twa*180/Math.PI).toFixed(2),
+                        'T',
+                        (this.state.tws*1.9438452).toFixed(2),
+                        'K',
+                        'A'], this.state.lastCalc);
+
+
+          // In Nmea2000 mode also add other calculated values, not normally present                    
+        }
+
         // update the store for internal use.
         //console.log("Calc state", this.state);
         store.mergeUpdate(this.state, this.state.lastCalc);
@@ -219,7 +228,7 @@ class Performance {
         state.targetTwa = 0;
         state.targetStw = 0;
         for(var ttwa = twal; ttwa <= twah; ttwa += Math.PI/180) {
-            var twai = this._findIndexes(this.polarTable.twa, ttwa);
+            twai = this._findIndexes(this.polarTable.twa, ttwa);
             var tswt = this.polarTable.stw[twai[1]][twsi[1]];
             var tvmg = tswt*Math.cos(ttwa);
             if ( Math.abs(tvmg) > Math.abs(state.targetVmg) ) {
@@ -271,19 +280,19 @@ class Performance {
                 throw("Polar STW row "+i+" does not ave enough columns Expected:"+polar.tws.length+" Found:"+polar.stw.length);
           }
         }
-        for (var i = 1; i < polar.twa.length; i++) {
+        for (i = 1; i < polar.twa.length; i++) {
           if ( polar.twa[i] < polar.twa[i-1] ) {
             throw("Polar TWA must be in ascending order and match the columns of stw.");
           }
-        };
-        for (var i = 1; i < polar.tws.length; i++) {
+        }
+        for (i = 1; i < polar.tws.length; i++) {
           if ( polar.tws[i] < polar.tws[i-1] ) {
             throw("Polar TWA must be in ascending order and match the rows of stw.");
           }
-        };
+        }
         // Optimisation.
         return this._buildFinePolarTable(polar);
-    };
+    }
 
 
     /* 
@@ -386,7 +395,7 @@ class Performance {
         r = yl+(yh-yl)*((x-xl)/(xh-xl));
       }
       return r;
-    };
+    }
 
 
     _fixDirection(d) {
@@ -401,7 +410,7 @@ class Performance {
      * tws is in m/s
      * twa is in rad
      */
-    _calcPolarSpeed(polarInput, tws, twa, stw) {
+    _calcPolarSpeed(polarInput, tws, twa) {
         // polar Data is in KN and deg
         tws = tws*1.9438444924;
         twa = twa*180/Math.PI;      

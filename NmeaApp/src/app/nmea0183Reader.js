@@ -34,8 +34,7 @@ class NMEA0183Reader extends EventEmitter {
             const that = this;
             parser.on('data', (line) => {
                 if ( line.startsWith('$') || line.startsWith('!')) {
-                    const key = line.substring(0,6);
-                    that.emit('message', line);
+                    that.emit('sentence', line);
                 }
             });
             return new Promise((resolve, reject) => {

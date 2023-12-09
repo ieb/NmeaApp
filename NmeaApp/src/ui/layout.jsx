@@ -2,11 +2,18 @@ import React from 'react';
 import { PortControl } from './portcontrol.jsx';
 import { EditUIControl } from './uicontrol.jsx';
 import {DataTypes, DisplayUtils } from './datatypes.js';
+import PropTypes from 'prop-types';
 
 
 
 
 class NMEALayout extends React.Component {
+
+    static propTypes = {
+        storeAPI: PropTypes.object,
+        mainAPI: PropTypes.object
+    };
+
     constructor(props) {
         super(props);
         this.props = props;
@@ -117,7 +124,6 @@ class NMEALayout extends React.Component {
         } else if (event === "update") {
             const l = this.getLayout();
 
-            const newBoxes = [];
             console.log("update ",id, field, this.state.boxes);
             const box = l.page.boxes.find((b) => b.id === id);
             box.id = Date.now();
@@ -130,7 +136,7 @@ class NMEALayout extends React.Component {
         localStorage.setItem('layout', this.state.layout);
     }
 
-    onMenuChange(e) {
+    onMenuChange() {
         this.setState({ showMenu: !this.state.showMenu });
 
     }
@@ -140,7 +146,7 @@ class NMEALayout extends React.Component {
         l.layout.pageId = +e.target.value;
         this.setLayout(l);
     }
-    onPageNameChange(e, pageId) {
+    onPageNameChange(e) {
         const l = this.getLayout();
         l.page.name = e.target.value;
         this.setLayout(l);        
@@ -195,6 +201,12 @@ class NMEALayout extends React.Component {
 }
 
 class MenuButton extends React.Component {
+
+    static propTypes = {
+        mainAPI: PropTypes.object,
+        onClick: PropTypes.func
+    };
+
     constructor(props) {
         super(props);
         this.props = props;
@@ -228,6 +240,10 @@ class MenuButton extends React.Component {
 }
 
 class NMEAControls extends React.Component {
+
+    static propTypes = {
+        mainAPI: PropTypes.object
+    };
     constructor(props) {
         super(props);
         this.props = props;
@@ -244,6 +260,17 @@ class NMEAControls extends React.Component {
 
 
 class TextBox extends React.Component {
+    static propTypes = {
+        storeAPI: PropTypes.object,
+        editing: PropTypes.bool,
+        onChange: PropTypes.func,
+        id: PropTypes.string,
+        field: PropTypes.string,
+        theme: PropTypes.string,
+        main: PropTypes.string,
+        updateRate: PropTypes.number
+    };
+
     constructor(props) {
         super(props);
         this.storeAPI = props.storeAPI;
@@ -398,7 +425,7 @@ class TextBox extends React.Component {
     changeTheme(e) {
         this.onChange("theme", this.id, e.target.value);
     }
-    remove(e) {
+    remove() {
         this.onChange("remove", this.id);
     }
     debug(...msg) {
@@ -406,7 +433,7 @@ class TextBox extends React.Component {
             console.log(msg);
         }
     }
-    onDebug(e) {
+    onDebug() {
         this.debugEnable = !this.debugEnable;
     }
     renderEditOverlay() {

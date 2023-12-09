@@ -13,6 +13,8 @@ contextBridge.exposeInMainWorld('mainAPI',{
         startServer: (address, port) => ipcRenderer.invoke('mainAPI->startServer', address, port),
         openConnection: (path, baud) => ipcRenderer.invoke('mainAPI->openConnection',path, baud),
         getPacketsRecieved: () => ipcRenderer.invoke('mainAPI->getPacketsRecieved'),
+        openNMEA2000: () => ipcRenderer.invoke('mainAPI->openNMEA2000'),
+        closeNMEA2000: () => ipcRenderer.invoke('mainAPI->closeNMEA2000'),
     });
 contextBridge.exposeInMainWorld('storeAPI',{
         getState: async (field) => { return await ipcRenderer.invoke('storeApi->getState',field); },

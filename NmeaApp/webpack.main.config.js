@@ -10,5 +10,6 @@ module.exports = {
   },
   externals: {
     serialport: 'serialport',
+    usb: 'usb',
   },
 };

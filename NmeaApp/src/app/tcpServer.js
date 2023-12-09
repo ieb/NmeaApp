@@ -54,7 +54,7 @@ class TcpServer extends EventEmitter {
                     delete that.connections[remoteAddress];
                     that.emit('close', remoteAddress);
                 });
-                conn.on('timeout', (hadError) => {
+                conn.on('timeout', () => {
                     console.log(`connection ${remoteAddress} timeout `);
                     conn.close();
                 });
@@ -68,11 +68,11 @@ class TcpServer extends EventEmitter {
             this.server.on('drop', (c) => {
                 console.log('tcpserver dropped',c);
             });
-            this.server.on('close', (conn) => {
+            this.server.on('close', () => {
                 console.log(`tcpserver closed`);
                 that.emit('unlisten');
             });
-            this.server.on('listening', (conn) => {
+            this.server.on('listening', () => {
                 console.log(`tcpserver listening`);
             });
             return new Promise((resolve, reject ) => {
