@@ -22,7 +22,7 @@ net.connect({
                     line = line.trim();
                     const delta = parser.parse(line);
                     if ( delta !== null ) {
-                        console.log(JSON.stringify(delta));
+                        console.log(line, JSON.stringify(delta));
                     } else {
                         console.log("============Not recognised:",line);
 

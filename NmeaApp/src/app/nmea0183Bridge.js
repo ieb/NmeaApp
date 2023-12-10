@@ -1,10 +1,14 @@
 "use strict";
 
+/*
+20231210 Checked against signalk NMEA0183 parser and verified.
+*/
 
 class NMEA0183Bridge {
 
     constructor() {
         this.storeSentenceValues = {};
+        this.variation = 0;
     }
 
     /**
@@ -25,6 +29,7 @@ class NMEA0183Bridge {
                     if ( message.ref.name === "Magnetic") {
                         this.setStore("headingMagnetic", (message.heading*180/Math.PI), 1);
                         this.setStore("variation", Math.abs(message.variation*180/Math.PI), 1);
+                        this.variation = message.variation;
                         this.storeSentenceValues.variationEw = message.variation>=0?"E":"W";
                         nmea0183Handler.updateSentence('IIHDG', ['$IIHDG',
                                                     (message.heading*180/Math.PI).toFixed(1),
@@ -37,9 +42,6 @@ class NMEA0183Bridge {
                     }
                     break;
                 case 127257: // attitude
-/*
-Not recognised: $IIXDR,A,7.8,L,ROLL*7f
-*/
                     nmea0183Handler.updateSentence('IIXDRROLL', ['$IIXDR',
                                                 "A",
                                                 (Math.abs(message.roll*180/Math.PI)).toFixed(1),
@@ -167,8 +169,9 @@ Not recognised: $IIXDR,A,7.8,L,ROLL*7f
                     break;
                 case 129026: // sog cog rapid
                     if ( message.ref.name === "True" ) {
-                        this.setStore("cogt",(message.cogt*180/Math.PI), 1);
-                        this.setStore("cogm",((message.cogt+this.variation)*180/Math.PI), 1);
+                        // cog is true
+                        this.setStore("cogt",(message.cog*180/Math.PI), 1);
+                        this.setStore("cogm",((message.cog+this.variation)*180/Math.PI), 1);
                         this.setStore("sog", (message.sog*1.94384617179), 2);
                         nmea0183Handler.updateSentence('IIVTG', ['$IIVTG',
                             this.storeSentenceValues.cogt ,
@@ -264,7 +267,7 @@ Not recognised: $IIXDR,A,7.8,L,ROLL*7f
         const ret = {
             ns: 'N'
         };
-        let ddeg = latitude*180/Math.PI;
+        let ddeg = latitude;
         if ( ddeg < 0 ) {
             ret.ns = 'S';
             ddeg = -ddeg;
@@ -279,7 +282,7 @@ Not recognised: $IIXDR,A,7.8,L,ROLL*7f
         const ret = {
             ew: 'E'
         }
-        let ddeg = longitude*180/Math.PI;
+        let ddeg = longitude;
         if ( ddeg < 0 ) {
             ret.ew = 'W';
             ddeg = -ddeg;
