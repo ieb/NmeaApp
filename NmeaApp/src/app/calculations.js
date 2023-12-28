@@ -1,14 +1,14 @@
 "use strict";
+const { EventEmitter }  = require('node:events');
 
 
 
-class Calculations {
+class Calculations extends EventEmitter {
     constructor(options) {
+        super();
         this.performance = new Performance({});
         this.state = {
             lastCalc: 0,
-            lastUpdate: 0,
-            lastOutput: 0,
             lastChange: 0
         };
     }
@@ -23,83 +23,35 @@ class Calculations {
         return v;        
     }
 
-    update(store, nmea0183Handler) {
-        if ( store.state.lastChange <= this.state.lastUpdate) {
-            return;
-        }
-        const newState = {
-            awa: store.state.awa,
-            aws: store.state.aws,
-            roll: store.state.roll,
-            hdm: store.state.hdm,
-            stw: store.state.stw,
-            variation: store.state.variation,
-            cogt: store.state.cogt,
-            sog: store.state.sog
-        };
+    update(store) {
+        if ( store.state.lastChange > this.state.lastChange) {
+            const newState = {
+                awa: store.state.awa,
+                aws: store.state.aws,
+                roll: store.state.roll,
+                hdm: store.state.hdm,
+                stw: store.state.stw,
+                variation: store.state.variation,
+                cogt: store.state.cogt,
+                sog: store.state.sog
+            };
 
-        for ( var k in newState ) {
-            if ( newState[k] !== this.state[k]) {
-                this.state.lastChange = store.state.lastUpdate;
-                this.state[k]= newState[k];
+            for ( var k in newState ) {
+                if ( newState[k] !== this.state[k]) {
+                    this.state.lastChange = store.state.lastChange;
+                    this.state[k] = newState[k];
+                }
             }
-        }
-        if ( this.state.lastChange > this.state.lastCalc+500) {
             this.enhance();
             this.state.lastCalc = this.state.lastChange;
             // write the sentences to the parser
-            this.savePerformanceSentences(store, nmea0183Handler);
+            this.emit("update", this.state);
         }
+        return this.state;
     }
 
 
-    savePerformanceSentences(store, nmea0183Handler) {
-        if ( nmea0183Handler) {
-            // If using a store of NMEA0183 messages, then update them
-            // by default these are saved in the store which can be used to generate
-            // NMEA0183 messages on demand.
-            // for NKE instruments.
-            nmea0183Handler.updateSentence('PNKEP01', ['$PNKEP',
-                                        '01',
-                                        (this.state.polarSpeed*1.9438452).toFixed(2),
-                                        'N',
-                                        (this.state.polarSpeed*3.6).toFixed(2),
-                                        'K'], this.state.lastCalc);
-            nmea0183Handler.updateSentence('PNKEP02', ['$PNKEP',
-                                        '02',
-                                        (this.state.oppositeTrackMagnetic*180/Math.PI).toFixed(2)
-                                        ], this.state.lastCalc);
-            nmea0183Handler.updateSentence('PNKEP03', ['$PNKEP',
-                                        '03',
-                                        (this.state.targetTwa*180/Math.PI).toFixed(2),
-                                        (this.state.polarVmgRatio*100).toFixed(2),
-                                        (this.state.polarSpeedRatio*100).toFixed(2)
-                                        ], this.state.lastCalc);
-            nmea0183Handler.updateSentence('PNKEP99', ['$PNKEP',   
-                                        '99',
-                                        (this.state.awa*180/Math.PI).toFixed(2),
-                                        (this.state.aws*1.9438452).toFixed(2),
-                                        (this.state.twa*180/Math.PI).toFixed(2),
-                                        (this.state.tws*1.9438452).toFixed(2),
-                                        (this.state.stw*1.9438452).toFixed(2),
-                                        (this.state.polarSpeed*1.9438452).toFixed(2),
-                                        (this.state.polarSpeedRatio*1.0).toFixed(3)], this.state.lastCalc);
-            // for other instruments.
-            nmea0183Handler.updateSentence('MWVT', ['$IIMWV',
-                        (this.state.twa*180/Math.PI).toFixed(2),
-                        'T',
-                        (this.state.tws*1.9438452).toFixed(2),
-                        'K',
-                        'A'], this.state.lastCalc);
 
-
-          // In Nmea2000 mode also add other calculated values, not normally present                    
-        }
-
-        // update the store for internal use.
-        //console.log("Calc state", this.state);
-        store.mergeUpdate(this.state, this.state.lastCalc);
-    }
 
 
     /*
@@ -111,6 +63,8 @@ class Calculations {
 
 
     enhance() {
+        this.state.cogm = undefined;
+        this.state.hdt = undefined;
         if ( this.state.variation !== undefined ) {
             if ( this.state.cogt !== undefined ) {
                 this.state.cogm = this.fixBearing(this.state.cogt+this.state.variation);
@@ -119,6 +73,7 @@ class Calculations {
                 this.state.hdt = this.fixBearing(this.state.hdm-this.state.variation);
             }
         }
+        this.state.leeway = 0;
         if ( this.state.stw !== undefined && 
             this.state.roll !== undefined  && 
             this.state.awa !== undefined && 
@@ -138,7 +93,8 @@ class Calculations {
         }
 
 
-
+        this.state.twa = undefined;
+        this.state.tws = undefined;
         if ( this.state.awa !== undefined && 
             this.state.aws !== undefined &&
             this.state.stw !== undefined ) {

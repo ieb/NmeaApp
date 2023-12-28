@@ -3,7 +3,9 @@
 
 class Store {
     constructor() {
-        this.state = {};
+        this.state = {
+            lastChange: Date.now()
+        };
         this.newState = {};
         this.history = {
             awa: new AngularHistory(),
@@ -244,7 +246,7 @@ Dont store
             }
     }
 
-    mergeUpdate() {
+    mergeUpdate(calculations) {
         const now = Date.now();
         for ( var k in this.newState ) {
             if ( this.newState[k] !== this.state[k]) {
@@ -252,6 +254,15 @@ Dont store
                 this.state[k]= this.newState[k];
             }
         }
+        // calculate new values based on the store before updating history.
+        const calculatedValues = calculations.update(this);
+        for ( var k in calculatedValues ) {
+            if ( calculatedValues[k] !== this.state[k]) {
+                this.state.lastChange = now;
+                this.state[k]= calculatedValues[k];
+            }
+        }
+
         this.updateHistory();        
     }
 

@@ -60,6 +60,9 @@ class AppMain {
             this.store.updateFromNMEA2000Stream(message);
             this.nmea0183Bridge.update(message, this.nmea0183Handler);
         });
+        this.calculations.on("update", (calculatedState) => {
+            this.nmea0183Bridge.updateCalculatedSentences(calculatedState, this.nmea0183Handler);
+        });
 
     }
     start() {
@@ -69,7 +72,7 @@ class AppMain {
         if (!this.clientInterval) {
             this.clientInterval = setInterval(this.updateTcpClients, 500);
         }
-        console.log("Backend running");
+        console.log("Backend running ");
     }
     async shutdown() {
         if (this.updateInterval) {
@@ -86,8 +89,7 @@ class AppMain {
 
 
     update() {
-      this.store.mergeUpdate();
-      this.calculations.update(this.store, this.nmea0183Handler);
+      this.store.mergeUpdate(this.calculations);
     }
 
 

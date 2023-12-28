@@ -42,11 +42,41 @@ could if you want.
 Performance data is calculated from a VPP Polar. The one encoded is for a Pogo1250 (my boat), but there are many others
 available.
 
+
+# CandleLight NMEA2000 USB adapter.
+
+This code will use either a NMEA0183 serial adapter or a direct NMEA2000 connection using a CandleLight USBCAN 
+Adapter. NMEA2000 is the default. The code uses https://github.com/ieb/candleLightJS.git which is a node js 
+implementation of the Linux gs_usb or CanSocket kernel driver.  CandleLightJS will probably also work in a 
+browser as it uses WebUSB APIs only. This ensures that the code will work on OSX and ChromeOS which have no 
+support for this device in the kernel, and no reasonable way of adding it. 
+
+To get the most from candleLightJS use https://github.com/ieb/candleLight_fw from the withFilters branch which 
+adds CAN message filtering by PGN into the firmware. This ensures that only the messages of interest are read 
+by the app and any other messages re dropped in the firmware. This significantly lowers power consumption in the app when connectd to a busy can bus.
+
+
+To use NMEA0183 provide a NMEA0183 source on a serial port, and modify the code to enable NMEA0183 processing. search for props.enableNMEA0183.
+
 # Plans/Todo
 
 * [x] Fixed tcp server
 * [x] Confirm works on ChromeOS
 * [ ] Finish testing.
-* [ ] Write a gs_usb driver to read NMEA2000 bytes directly from the CAN bus via one of the cheap, very low power, USB-Can adapters (eg CandelLite). The firmware is available in source code which reveals the USB protocol, so no USB drivers needed (they are not available in ChromeOS). There is also a Python module that uses usblib to access gs_usb.
+* [x] Write a gs_usb driver to read NMEA2000 bytes directly from the CAN bus via one of the cheap, very low power, USB-Can adapters (eg CandelLite). The firmware is available in source code which reveals the USB protocol, so no USB drivers needed (they are not available in ChromeOS). There is also a Python module that uses usblib to access gs_usb.  
 * [ ] Write a B&G view.
 * [ ] Do some fun visualizations, charts, etc.
+
+
+# Bugs since switch to NMEA2000 
+
+* [x] AWA shows S336 instead of P24
+* [x] Pitch is not P or S 
+* [ ] enginCoolantTemperature doesnt fit in display
+* [ ] alternatorVoltage 
+* [ ] Not sure log and trip are displaying correctly.
+* [ ] Latitude and longitude should be together in 1 instrument.
+* [ ] Days and seconds since midnight should display as time.
+* [ ] atmosphericPressure is too long
+* [x] Calcs not firing. 
+* [x] NMEA0183 sentences were not being parsed correctly for some apps

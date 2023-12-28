@@ -15,7 +15,7 @@ class NMEA2000Reader extends EventEmitter {
         this.gs_usb.on("frame", (frame) => {
             const message = messageDecoder.decode(frame);
             if ( message !== undefined ) {
-                console.log(JSON.stringify(message));
+                //console.log(JSON.stringify(message));
                 emit('nmea2000Message', message);
             }
         });

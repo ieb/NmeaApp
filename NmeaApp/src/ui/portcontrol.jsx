@@ -150,8 +150,10 @@ class PortControl extends React.Component {
         if ( hasNetList ) {
             for (var k in networks) {
               const addresses = networks[k];
+
               for (var i = 0; i < addresses.length; i++) {
-                if ( addresses[i].family == 'IPv4' ) {
+                if ( addresses[i].family == 'IPv4' && addresses[i].address !== "127.0.0.1" ) {
+
                     networkList.push({
                         id: networkList.length,
                         display: k + " (" + addresses[i].address + ")",
@@ -159,7 +161,12 @@ class PortControl extends React.Component {
                     });
                 }
               }
-            }            
+            }  
+            networkList.push({
+                id: networkList.length,
+                display: "lo0 (127.0.0.1)",
+                address: "127.0.0.1"
+            });          
         }
         let hasDeviceList = false;
         if ( this.nmea0183 ) {
