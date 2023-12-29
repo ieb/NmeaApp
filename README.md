@@ -72,7 +72,7 @@ To use NMEA0183 provide a NMEA0183 source on a serial port, and modify the code 
 
 * [x] AWA shows S336 instead of P24
 * [x] Pitch is not P or S 
-* [ ] enginCoolantTemperature doesnt fit in display
+* [ ] enginCoolantTemperature doesn't fit in display
 * [ ] alternatorVoltage 
 * [ ] Not sure log and trip are displaying correctly.
 * [ ] Latitude and longitude should be together in 1 instrument.
@@ -80,3 +80,4 @@ To use NMEA0183 provide a NMEA0183 source on a serial port, and modify the code 
 * [ ] atmosphericPressure is too long
 * [x] Calcs not firing. 
 * [x] NMEA0183 sentences were not being parsed correctly for some apps
+* [x] Fix packaging so that serialport and usb are included in the binary.

@@ -1,6 +1,6 @@
 {
-  "name": "cbapp",
-  "productName": "cbapp",
+  "name": "NmeaApp",
+  "productName": "NmeaApp",
   "version": "1.0.0",
   "description": "My Electron application description",
   "main": ".webpack/main",
@@ -35,7 +35,8 @@
     "eslint-plugin-react-hooks": "^4.6.0",
     "eslint-plugin-react-refresh": "^0.4.4",
     "node-loader": "^2.0.0",
-    "style-loader": "^3.3.3"
+    "style-loader": "^3.3.3",
+    "glob": "^10.2.7"
   },
   "dependencies": {
     "candleLightJS": "git+https://github.com/ieb/candleLightJS.git",

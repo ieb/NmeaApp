@@ -7,12 +7,13 @@ module.exports = [
     use: 'node-loader',
   },
   {
-    test: /[/\\]node_modules[/\\].+\.(m?js|node)$/,
+    test: /node_modules[/\\].+\.node$/,
     parser: { amd: false },
     use: {
       loader: '@vercel/webpack-asset-relocator-loader',
       options: {
         outputAssetBase: 'native_modules',
+        debugLog: true
       },
     },
   },
