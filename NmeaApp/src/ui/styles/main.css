@@ -186,14 +186,14 @@ body {
 
 }
 
-.main .latitude {
+.main .smallLine1 {
   text-align: right;
   font-size: 1.5rem;
   padding: 10px 5px 0px 5px;
 
 
 }
-.main .longitude {
+.main .smallLine2 {
   text-align: right;
   font-size: 1.5rem;
   padding: 0 5px 10px 5px;

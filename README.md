@@ -72,9 +72,9 @@ To use NMEA0183 provide a NMEA0183 source on a serial port, and modify the code 
 
 * [x] AWA shows S336 instead of P24
 * [x] Pitch is not P or S 
-* [ ] enginCoolantTemperature doesn't fit in display
-* [ ] alternatorVoltage 
-* [ ] Not sure log and trip are displaying correctly.
+* [x] enginCoolantTemperature doesn't fit in display
+* [x] alternatorVoltage 
+* [x] Not sure log and trip are displaying correctly.
 * [x] Latitude and longitude should be together in 1 instrument.
 * [ ] Days and seconds since midnight should display as time.
 * [ ] atmosphericPressure is too long

@@ -16,10 +16,13 @@ class NMEALayout extends React.Component {
 
     static removeOptionKeys = [ 
         "latitude",
-        "longitude"
+        "longitude",
+        "log",
+        "tripLog",
     ];
     static addOptionKeys = [
-        "latlong"
+        "Position",
+        "Log",
     ];
 
     constructor(props) {
@@ -57,8 +60,10 @@ class NMEALayout extends React.Component {
                             { id: start, field:"awa", testValue: 24*Math.PI/180},
                             { id: start+1, field:"aws", testValue: 3.4},
                             { id: start+2, field:"twa", testValue: -22*Math.PI/180},
-                            { id: start+3, field:"latlong", testValue: { latitide: 55.322134512, longitude: 22.32112}}
-
+                            { id: start+3, field:"Position", testValue: { latitide: 55.322134512, longitude: 22.32112}},
+                            { id: start+4, field:"engineCoolantTemperature", testValue: 325.212},
+                            { id: start+5, field:"alternatorVoltage", testValue: 14.2321},
+                            { id: start+6, field:"Log", testValue: { log: 4285528, tripLog: 964892 }},
                         ]}
                 ]
             });
@@ -195,7 +200,7 @@ class NMEALayout extends React.Component {
     }
     renderItem(item) {
         switch (item.field ) {
-            case 'latlong':
+            case 'Position':
                 return ( 
                     <LatitudeBox 
                         id={item.id} 
@@ -205,7 +210,17 @@ class NMEALayout extends React.Component {
                         editing={this.state.editing}  
                         storeAPI={this.storeAPI} /> 
                     );
-            default:
+             case 'Log':
+                return ( 
+                    <LogBox 
+                        id={item.id} 
+                        key={item.id}
+                        testValue={item.testValue}
+                        onChange={this.onChangeItem} 
+                        editing={this.state.editing}  
+                        storeAPI={this.storeAPI} /> 
+                    );
+           default:
                 return (
                     <TextBox 
                         field={item.field} 
@@ -516,12 +531,69 @@ class TextBox extends React.Component {
               </svg>
               <div className="corner tl">{dataType.tl}</div>
               <div className="corner tr">{dataType.tr}</div>
-              <div className="corner bl">{this.field}</div>
+              <div className="corner bl">{DataTypes.getDisplayName(this.field)}</div>
               <div className="corner br">{dataType.units}</div>
               {this.renderEditOverlay()}
             </div>
             );
     }
+}
+
+class LogBox extends TextBox {
+        static propTypes = {
+        storeAPI: PropTypes.object,
+        editing: PropTypes.bool,
+        onChange: PropTypes.func,
+        id: PropTypes.number,
+        theme: PropTypes.string,
+        main: PropTypes.string,
+        updateRate: PropTypes.object
+    };
+
+    constructor(props) {
+        super(props);
+        this.testValue = props.testValue;
+    }
+
+    async getDisplayValue(field) {
+        if ( this.testValue && this.testValue[field] ) {
+            return DataTypes.getDataType(field).display(this.testValue[field]);
+        }
+        return DataTypes.getDataType(field).display(await this.storeAPI.getState(field));
+    }
+
+    async updateDisplayState() {
+        if ( this.storeAPI ) {
+            const logDisplay = await this.getDisplayValue("log");
+            const tripLogDisplay = await this.getDisplayValue("tripLog");
+            const options = (await this.storeAPI.getKeys()).filter((key) => !NMEALayout.removeOptionKeys.includes(key)).concat(NMEALayout.addOptionKeys);
+            if ( logDisplay !== this.state.logDisplay || 
+                  tripLogDisplay !== this.state.tripLogDisplay) {
+                    this.setState({
+                         logDisplay,
+                         tripLogDisplay,
+                         options });
+            }
+        }        
+    }
+
+    render() {
+        return (
+            <div className={`textbox ${this.theme}`} >
+              <div className="overlay main">
+                <div className="smallLine1" >{this.state.logDisplay}</div>
+                <div className="smallLine2" >{this.state.tripLogDisplay}</div>
+              </div>
+              <div className="corner tl"></div>
+              <div className="corner tr"></div>
+              <div className="corner bl">log/trip</div>
+              <div className="corner br">Nm</div>
+              {this.renderEditOverlay()}
+            </div>
+            );
+    }
+
+
 }
 
 class LatitudeBox extends TextBox {
@@ -570,12 +642,12 @@ class LatitudeBox extends TextBox {
         return (
             <div className={`textbox ${this.theme}`} >
               <div className="overlay main">
-                <div className="latitude" >{this.state.latitudeDisplay}</div>
-                <div className="longitude" >{this.state.longitudeDisplay}</div>
+                <div className="smallLine1" >{this.state.latitudeDisplay}</div>
+                <div className="smallLine2" >{this.state.longitudeDisplay}</div>
               </div>
               <div className="corner tl"></div>
               <div className="corner tr"></div>
-              <div className="corner bl">possition</div>
+              <div className="corner bl">position</div>
               <div className="corner br"></div>
               {this.renderEditOverlay()}
             </div>

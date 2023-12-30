@@ -482,7 +482,7 @@ class Temperature {
     }
     static tl = "";
     static tr = "";
-    static units = "m";
+    static units = "C";
     static withHistory = true;
     static toDisplayUnits(v) {
         return (v-237.15);
@@ -633,9 +633,17 @@ class DataTypes {
             "alternatorVoltage": Voltage,
             "voltage": Voltage,
             "current": Current,
-
-
     };
+    static displayNames = {
+        engineCoolantTemperature: "coolant",
+    };
+
+    static getDisplayName(field) {
+        if (DataTypes.displayNames[field]) {
+            return DataTypes.displayNames[field];
+        }
+        return field;
+    }
 
     static getDataType(field) {
         const fieldKey = field.split("_")[0];
