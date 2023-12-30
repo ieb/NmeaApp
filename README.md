@@ -53,7 +53,7 @@ support for this device in the kernel, and no reasonable way of adding it.
 
 To get the most from candleLightJS use https://github.com/ieb/candleLight_fw from the withFilters branch which 
 adds CAN message filtering by PGN into the firmware. This ensures that only the messages of interest are read 
-by the app and any other messages re dropped in the firmware. This significantly lowers power consumption in the app when connectd to a busy can bus.
+by the app and any other messages re dropped in the firmware. This significantly lowers power consumption in the app when connected to a busy can bus.
 
 
 To use NMEA0183 provide a NMEA0183 source on a serial port, and modify the code to enable NMEA0183 processing. search for props.enableNMEA0183.
@@ -76,8 +76,12 @@ To use NMEA0183 provide a NMEA0183 source on a serial port, and modify the code 
 * [x] alternatorVoltage 
 * [x] Not sure log and trip are displaying correctly.
 * [x] Latitude and longitude should be together in 1 instrument.
-* [ ] Days and seconds since midnight should display as time.
-* [ ] atmosphericPressure is too long
+* [x] Days and seconds since midnight should display as time. (gpsDaysSince1970, gpsSecondsSinceMidnight)
+* [ ] current_1, temperature_1, temperature_0 when selected break the text box.
+* [ ] swrt, lastCalc, lastChange needs to be dropped, not relevant.
+* [ ] Pitch P/S makes no sense.
+* [ ] Min max graphs do not appear to be scaling right.
+* [x] atmosphericPressure is too long
 * [x] Calcs not firing. 
 * [x] NMEA0183 sentences were not being parsed correctly for some apps
 * [x] Fix packaging so that serialport and usb are included in the binary.

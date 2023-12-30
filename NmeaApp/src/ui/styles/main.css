@@ -48,6 +48,10 @@ body {
   display: none;
 }
 
+.menu.minimised .debugControls {
+  display: none;
+}
+
 
 .menu .iOn {
   color: green;

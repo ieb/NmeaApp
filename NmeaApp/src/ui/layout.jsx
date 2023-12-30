@@ -19,10 +19,13 @@ class NMEALayout extends React.Component {
         "longitude",
         "log",
         "tripLog",
+        "gpsDaysSince1970", 
+        "gpsSecondsSinceMidnight"
     ];
     static addOptionKeys = [
         "Position",
         "Log",
+        "Time"
     ];
 
     constructor(props) {
@@ -35,6 +38,7 @@ class NMEALayout extends React.Component {
         this.onSave = this.onSave.bind(this);
         this.onMenuChange = this.onMenuChange.bind(this);
         this.onPageChange = this.onPageChange.bind(this);
+        this.onDumpStore = this.onDumpStore.bind(this);
         this.lastPacketsRecived  = 0;
         this.state = {
             editing: false,
@@ -52,21 +56,41 @@ class NMEALayout extends React.Component {
             }
         }
         const start = Date.now();
+        if ( false ) {
+            return JSON.stringify({
+                    pageId: 1,
+                    pages: [
+                        {id: 1, name: 'Home',
+                            boxes: [
+                                { id: start, field:"awa", testValue: 24*Math.PI/180},
+                                { id: start+1, field:"aws", testValue: 3.4},
+                                { id: start+2, field:"twa", testValue: -22*Math.PI/180},
+                                { id: start+3, field:"Position", testValue: { latitide: 55.322134512, longitude: 22.32112}},
+                                { id: start+4, field:"engineCoolantTemperature", testValue: 325.212},
+                                { id: start+5, field:"alternatorVoltage", testValue: 14.2321},
+                                { id: start+6, field:"Log", testValue: { log: 4285528, tripLog: 964892 }},
+                                { id: start+7, field:"polarSpeedRatio", testValue: 0.232},
+                            ]}
+                    ]
+                });
+        }
         return JSON.stringify({
                 pageId: 1,
                 pages: [
                     {id: 1, name: 'Home',
                         boxes: [
-                            { id: start, field:"awa", testValue: 24*Math.PI/180},
-                            { id: start+1, field:"aws", testValue: 3.4},
-                            { id: start+2, field:"twa", testValue: -22*Math.PI/180},
-                            { id: start+3, field:"Position", testValue: { latitide: 55.322134512, longitude: 22.32112}},
-                            { id: start+4, field:"engineCoolantTemperature", testValue: 325.212},
-                            { id: start+5, field:"alternatorVoltage", testValue: 14.2321},
-                            { id: start+6, field:"Log", testValue: { log: 4285528, tripLog: 964892 }},
+                            { id: start, field:"awa"},
+                            { id: start+1, field:"aws"},
+                            { id: start+2, field:"twa"},
+                            { id: start+3, field:"Position"},
+                            { id: start+4, field:"engineCoolantTemperature"},
+                            { id: start+5, field:"alternatorVoltage"},
+                            { id: start+6, field:"Log"},
+                            { id: start+7, field:"polarSpeedRatio"},
                         ]}
                 ]
             });
+
     }
 
 
@@ -137,9 +161,8 @@ class NMEALayout extends React.Component {
             this.setLayout(l);
         } else if (event === "update") {
             const l = this.getLayout();
-
-            console.log("update ",id, field, this.state.boxes);
             const box = l.page.boxes.find((b) => b.id === id);
+            console.log("update ",id, field, box, l.page.boxes);
             box.id = Date.now();
             box.field = field;
             this.setLayout(l);
@@ -164,6 +187,17 @@ class NMEALayout extends React.Component {
         const l = this.getLayout();
         l.page.name = e.target.value;
         this.setLayout(l);        
+    }
+
+
+    async onDumpStore() {
+        const keys = await this.storeAPI.getKeys();
+        const values = {};
+        for(const k of keys) {
+            values[k] = await this.storeAPI.getState(k);
+        }
+        console.log("Store Values are",values);
+
     }
 
     renderMenu(l) {
@@ -195,6 +229,9 @@ class NMEALayout extends React.Component {
                 <EditUIControl onEdit={this.onEditLayout} 
                     onSave={this.onSave}
                     onAddItem={this.onAddItem}/>
+                <div className="debugControls">
+                    <button onClick={this.onDumpStore} >DumpStore</button>
+                </div>
             </div>
         );
     }
@@ -203,6 +240,7 @@ class NMEALayout extends React.Component {
             case 'Position':
                 return ( 
                     <LatitudeBox 
+                        field={item.field} 
                         id={item.id} 
                         key={item.id}
                         testValue={item.testValue}
@@ -213,6 +251,18 @@ class NMEALayout extends React.Component {
              case 'Log':
                 return ( 
                     <LogBox 
+                        field={item.field} 
+                        id={item.id} 
+                        key={item.id}
+                        testValue={item.testValue}
+                        onChange={this.onChangeItem} 
+                        editing={this.state.editing}  
+                        storeAPI={this.storeAPI} /> 
+                    );
+            case "Time":
+                return ( 
+                    <TimeBox 
+                        field={item.field} 
                         id={item.id} 
                         key={item.id}
                         testValue={item.testValue}
@@ -379,14 +429,14 @@ class TextBox extends React.Component {
     async updateDisplayState() {
         if ( this.storeAPI ) {
             const dataType = DataTypes.getDataType(this.field);
-            const value = this.testValue || this.storeAPI.getState(this.field);
+            const value = this.testValue || await this.storeAPI.getState(this.field);
             const display = dataType.display(value);
             const options = (await this.storeAPI.getKeys()).filter((key) => !NMEALayout.removeOptionKeys.includes(key)).concat(NMEALayout.addOptionKeys);
             const displayClass = dataType.cssClass?dataType.cssClass(value):'';
 
             const h = [];
             const v = await this.storeAPI.getHistory(this.field);
-            this.debug(this.field, "Values", v);
+            this.debug(this.field, "Values", v, value);
             if (dataType.withHistory && v &&  v.data.length > 1) {
                 h.push(dataType.toDisplayUnits(v.value));
                 for (let i = 0; i < v.data.length; i++) {
@@ -403,7 +453,8 @@ class TextBox extends React.Component {
                     this.setState({main: display, options: options, displayClass: displayClass  });
                 }
             }
-        }        
+        }    
+
     }
 
     horizontalLine(v, range) {
@@ -494,6 +545,7 @@ class TextBox extends React.Component {
     renderEditOverlay() {
         if ( this.props.editing ) {
             const options = this.state.options;
+
             return (
                 <div className="overlay edit">
                 <select onChange={this.changeField} value={this.field} title="select data item" >
@@ -564,6 +616,7 @@ class LogBox extends TextBox {
 
     async updateDisplayState() {
         if ( this.storeAPI ) {
+            this.debug(this.field, "Update State");
             const logDisplay = await this.getDisplayValue("log");
             const tripLogDisplay = await this.getDisplayValue("tripLog");
             const options = (await this.storeAPI.getKeys()).filter((key) => !NMEALayout.removeOptionKeys.includes(key)).concat(NMEALayout.addOptionKeys);
@@ -596,6 +649,64 @@ class LogBox extends TextBox {
 
 }
 
+class TimeBox extends TextBox {
+        static propTypes = {
+        storeAPI: PropTypes.object,
+        editing: PropTypes.bool,
+        onChange: PropTypes.func,
+        id: PropTypes.number,
+        theme: PropTypes.string,
+        main: PropTypes.string,
+        updateRate: PropTypes.object
+    };
+
+    constructor(props) {
+        super(props);
+        this.testValue = props.testValue;
+    }
+
+    async getDisplayValue(field) {
+        if ( this.testValue && this.testValue[field] ) {
+            return DataTypes.getDataType(field).display(this.testValue[field]);
+        }
+        return DataTypes.getDataType(field).display(await this.storeAPI.getState(field));
+    }
+
+    async updateDisplayState() {
+        if ( this.storeAPI ) {
+            this.debug(this.field, "Update State");
+            const dateDisplay = await this.getDisplayValue("gpsDaysSince1970");
+            const timeDisplay = await this.getDisplayValue("gpsSecondsSinceMidnight");
+            const options = (await this.storeAPI.getKeys()).filter((key) => !NMEALayout.removeOptionKeys.includes(key)).concat(NMEALayout.addOptionKeys);
+            if ( dateDisplay !== this.state.dateDisplay || 
+                  timeDisplay !== this.state.timeDisplay) {
+                    this.setState({
+                         dateDisplay,
+                         timeDisplay,
+                         options });
+            }
+        }        
+    }
+
+    render() {
+        return (
+            <div className={`textbox ${this.theme}`} >
+              <div className="overlay main">
+                <div className="smallLine1" >{this.state.dateDisplay}</div>
+                <div className="smallLine2" >{this.state.timeDisplay}</div>
+              </div>
+              <div className="corner tl"></div>
+              <div className="corner tr"></div>
+              <div className="corner bl">Time</div>
+              <div className="corner br">UTC</div>
+              {this.renderEditOverlay()}
+            </div>
+            );
+    }
+
+
+}
+
 class LatitudeBox extends TextBox {
     static propTypes = {
         storeAPI: PropTypes.object,
@@ -613,18 +724,15 @@ class LatitudeBox extends TextBox {
     }
 
     async getDisplayValue(field) {
-        if ( this.testValue ) {
-            if ( field == "latitude") {
-                return DataTypes.getDataType(field).display(this.testValue.latitide);
-            } else if (field == "longitude") {
-                return DataTypes.getDataType(field).display(this.testValue.longitude);
-            }
+        if ( this.testValue && this.testValue[field] ) {
+            return DataTypes.getDataType(field).display(this.testValue[field]);
         }
         return DataTypes.getDataType(field).display(await this.storeAPI.getState(field));
     }
 
     async updateDisplayState() {
         if ( this.storeAPI ) {
+            this.debug(this.field, "Update State");
             const latitudeDisplay = await this.getDisplayValue("latitude");
             const longitudeDisplay = await this.getDisplayValue("longitude");
             const options = (await this.storeAPI.getKeys()).filter((key) => !NMEALayout.removeOptionKeys.includes(key)).concat(NMEALayout.addOptionKeys);

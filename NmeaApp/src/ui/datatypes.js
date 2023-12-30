@@ -499,7 +499,7 @@ class Temperature {
 
 class Voltage {
     static display(v) {
-        if ( v == undefined || v == -1E9) {
+        if ( v == undefined || v == -1E9 || v.toFixed == undefined) {
             return "-.-";
         }
         return (v).toFixed(2);
@@ -559,6 +559,48 @@ class TimeStamp {
     }    
 }
 
+
+class GPSDate {
+    static tl = "";
+    static tr = "";
+    static units = "age s";
+    static toDisplayUnits(v) {
+        const d = new Date(v*3600000*24);
+        return `${("00"+(d.getDate()).toFixed(0)).slice(-2)}:${("00"+(d.getMonth()+1).toFixed(0)).slice(-2)}:${(d.getYear()+1900).toFixed(0)}`;
+    }
+    static display(v) { 
+        if ( v == undefined ) {
+            return "-.-";
+        }
+        const d = new Date(v*3600000*24);
+        return `${("00"+(d.getDate()).toFixed(0)).slice(-2)}/${("00"+(d.getMonth()+1).toFixed(0)).slice(-2)}/${(d.getYear()+1900).toFixed(0)}`;
+    }    
+}
+
+class GPSTime {
+    static tl = "";
+    static tr = "";
+    static units = "";
+    static toDisplayUnits(v) {
+        // perhaps not right, perhaps this shoud be a Time object and not a string.
+        // hh:mm:ss.ss
+        const hh = Math.trunc(v/3600);
+        const mm = Math.trunc((v-(hh*3600))/60);
+        const ss =v-(hh*3600)-(mm*60);
+        return `${("00"+(hh).toFixed(0)).slice(-2)}:${("00"+(mm).toFixed(0)).slice(-2)}:${("00"+(ss).toFixed(2)).slice(-5)}`;
+    }
+    static display(v) { 
+        if ( v == undefined ) {
+            return "-.-";
+        }
+        // hh:mm:ss.ss
+        const hh = Math.trunc(v/3600);
+        const mm = Math.trunc((v-(hh*3600))/60);
+        const ss =v-(hh*3600)-(mm*60);
+        return `${("00"+(hh).toFixed(0)).slice(-2)}:${("00"+(mm).toFixed(0)).slice(-2)}:${("00"+(ss).toFixed(2)).slice(-5)}`;
+    }    
+}
+
 class DefaultDataType {
     static display(v) { 
         if ( v == undefined ) {
@@ -606,10 +648,10 @@ class DataTypes {
             "targetAwa": RelativeAngle,
             "targetAws": Speed,
             "polarVmgRatio": Percent,
-            "oppositeHeadingTrue": Bearing,
-            "oppositeTrackTrue": Bearing,
-            "oppositeTrackMagnetic": Bearing,
-            "oppositeHeadingMagnetic": Bearing,
+            "oppHeadingTrue": Bearing,
+            "oppTrackTrue": Bearing,
+            "oppTrackMagnetic": Bearing,
+            "oppHeadingMagnetic": Bearing,
             "sog": Speed,
             "stw": Speed,
             "lastUpdate": TimeStamp,
@@ -633,14 +675,20 @@ class DataTypes {
             "alternatorVoltage": Voltage,
             "voltage": Voltage,
             "current": Current,
+            "gpsDaysSince1970": GPSDate,
+            "gpsSecondsSinceMidnight": GPSTime,
     };
     static displayNames = {
         engineCoolantTemperature: "coolant",
+        atmosphericPressure: "pressure",
     };
 
     static getDisplayName(field) {
         if (DataTypes.displayNames[field]) {
             return DataTypes.displayNames[field];
+        }
+        if ( field.length > 15 ) {
+            return field.substring(0,13)+"...";
         }
         return field;
     }

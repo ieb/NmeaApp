@@ -213,16 +213,16 @@ class Performance {
         state.leeway = state.leeway || 0;
 
         state.gwdt = this._fixDirection(state.hdt+state.twa);
-        state.oppositeHeadingTrue = this._fixDirection(state.gwdt+state.targetTwa);
+        state.oppHeadingTrue = this._fixDirection(state.gwdt+state.targetTwa);
         if ( state.twa > 0 ) {
-          state.oppositeTrackTrue = state.oppositeHeadingTrue+state.leeway*2;
+          state.oppTrackTrue = state.oppHeadingTrue+state.leeway*2;
         } else {
-          state.oppositeTrackTrue = state.oppositeHeadingTrue-state.leeway*2;
+          state.oppTrackTrue = state.oppHeadingTrue-state.leeway*2;
         }
         if ( state.variation !== undefined ) {
             state.gwdm = this._fixDirection(state.gwdt+state.variation);
-            state.oppositeTrackMagnetic = state.oppositeTrackTrue + state.variation;
-            state.oppositeHeadingMagnetic = this._fixDirection(state.oppositeHeadingTrue + state.variation);
+            state.oppTrackMagnetic = state.oppTrackTrue + state.variation;
+            state.oppHeadingMagnetic = this._fixDirection(state.oppHeadingTrue + state.variation);
         }
 
     }

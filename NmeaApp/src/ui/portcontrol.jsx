@@ -196,6 +196,7 @@ class PortControl extends React.Component {
         console.log("New State", newState);
         this.setState(newState);
     }
+
     generateList(source) {
         return source.map((item) => <option key={item.id} value={item.id} >{item.display}</option>)
     }
