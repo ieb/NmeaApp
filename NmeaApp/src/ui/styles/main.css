@@ -143,6 +143,7 @@ body {
 }
 
 .textbox .main {
+  display: grid;
   height: calc(100% - 20px);
   font-size: 4rem;
   text-align: center;
@@ -183,6 +184,26 @@ body {
   left:  0;
   background: #82aa897a;
 
+}
+
+.main .latitude {
+  text-align: right;
+  font-size: 1.5rem;
+  padding: 10px 5px 0px 5px;
+
+
+}
+.main .longitude {
+  text-align: right;
+  font-size: 1.5rem;
+  padding: 0 5px 10px 5px;
+}
+
+.starboard {
+  color: #9be79b;
+}
+.port {
+  color: #f9c9c9;
 }
 
 

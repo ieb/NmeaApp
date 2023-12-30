@@ -38,6 +38,17 @@ class RelativeAngle {
             return `S${(v*(180/Math.PI)).toFixed(0)}`;
         }
     }
+    static cssClass(v) {
+        if ( v == undefined ) {
+            return "undef";
+        }
+        if(v < 0) {
+            return "port";
+        } else {
+            return "starboard";
+        }
+
+    }
     static tl = "";
     static tr = "";
     static withHistory = true;
@@ -77,6 +88,7 @@ class RelativeBearing {
             return `E${(v*(180/Math.PI)).toFixed(0)}`;
         }
     }
+
     static tl = "";
     static tr = "";
     static withHistory = true;

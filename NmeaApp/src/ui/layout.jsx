@@ -14,6 +14,14 @@ class NMEALayout extends React.Component {
         mainAPI: PropTypes.object
     };
 
+    static removeOptionKeys = [ 
+        "latitude",
+        "longitude"
+    ];
+    static addOptionKeys = [
+        "latlong"
+    ];
+
     constructor(props) {
         super(props);
         this.props = props;
@@ -46,10 +54,11 @@ class NMEALayout extends React.Component {
                 pages: [
                     {id: 1, name: 'Home',
                         boxes: [
-                            { id: start, field:"awa"},
-                            { id: start+1, field:"aws"},
-                            { id: start+2, field:"twa"},
-                            { id: start+3, field:"tws"},
+                            { id: start, field:"awa", testValue: 24*Math.PI/180},
+                            { id: start+1, field:"aws", testValue: 3.4},
+                            { id: start+2, field:"twa", testValue: -22*Math.PI/180},
+                            { id: start+3, field:"latlong", testValue: { latitide: 55.322134512, longitude: 22.32112}}
+
                         ]}
                 ]
             });
@@ -84,9 +93,9 @@ class NMEALayout extends React.Component {
             l.layout.pages.push({id: id, name: 'New page',
                         boxes: [
                             { id: id, field:"awa"},
-                            { id: id+1, field:"aws"},
+                            { id: id+1, field:"aws" },
                             { id: id+2, field:"twa"},
-                            { id: id+3, field:"tws"},
+                            { id: id+3, field:"tws"}
                         ]});
             l.layout.pageId = id;
             this.setLayout(l);
@@ -184,6 +193,31 @@ class NMEALayout extends React.Component {
             </div>
         );
     }
+    renderItem(item) {
+        switch (item.field ) {
+            case 'latlong':
+                return ( 
+                    <LatitudeBox 
+                        id={item.id} 
+                        key={item.id}
+                        testValue={item.testValue}
+                        onChange={this.onChangeItem} 
+                        editing={this.state.editing}  
+                        storeAPI={this.storeAPI} /> 
+                    );
+            default:
+                return (
+                    <TextBox 
+                        field={item.field} 
+                        id={item.id} 
+                        key={item.id} 
+                        testValue={item.testValue}
+                        onChange={this.onChangeItem} 
+                        editing={this.state.editing}  
+                        storeAPI={this.storeAPI} />);
+
+        }
+    }
     render() {
         const l = this.getLayout();
         console.log("Layout ", l);
@@ -191,7 +225,7 @@ class NMEALayout extends React.Component {
             <div className="nmeaLayout">
                 {this.renderMenu(l)}
                 <div>
-                 {l.page.boxes.map((item) => <TextBox field={item.field} id={item.id} key={item.id} onChange={this.onChangeItem} editing={this.state.editing}  storeAPI={this.storeAPI} />)}
+                 {l.page.boxes.map((item) => { return this.renderItem(item); }) }
                 </div>
             </div>
         );
@@ -264,18 +298,21 @@ class TextBox extends React.Component {
         storeAPI: PropTypes.object,
         editing: PropTypes.bool,
         onChange: PropTypes.func,
-        id: PropTypes.string,
+        id: PropTypes.number,
         field: PropTypes.string,
         theme: PropTypes.string,
         main: PropTypes.string,
-        updateRate: PropTypes.number
+        updateRate: PropTypes.number,
+        testValue: PropTypes.number
     };
+
 
     constructor(props) {
         super(props);
         this.storeAPI = props.storeAPI;
         this.editing = props.editing;
         this.onChange = props.onChange;
+        this.testValue = props.testValue;
         this.id = props.id;
         this.field = props.field;
         this.theme = props.theme || "default";
@@ -327,8 +364,11 @@ class TextBox extends React.Component {
     async updateDisplayState() {
         if ( this.storeAPI ) {
             const dataType = DataTypes.getDataType(this.field);
-            const display = dataType.display(await this.storeAPI.getState(this.field));
-            const options = await this.storeAPI.getKeys();
+            const value = this.testValue || this.storeAPI.getState(this.field);
+            const display = dataType.display(value);
+            const options = (await this.storeAPI.getKeys()).filter((key) => !NMEALayout.removeOptionKeys.includes(key)).concat(NMEALayout.addOptionKeys);
+            const displayClass = dataType.cssClass?dataType.cssClass(value):'';
+
             const h = [];
             const v = await this.storeAPI.getHistory(this.field);
             this.debug(this.field, "Values", v);
@@ -341,11 +381,11 @@ class TextBox extends React.Component {
                 }
                 const graph = this.generateGraphPath(v, h);
                 if ( display != this.state.main || graph.path != this.state.graph.path ) {
-                    this.setState({main: display, options: options, graph: graph });
+                    this.setState({main: display, options: options, graph: graph, displayClass: displayClass });
                 }
             } else {
                 if ( display != this.state.main ) {
-                    this.setState({main: display, options: options });
+                    this.setState({main: display, options: options, displayClass: displayClass  });
                 }
             }
         }        
@@ -461,9 +501,10 @@ class TextBox extends React.Component {
 
     render() {
         const dataType = DataTypes.getDataType(this.field);
+        const classNames = ["overlay", "main"].concat(this.state.displayClass?this.state.displayClass:'').join(" ");
         return (
             <div className={`textbox ${this.theme}`} >
-              <div className="overlay main">{this.state.main}</div>
+              <div className={classNames}>{this.state.main}</div>
               <svg className="overlay">
                     <path d={this.state.graph.path} className="path"  />
                     <path d={this.state.graph.outline} className="outline"  />
@@ -481,6 +522,67 @@ class TextBox extends React.Component {
             </div>
             );
     }
+}
+
+class LatitudeBox extends TextBox {
+    static propTypes = {
+        storeAPI: PropTypes.object,
+        editing: PropTypes.bool,
+        onChange: PropTypes.func,
+        id: PropTypes.number,
+        theme: PropTypes.string,
+        main: PropTypes.string,
+        updateRate: PropTypes.object
+    };
+
+    constructor(props) {
+        super(props);
+        this.testValue = props.testValue;
+    }
+
+    async getDisplayValue(field) {
+        if ( this.testValue ) {
+            if ( field == "latitude") {
+                return DataTypes.getDataType(field).display(this.testValue.latitide);
+            } else if (field == "longitude") {
+                return DataTypes.getDataType(field).display(this.testValue.longitude);
+            }
+        }
+        return DataTypes.getDataType(field).display(await this.storeAPI.getState(field));
+    }
+
+    async updateDisplayState() {
+        if ( this.storeAPI ) {
+            const latitudeDisplay = await this.getDisplayValue("latitude");
+            const longitudeDisplay = await this.getDisplayValue("longitude");
+            const options = (await this.storeAPI.getKeys()).filter((key) => !NMEALayout.removeOptionKeys.includes(key)).concat(NMEALayout.addOptionKeys);
+            if ( latitudeDisplay !== this.state.latitudeDisplay || 
+                  longitudeDisplay !== this.state.longitudeDisplay) {
+                    this.setState({
+                         latitudeDisplay,
+                         longitudeDisplay,
+                         options });
+            }
+        }        
+    }
+
+    render() {
+        return (
+            <div className={`textbox ${this.theme}`} >
+              <div className="overlay main">
+                <div className="latitude" >{this.state.latitudeDisplay}</div>
+                <div className="longitude" >{this.state.longitudeDisplay}</div>
+              </div>
+              <div className="corner tl"></div>
+              <div className="corner tr"></div>
+              <div className="corner bl">possition</div>
+              <div className="corner br"></div>
+              {this.renderEditOverlay()}
+            </div>
+            );
+    }
+
+
 }
 
 

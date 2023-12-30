@@ -75,7 +75,7 @@ To use NMEA0183 provide a NMEA0183 source on a serial port, and modify the code 
 * [ ] enginCoolantTemperature doesn't fit in display
 * [ ] alternatorVoltage 
 * [ ] Not sure log and trip are displaying correctly.
-* [ ] Latitude and longitude should be together in 1 instrument.
+* [x] Latitude and longitude should be together in 1 instrument.
 * [ ] Days and seconds since midnight should display as time.
 * [ ] atmosphericPressure is too long
 * [x] Calcs not firing. 
