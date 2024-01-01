@@ -36,7 +36,21 @@ class Store {
             oppositeHeadingTrue: new AngularHistory(),
             oppositeTrackTrue: new AngularHistory(),
             oppositeTrackMagnetic: new AngularHistory(),
-            oppositeHeadingMagnetic: new AngularHistory()
+            oppositeHeadingMagnetic: new AngularHistory(),
+            dbt: new LinearHistory(),
+            alternatorVoltage_0: new LinearHistory(),
+            atmosphericPressure_0: new LinearHistory(),
+            atmosphericPressure_1: new LinearHistory(),
+            atmosphericPressure_2: new LinearHistory(),
+            current_0: new LinearHistory(),
+            current_1: new LinearHistory(),
+            engineCoolantTemperature_0: new LinearHistory(),
+            fuelCapacity_0: new LinearHistory(),
+            temperature_0: new LinearHistory(),
+            voltage_0: new LinearHistory(),
+            voltage_1: new LinearHistory()
+
+
         };
 
         // Store API exposed to the UI.

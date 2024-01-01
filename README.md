@@ -77,10 +77,16 @@ To use NMEA0183 provide a NMEA0183 source on a serial port, and modify the code 
 * [x] Not sure log and trip are displaying correctly.
 * [x] Latitude and longitude should be together in 1 instrument.
 * [x] Days and seconds since midnight should display as time. (gpsDaysSince1970, gpsSecondsSinceMidnight)
-* [ ] current_1, temperature_1, temperature_0 when selected break the text box.
-* [ ] swrt, lastCalc, lastChange needs to be dropped, not relevant.
-* [ ] Pitch P/S makes no sense.
-* [ ] Min max graphs do not appear to be scaling right.
+* [x] current_1, temperature_1, temperature_0 when selected break the text box.
+* [x] swrt, lastCalc, lastChange needs to be dropped, not relevant.
+* [x] Pitch P/S makes no sense.
+* [x] Min max graphs do not appear to be scaling right.
+* [x] dbt needs a graph
+* [x] Engine coolant needs a graph
+* [x] Voltages need a graph
+* [x] Currents need a graph
+* [x] Pressure graph
+* [x] Fuel level graph
 * [x] atmosphericPressure is too long
 * [x] Calcs not firing. 
 * [x] NMEA0183 sentences were not being parsed correctly for some apps

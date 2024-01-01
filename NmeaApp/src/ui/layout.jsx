@@ -20,7 +20,10 @@ class NMEALayout extends React.Component {
         "log",
         "tripLog",
         "gpsDaysSince1970", 
-        "gpsSecondsSinceMidnight"
+        "gpsSecondsSinceMidnight",
+        "swrt",
+        "lastCalc",
+        "lastChange",
     ];
     static addOptionKeys = [
         "Position",
@@ -432,6 +435,12 @@ class TextBox extends React.Component {
             const value = this.testValue || await this.storeAPI.getState(this.field);
             const display = dataType.display(value);
             const options = (await this.storeAPI.getKeys()).filter((key) => !NMEALayout.removeOptionKeys.includes(key)).concat(NMEALayout.addOptionKeys);
+            if ( this.state.options === undefined || options.join(",") !== this.state.options.join(",") ) {
+                this.setState({options: options });
+
+            }
+
+
             const displayClass = dataType.cssClass?dataType.cssClass(value):'';
 
             const h = [];
@@ -446,11 +455,11 @@ class TextBox extends React.Component {
                 }
                 const graph = this.generateGraphPath(v, h);
                 if ( display != this.state.main || graph.path != this.state.graph.path ) {
-                    this.setState({main: display, options: options, graph: graph, displayClass: displayClass });
-                }
+                    this.setState({main: display, graph: graph, displayClass: displayClass });
+                }  
             } else {
                 if ( display != this.state.main ) {
-                    this.setState({main: display, options: options, displayClass: displayClass  });
+                    this.setState({main: display, displayClass: displayClass  });
                 }
             }
         }    
@@ -467,15 +476,20 @@ class TextBox extends React.Component {
         if ( h && h.length > 1 ) {
             const pairs = [];
             const dataType = DataTypes.getDataType(this.field);
+            // get the range in sensor units, not display units
             const range = dataType.range(h);
+            this.debug(this.field, "Range", h, range);
+
             if ( range ) {
+                // calculate the pairs in screen co-ordinates.
                 for(let i = 0; i < h.length; i++) {
                     const x=DisplayUtils.x(i, range).toFixed(0);
                     const y=DisplayUtils.y(h[i], range).toFixed(0);
                     pairs.push(`${x} ${y}`);
                 }
-                // add one entry to the start to get a line that starts straight.
                 pairs.push(pairs[pairs.length-1]);
+                this.debug(this.field, "Pairs", pairs);
+
                 const lastX = DisplayUtils.x(h.length-1, range).toFixed(0);
                 const path = `M ${pairs[0]} L ${pairs.join(",")}`; 
                 const outline = `M 0 90 L ${pairs.join(",")}, ${lastX} 90 z`; 
@@ -486,17 +500,17 @@ class TextBox extends React.Component {
                 const meanLine = this.horizontalLine(mean, range);
                 const stdTopLine = this.horizontalLine(mean+stdDev, range);
                 const stdBottomLine = this.horizontalLine(mean-stdDev, range);
-                if ( path.includes("Infinity") ) {
-                    console.log(this.field, "path", path);
+                if ( path.includes("Infinity") || path.includes("NaN") ) {
+                    console.log(this.field, range, "path", path);
                 }
-                if ( meanLine.includes("Infinity") ) {
-                    console.log(this.field, "meanLine", meanLine);
+                if ( meanLine.includes("Infinity") || meanLine.includes("NaN") ) {
+                    console.log(this.field, range, "meanLine", meanLine);
                 }
-                if ( stdTopLine.includes("Infinity") ) {
-                    console.log(this.field, "stdTopLine", stdTopLine);
+                if ( stdTopLine.includes("Infinity") || stdTopLine.includes("NaN")) {
+                    console.log(this.field, range, "stdTopLine", stdTopLine);
                 }
-                if ( outline.includes("Infinity") ) {
-                    console.log(this.field, "outline", outline);
+                if ( outline.includes("Infinity") || outline.includes("NaN") ) {
+                    console.log(this.field, range, "outline", outline);
                 }
                 return {
                     path,
@@ -506,7 +520,6 @@ class TextBox extends React.Component {
                     meanLine,
                     stdTopLine,
                     stdBottomLine
-
                 };                           
             } else {
                 this.debug(this.field, "no range, no graph");
@@ -545,7 +558,6 @@ class TextBox extends React.Component {
     renderEditOverlay() {
         if ( this.props.editing ) {
             const options = this.state.options;
-
             return (
                 <div className="overlay edit">
                 <select onChange={this.changeField} value={this.field} title="select data item" >

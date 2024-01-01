@@ -6,10 +6,10 @@ class DisplayUtils {
             let minV = data[0];
             let maxV = data[0];
             for(let i = 0; i < data.length; i++ ) {
-                if ( minV < data[i]) {
+                if ( minV > data[i]) {
                     minV = data[i];
                 }
-                if ( maxV > data[i]) {
+                if ( maxV < data[i]) {
                     maxV = data[i];
                 }
             }
@@ -17,11 +17,16 @@ class DisplayUtils {
         }
         return undefined;
     }
-    static x(i, minMax ) {
-        return (i*160/minMax.nsamples);
+    // calculate x drawing co-ordinate based on the number of samples and the width of the viewport
+    // min
+    static x(i, range, width ) {
+        width = width || 160;
+        return (i*width/range.nsamples);
     }
-    static y(v, minMax ) {
-        return 90 - (((v-minMax.minV)*90)/(minMax.maxV-minMax.minV));
+    // calculate the y drawing co-ordinate based on the min and max and the height of the viewport
+    static y(v, range, height ) {
+        height = height || 90;
+        return height - (((v-range.minV)*height)/(range.maxV-range.minV));
     }
 
 }
@@ -32,6 +37,44 @@ class RelativeAngle {
         if ( v == undefined ) {
             return "--";
         }
+
+        return `${(v*(180/Math.PI)).toFixed(0)}`;
+    }
+    static tl = "";
+    static tr = "";
+    static withHistory = true;
+    static units = "deg";
+    static toDisplayUnits(v) {
+        return (v*(180/Math.PI));
+    }
+    static range(h) {
+        const range = DisplayUtils.calMinMax(h);
+        if (!range) {
+            return undefined;
+        }
+        // adjust min max in system units (radians)
+        const toRad = Math.PI/180;
+        if ( range.minV > (-60*toRad) && range.maxV < (60*toRad) ) {
+            range.minV = (-60*toRad);
+            range.maxV = (60*toRad)
+        } else if ( range.minV > (-90*toRad) && range.maxV < (90*toRad) ) {
+            range.minV = (-90*toRad);
+            range.maxV = (90*toRad)
+        } else  {
+            range.minV = (-180*toRad);
+            range.maxV = (180*toRad);
+        }
+        range.nsamples = h.length;
+        return range;
+    }
+}
+
+class RelativeAnglePS extends RelativeAngle {
+        static display(v) {
+        if ( v == undefined ) {
+            return "--";
+        }
+
         if(v < 0) {
             return `P${(-v*(180/Math.PI)).toFixed(0)}`;
         } else {
@@ -49,31 +92,7 @@ class RelativeAngle {
         }
 
     }
-    static tl = "";
-    static tr = "";
-    static withHistory = true;
-    static units = "deg";
-    static toDisplayUnits(v) {
-        return (v*(180/Math.PI));
-    }
-    static range(h) {
-        const minMax = DisplayUtils.calMinMax(h);
-        if (!minMax) {
-            return undefined;
-        }
-        if ( minMax.minV > -60 && minMax.maxV < 60 ) {
-            minMax.minV = -60;
-            minMax.maxV = 60
-        } else if ( minMax.minV > -90 && minMax.maxV < 90 ) {
-            minMax.minV = -90;
-            minMax.maxV = 90
-        } else  {
-            minMax.minV = -180;
-            minMax.maxV = 180;
-        }
-        minMax.nsamples = h.length;
-        return minMax;
-    }
+
 }
 
 class RelativeBearing {
@@ -101,15 +120,16 @@ class RelativeBearing {
         if (!minMax) {
             return undefined;
         }
-        if ( minMax.minV > -60 && minMax.maxV < 60 ) {
-            minMax.minV = -60;
-            minMax.maxV = 60
-        } else if ( minMax.minV > -90 && minMax.maxV < 90 ) {
-            minMax.minV = -90;
-            minMax.maxV = 90
+        const toRad = Math.PI/180;
+        if ( minMax.minV > (-60*toRad) && minMax.maxV < (60*toRad) ) {
+            minMax.minV = (-60*toRad);
+            minMax.maxV = (60*toRad)
+        } else if ( minMax.minV > (-90 *toRad)&& minMax.maxV < (90*toRad) ) {
+            minMax.minV = (-90*toRad);
+            minMax.maxV = (90*toRad)
         } else  {
-            minMax.minV = -180;
-            minMax.maxV = 180;
+            minMax.minV = (-180*toRad);
+            minMax.maxV = (180*toRad);
         }
         minMax.nsamples = h.length;
         return minMax;
@@ -136,12 +156,12 @@ class WindSpeed {
         }
         minMax.minV = 0;
 
-        if ( minMax.maxV < 10 ) {
-            minMax.maxV = 10; 
-        } else if ( minMax.maxV < 20 ) {
-            minMax.maxV = 20;
-        } else if ( minMax.maxV < 50 ) {
-            minMax.maxV = 50;
+        if ( minMax.maxV < 10/1.9438452 ) {
+            minMax.maxV = 10/1.9438452; 
+        } else if ( minMax.maxV < 20/1.9438452 ) {
+            minMax.maxV = 20/1.9438452;
+        } else if ( minMax.maxV < 50/1.9438452 ) {
+            minMax.maxV = 50/1.9438452;
         }
         minMax.nsamples = h.length;
         return minMax;
@@ -168,12 +188,12 @@ class Speed {
             return undefined;
         }
         minMax.minV = 0;
-        if ( minMax.maxV < 10 ) {
-            minMax.maxV = 10; 
-        } else if ( minMax.maxV < 20 ) {
-            minMax.maxV = 20;
-        } else if ( minMax.maxV < 50 ) {
-            minMax.maxV = 50;
+        if ( minMax.maxV < 10/1.9438452 ) {
+            minMax.maxV = 10/1.9438452; 
+        } else if ( minMax.maxV < 20/1.9438452 ) {
+            minMax.maxV = 20/1.9438452;
+        } else if ( minMax.maxV < 50/1.9438452 ) {
+            minMax.maxV = 50/1.9438452;
         }
         minMax.nsamples = h.length;
         return minMax;
@@ -225,6 +245,8 @@ class AtmosphericPressure {
             return undefined;
         }
 
+        minMax.minV = Math.floor(minMax.minV/10)*10;        
+        minMax.maxV = (Math.floor(minMax.maxV/10)+1)*10;        
         minMax.nsamples = h.length;
         return minMax;
     }
@@ -332,12 +354,12 @@ class Percent {
             return undefined;
         }
         minMax.minV = 0;
-        if ( minMax.maxV < 10 ) {
-            minMax.maxV = 10; 
-        } else if ( minMax.maxV < 20 ) {
-            minMax.maxV = 20;
-        } else if ( minMax.maxV < 50 ) {
-            minMax.maxV = 50;
+        if ( minMax.maxV < 0.10 ) {
+            minMax.maxV = 0.10; 
+        } else if ( minMax.maxV < 0.20 ) {
+            minMax.maxV = 0.20;
+        } else if ( minMax.maxV < 0.50 ) {
+            minMax.maxV = 0.50;
         }
         minMax.nsamples = h.length;
         return minMax;
@@ -364,12 +386,12 @@ class Ratio {
             return undefined;
         }
         minMax.minV = 0;
-        if ( minMax.maxV < 10 ) {
-            minMax.maxV = 10; 
-        } else if ( minMax.maxV < 20 ) {
-            minMax.maxV = 20;
-        } else if ( minMax.maxV < 50 ) {
-            minMax.maxV = 50;
+        if ( minMax.maxV < 0.10 ) {
+            minMax.maxV = 0.10; 
+        } else if ( minMax.maxV < 0.20 ) {
+            minMax.maxV = 0.20;
+        } else if ( minMax.maxV < 0.50 ) {
+            minMax.maxV = 0.50;
         }
         minMax.nsamples = h.length;
         return minMax;
@@ -492,6 +514,8 @@ class Temperature {
         if (!minMax) {
             return undefined;
         }
+        minMax.minV = Math.floor(minMax.minV/10)*10;        
+        minMax.maxV = (Math.floor(minMax.maxV/10)+1)*10;        
         minMax.nsamples = h.length;
         return minMax;
     }
@@ -516,6 +540,8 @@ class Voltage {
         if (!minMax) {
             return undefined;
         }
+        minMax.minV = Math.floor(minMax.minV/10)*10;        
+        minMax.maxV = (Math.floor(minMax.maxV/10)+1)*10;        
         minMax.nsamples = h.length;
         return minMax;
     }
@@ -539,6 +565,8 @@ class Current {
         if (!minMax) {
             return undefined;
         }
+        minMax.minV = Math.floor(minMax.minV/10)*10;        
+        minMax.maxV = (Math.floor(minMax.maxV/10)+1)*10;        
         minMax.nsamples = h.length;
         return minMax;
     }
@@ -625,12 +653,12 @@ class DataTypes {
     static dataTypes = {
             "aws": WindSpeed,
             "tws": WindSpeed,
-            "awa": RelativeAngle,
-            "twa": RelativeAngle,
-            "roll": RelativeAngle,
+            "awa": RelativeAnglePS,
+            "twa": RelativeAnglePS,
+            "roll": RelativeAnglePS,
             "yaw": RelativeAngle,
             "pitch": RelativeAngle,
-            "leeway": RelativeAngle,
+            "leeway": RelativeAnglePS,
             "cogt": Bearing,
             "hdt": Bearing,
             "gwdt": Bearing,
@@ -644,8 +672,8 @@ class DataTypes {
             "vmg": Speed,
             "targetVmg": Speed,
             "targetStw": Speed,
-            "targetTwa": RelativeAngle,
-            "targetAwa": RelativeAngle,
+            "targetTwa": RelativeAnglePS,
+            "targetAwa": RelativeAnglePS,
             "targetAws": Speed,
             "polarVmgRatio": Percent,
             "oppHeadingTrue": Bearing,
@@ -668,7 +696,7 @@ class DataTypes {
             "fuelCapacity": Capacity,
             "dbt": Depth,
             "depthOffset": Depth,
-            "rudderPosition": RelativeAngle,
+            "rudderPosition": RelativeAnglePS,
             "engineSpeed": Rpm,
             "engineCoolantTemperature": Temperature,
             "temperature": Temperature,
