@@ -20,12 +20,12 @@ class DisplayUtils {
     // calculate x drawing co-ordinate based on the number of samples and the width of the viewport
     // min
     static x(i, range, width ) {
-        width = width || 160;
+        width = width || 320;
         return (i*width/range.nsamples);
     }
     // calculate the y drawing co-ordinate based on the min and max and the height of the viewport
     static y(v, range, height ) {
-        height = height || 90;
+        height = height || 180;
         return height - (((v-range.minV)*height)/(range.maxV-range.minV));
     }
 

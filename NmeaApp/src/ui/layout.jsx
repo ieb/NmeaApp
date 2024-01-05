@@ -405,6 +405,7 @@ class TextBox extends React.Component {
         this.changeTheme = this.changeTheme.bind(this);
         this.remove = this.remove.bind(this);
         this.onDebug = this.onDebug.bind(this);
+        this.onMaximseBox = this.onMaximseBox.bind(this);
         this.updateRate = props.updateRate || 1000;
     }
 
@@ -468,7 +469,7 @@ class TextBox extends React.Component {
 
     horizontalLine(v, range) {
         const y = DisplayUtils.y(v, range).toFixed(0);
-        return `M 0 ${y} L 160 ${y}`;
+        return `M 0 ${y} L 320 ${y}`;
     }
 
 
@@ -492,7 +493,7 @@ class TextBox extends React.Component {
 
                 const lastX = DisplayUtils.x(h.length-1, range).toFixed(0);
                 const path = `M ${pairs[0]} L ${pairs.join(",")}`; 
-                const outline = `M 0 90 L ${pairs.join(",")}, ${lastX} 90 z`; 
+                const outline = `M 0 180 L ${pairs.join(",")}, ${lastX} 180 z`; 
                 const mean = dataType.toDisplayUnits(v.mean);
                 const stdDev = dataType.toDisplayUnits(v.stdev);
                 const meanTxt = dataType.toDisplayUnits(v.mean).toFixed(1);
@@ -555,6 +556,14 @@ class TextBox extends React.Component {
     onDebug() {
         this.debugEnable = !this.debugEnable;
     }
+    onMaximseBox() {
+        console.log("Maximise clicked");
+        if ( this.state.sizeClass !== "size-maximum") {
+            this.setState({sizeClass: "size-maximum"});
+        } else {
+            this.setState({ sizeClass: "size-normal"});
+        }
+    }
     renderEditOverlay() {
         if ( this.props.editing ) {
             const options = this.state.options;
@@ -578,13 +587,21 @@ class TextBox extends React.Component {
         }
     } 
 
+    renderControls() {
+        return (
+            <div>
+            <button onClick={this.onMaximseBox} title="maximise" >{"\u26F6"}</button>
+            </div>
+        )
+    }
+
     render() {
         const dataType = DataTypes.getDataType(this.field);
         const classNames = ["overlay", "main"].concat(this.state.displayClass?this.state.displayClass:'').join(" ");
         return (
-            <div className={`textbox ${this.theme}`} >
+            <div className={`textbox ${this.theme} ${this.state.sizeClass}`} >
               <div className={classNames}>{this.state.main}</div>
-              <svg className="overlay">
+              <svg className="overlay" viewBox="0 0 320 180">
                     <path d={this.state.graph.path} className="path"  />
                     <path d={this.state.graph.outline} className="outline"  />
                     <path d={this.state.graph.meanLine} className="meanline"  />
@@ -594,7 +611,7 @@ class TextBox extends React.Component {
                     <text x="5" y="20" className="small">{this.state.graph.stdDevTxt}</text>
               </svg>
               <div className="corner tl">{dataType.tl}</div>
-              <div className="corner tr">{dataType.tr}</div>
+              <div className="corner tr">{this.renderControls()}</div>
               <div className="corner bl">{DataTypes.getDisplayName(this.field)}</div>
               <div className="corner br">{dataType.units}</div>
               {this.renderEditOverlay()}
@@ -644,13 +661,13 @@ class LogBox extends TextBox {
 
     render() {
         return (
-            <div className={`textbox ${this.theme}`} >
+            <div className={`textbox ${this.theme}  ${this.state.sizeClass}`} >
               <div className="overlay main">
                 <div className="smallLine1" >{this.state.logDisplay}</div>
                 <div className="smallLine2" >{this.state.tripLogDisplay}</div>
               </div>
               <div className="corner tl"></div>
-              <div className="corner tr"></div>
+              <div className="corner tr">{this.renderControls()}</div>
               <div className="corner bl">log/trip</div>
               <div className="corner br">Nm</div>
               {this.renderEditOverlay()}
@@ -702,13 +719,13 @@ class TimeBox extends TextBox {
 
     render() {
         return (
-            <div className={`textbox ${this.theme}`} >
+            <div className={`textbox ${this.theme}  ${this.state.sizeClass}`} >
               <div className="overlay main">
                 <div className="smallLine1" >{this.state.dateDisplay}</div>
                 <div className="smallLine2" >{this.state.timeDisplay}</div>
               </div>
               <div className="corner tl"></div>
-              <div className="corner tr"></div>
+              <div className="corner tr">{this.renderControls()}</div>
               <div className="corner bl">Time</div>
               <div className="corner br">UTC</div>
               {this.renderEditOverlay()}
@@ -760,13 +777,13 @@ class LatitudeBox extends TextBox {
 
     render() {
         return (
-            <div className={`textbox ${this.theme}`} >
+            <div className={`textbox ${this.theme}  ${this.state.sizeClass}`} >
               <div className="overlay main">
                 <div className="smallLine1" >{this.state.latitudeDisplay}</div>
                 <div className="smallLine2" >{this.state.longitudeDisplay}</div>
               </div>
               <div className="corner tl"></div>
-              <div className="corner tr"></div>
+              <div className="corner tr">{this.renderControls()}</div>
               <div className="corner bl">position</div>
               <div className="corner br"></div>
               {this.renderEditOverlay()}
