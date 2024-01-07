@@ -169,6 +169,13 @@ class NMEALayout extends React.Component {
             box.id = Date.now();
             box.field = field;
             this.setLayout(l);
+        } else if ( event === "size" ) {
+            const l = this.getLayout();
+            const box = l.page.boxes.find((b) => b.id === id);
+            console.log("update ",id, field, box, l.page.boxes);
+            box.id = Date.now();
+            box.size = field;
+            this.setLayout(l);
         }
 
     }
@@ -246,6 +253,7 @@ class NMEALayout extends React.Component {
                         field={item.field} 
                         id={item.id} 
                         key={item.id}
+                        size={item.size}
                         testValue={item.testValue}
                         onChange={this.onChangeItem} 
                         editing={this.state.editing}  
@@ -257,6 +265,7 @@ class NMEALayout extends React.Component {
                         field={item.field} 
                         id={item.id} 
                         key={item.id}
+                        size={item.size}
                         testValue={item.testValue}
                         onChange={this.onChangeItem} 
                         editing={this.state.editing}  
@@ -268,6 +277,7 @@ class NMEALayout extends React.Component {
                         field={item.field} 
                         id={item.id} 
                         key={item.id}
+                        size={item.size}
                         testValue={item.testValue}
                         onChange={this.onChangeItem} 
                         editing={this.state.editing}  
@@ -279,6 +289,7 @@ class NMEALayout extends React.Component {
                         field={item.field} 
                         id={item.id} 
                         key={item.id} 
+                        size={item.size}
                         testValue={item.testValue}
                         onChange={this.onChangeItem} 
                         editing={this.state.editing}  
@@ -371,7 +382,8 @@ class TextBox extends React.Component {
         theme: PropTypes.string,
         main: PropTypes.string,
         updateRate: PropTypes.number,
-        testValue: PropTypes.number
+        testValue: PropTypes.number,
+        size: PropTypes.string
     };
 
 
@@ -384,6 +396,11 @@ class TextBox extends React.Component {
         this.id = props.id;
         this.field = props.field;
         this.theme = props.theme || "default";
+        this.size = props.size || "1x";
+        this.sizes = [
+            "1x",
+            "2x"
+        ];
         this.themes = [
             "default",
             "red",
@@ -405,6 +422,7 @@ class TextBox extends React.Component {
         this.changeTheme = this.changeTheme.bind(this);
         this.remove = this.remove.bind(this);
         this.onDebug = this.onDebug.bind(this);
+        this.changeSize = this.changeSize.bind(this);
         this.onMaximseBox = this.onMaximseBox.bind(this);
         this.updateRate = props.updateRate || 1000;
     }
@@ -545,6 +563,9 @@ class TextBox extends React.Component {
     changeTheme(e) {
         this.onChange("theme", this.id, e.target.value);
     }
+    changeSize(e) {
+        this.onChange("size", this.id, e.target.value);
+    }
     remove() {
         this.onChange("remove", this.id);
     }
@@ -564,6 +585,14 @@ class TextBox extends React.Component {
             this.setState({ sizeClass: "size-normal"});
         }
     }
+    getSizeClass() {
+        if ( this.state.sizeClass ) {
+            return this.state.sizeClass;
+        } else if ( this.size === "2x") {
+            return "size-maximum";
+        }
+        return "size-normal";
+    }
     renderEditOverlay() {
         if ( this.props.editing ) {
             const options = this.state.options;
@@ -572,8 +601,8 @@ class TextBox extends React.Component {
                 <select onChange={this.changeField} value={this.field} title="select data item" >
                     {options.map((item) => <option key={item} value={item} >{item}</option>)}
                 </select>
-                <select onChange={this.changeTheme} value={this.theme} title="change theme" >
-                    {this.themes.map((item) => <option key={item} value={item} >{item}</option>)}
+                <select onChange={this.changeSize} value={this.size} title="change size" >
+                    {this.sizes.map((item) => <option key={item} value={item} >{item}</option>)}
                 </select>
                 <button onClick={this.remove} title="remove">{"\u2573"}</button>
                 <button onClick={this.onDebug} title="debug" >debug</button>
@@ -599,7 +628,7 @@ class TextBox extends React.Component {
         const dataType = DataTypes.getDataType(this.field);
         const classNames = ["overlay", "main"].concat(this.state.displayClass?this.state.displayClass:'').join(" ");
         return (
-            <div className={`textbox ${this.theme} ${this.state.sizeClass}`} >
+            <div className={`textbox ${this.theme} ${this.getSizeClass()} `} >
               <div className={classNames}>{this.state.main}</div>
               <svg className="overlay" viewBox="0 0 320 180">
                     <path d={this.state.graph.path} className="path"  />
@@ -628,7 +657,9 @@ class LogBox extends TextBox {
         id: PropTypes.number,
         theme: PropTypes.string,
         main: PropTypes.string,
-        updateRate: PropTypes.object
+        updateRate: PropTypes.object,
+        size: PropTypes.string
+
     };
 
     constructor(props) {
@@ -661,7 +692,7 @@ class LogBox extends TextBox {
 
     render() {
         return (
-            <div className={`textbox ${this.theme}  ${this.state.sizeClass}`} >
+            <div className={`textbox ${this.theme}  ${this.getSizeClass()}`} >
               <div className="overlay main">
                 <div className="smallLine1" >{this.state.logDisplay}</div>
                 <div className="smallLine2" >{this.state.tripLogDisplay}</div>
@@ -686,7 +717,9 @@ class TimeBox extends TextBox {
         id: PropTypes.number,
         theme: PropTypes.string,
         main: PropTypes.string,
-        updateRate: PropTypes.object
+        updateRate: PropTypes.object,
+        size: PropTypes.string
+
     };
 
     constructor(props) {
@@ -719,7 +752,7 @@ class TimeBox extends TextBox {
 
     render() {
         return (
-            <div className={`textbox ${this.theme}  ${this.state.sizeClass}`} >
+            <div className={`textbox ${this.theme}  ${this.getSizeClass()}`} >
               <div className="overlay main">
                 <div className="smallLine1" >{this.state.dateDisplay}</div>
                 <div className="smallLine2" >{this.state.timeDisplay}</div>
@@ -744,7 +777,9 @@ class LatitudeBox extends TextBox {
         id: PropTypes.number,
         theme: PropTypes.string,
         main: PropTypes.string,
-        updateRate: PropTypes.object
+        updateRate: PropTypes.object,
+        size: PropTypes.string
+
     };
 
     constructor(props) {
@@ -777,7 +812,7 @@ class LatitudeBox extends TextBox {
 
     render() {
         return (
-            <div className={`textbox ${this.theme}  ${this.state.sizeClass}`} >
+            <div className={`textbox ${this.theme}  ${this.getSizeClass()}`} >
               <div className="overlay main">
                 <div className="smallLine1" >{this.state.latitudeDisplay}</div>
                 <div className="smallLine2" >{this.state.longitudeDisplay}</div>
