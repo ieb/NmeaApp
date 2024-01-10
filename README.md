@@ -64,7 +64,7 @@ To use NMEA0183 provide a NMEA0183 source on a serial port, and modify the code 
 * [x] Confirm works on ChromeOS
 * [x] Finish testing.
 * [x] Write a gs_usb driver to read NMEA2000 bytes directly from the CAN bus via one of the cheap, very low power, USB-Can adapters (eg CandelLite). The firmware is available in source code which reveals the USB protocol, so no USB drivers needed (they are not available in ChromeOS). There is also a Python module that uses usblib to access gs_usb.
-* [ ] Allow maximise 1 cell.  
+* [x] Allow maximise 1 cell 
 * [ ] Write a B&G view.
 * [ ] Do some fun visualizations, charts, etc.
 
@@ -92,4 +92,6 @@ To use NMEA0183 provide a NMEA0183 source on a serial port, and modify the code 
 * [x] Calcs not firing. 
 * [x] NMEA0183 sentences were not being parsed correctly for some apps
 * [x] Fix packaging so that serialport and usb are included in the binary.
-* [ ] When UI reloads it doesnt remember state of backend can connection or tcp server.
+* [x] When UI reloads it doesnt remember state of backend can connection or tcp server.  Now the TCP server and NMEA2000 are managed automatically in the backend.
+* [x] Remove NMEA0183 reader code from AppMain.
+* [x] When the NMEA2000 USB connection encounters an error it should close the USB device and reopen. 2 types seen so far. LIBUSB_ERROR_NO_DEVICE on transfer and a timeout on packets received. There should be some way of pinging the USB layer to check that the device is still there and operational.

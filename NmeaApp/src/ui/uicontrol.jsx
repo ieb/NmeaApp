@@ -25,6 +25,7 @@ class EditUIControl extends React.Component {
         this.setState({ editing });
     }
 
+
     render() {
         if ( this.state.editing ) {
         return ( 

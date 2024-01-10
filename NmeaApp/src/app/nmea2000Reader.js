@@ -10,8 +10,10 @@ class NMEA2000Reader extends EventEmitter {
         super();
         this.gs_usb = new GSUsb();
         const emit = this.emit.bind(this);
-        const shutdown = this.close.bind(this);
+        const keepOpen = this.keepOpen.bind(this);
+
         const messageDecoder = new NMEA2000MessageDecoder();
+        this.doKeepOpen = true;
         this.gs_usb.on("frame", (frame) => {
             const message = messageDecoder.decode(frame);
             if ( message !== undefined ) {
@@ -19,20 +21,48 @@ class NMEA2000Reader extends EventEmitter {
                 emit('nmea2000Message', message);
             }
         });
+        this.gs_usb.on("error", async (msg) => {
+            console.log("Got USB Error, closing device", msg);
+            await this.close();
+            await keepOpen(true);
+        });
         process.on('exit', async () => {
             console.log("NMEA2000Reader Got exit");
-            await shutdown();
+            await keepOpen(false);
             console.log("Finished exit");
             process.exit();
         });
         process.on('SIGTERM', async () => {
             console.log("NMEA2000Reader Got term");
-            await shutdown();
+            await keepOpen(false);
             console.log("Finished term");
             process.exit();
         });
-
     }
+
+    async keepOpen(doKeepOpen) {
+        if ( (!doKeepOpen) || (!this.doKeepOpen) ) {
+            console.log("Stop keeping open NMEA2000 stream");
+            this.doKeepOpen = false;
+            await this.close();
+            return;
+        }
+
+        if ( !this.open ) {
+            console.log("Try reopen NMEA2000");
+            await this.begin();
+        } else if (! await this.gs_usb.identify(0) ) {
+            // not responding.
+            console.log("NMEA2000 not responding.");
+            await this.close();
+        }
+        const keepOpen = this.keepOpen.bind(this);
+        setTimeout(async () => {
+            await keepOpen(true);
+        }, 5000);
+    }
+    
+
 
     async begin() {
         const status = await this.gs_usb.start(250000, GSUsb.GS_DEVICE_FLAGS.hwTimeStamp);

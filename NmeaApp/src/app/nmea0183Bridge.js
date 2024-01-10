@@ -407,10 +407,10 @@ $IIMMB,x.x,I,x.x,B*hh
                                         (calculatedState.polarSpeed*3.6).toFixed(2),
                                         'K'], calculatedState.lastCalc);                
         }
-        if ( calculatedState.oppositeTrackMagnetic !== undefined ) {
+        if ( calculatedState.oppTrackMagnetic !== undefined ) {
             nmea0183Handler.updateSentence('PNKEP02', ['$PNKEP',
                                         '02',
-                                        (calculatedState.oppositeTrackMagnetic*180/Math.PI).toFixed(2)
+                                        (calculatedState.oppTrackMagnetic*180/Math.PI).toFixed(2)
                                         ], calculatedState.lastCalc);                
         }
         if ( calculatedState.polarSpeed !==  undefined ) {

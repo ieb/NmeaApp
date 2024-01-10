@@ -20,7 +20,6 @@ class TcpServer extends EventEmitter {
         return new Promise((resolve, reject) => {
             try {
                 const networkList = networkInterfaces();
-                console.log("NetworkList", networkList);
                 resolve(networkList);
             } catch(e) {
                 console.log(e);
@@ -73,15 +72,12 @@ class TcpServer extends EventEmitter {
                 that.emit('unlisten');
             });
             this.server.on('listening', () => {
-                console.log(`tcpserver listening`);
             });
             return new Promise((resolve, reject ) => {
-                console.log("Bind on ",that.port);
                 that.server.listen(that.port, that.address, (err) => {
                     if ( err ) {
                         reject(err);
                     } else {
-                        console.log("Listening on ",that.port);
                         resolve();
                     }
                 });  

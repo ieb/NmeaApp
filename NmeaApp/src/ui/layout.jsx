@@ -1,5 +1,4 @@
 import React from 'react';
-import { PortControl } from './portcontrol.jsx';
 import { EditUIControl } from './uicontrol.jsx';
 import {DataTypes, DisplayUtils } from './datatypes.js';
 import PropTypes from 'prop-types';
@@ -10,8 +9,7 @@ import PropTypes from 'prop-types';
 class NMEALayout extends React.Component {
 
     static propTypes = {
-        storeAPI: PropTypes.object,
-        mainAPI: PropTypes.object
+        storeAPI: PropTypes.object
     };
 
     static removeOptionKeys = [ 
@@ -214,28 +212,7 @@ class NMEALayout extends React.Component {
         const menuClass = this.state.showMenu?"menu normal":"menu minimised";
         return (
             <div className={menuClass} >
-                <MenuButton mainAPI={this.props.mainAPI} onClick={this.onMenuChange} />
-                <PortControl mainAPI={this.props.mainAPI} />
-                {l.layout.pages.map((page) => {
-                    const className= (page.id == l.layout.pageId)?"pageButton activePage":"pageButton";
-                    if (page.id == l.layout.pageId && this.state.editing) {
-                        return (<input key={page.id} 
-                                type="text" 
-                                className={className} 
-                                onChange={(e) => {
-                                    this.onPageNameChange(e, page.id);
-                                }} 
-                                value={page.name} />
-                        )
-                    } else {
-                        return (
-                            <button key={page.id} 
-                                className={className} 
-                                onClick={this.onPageChange} 
-                                value={page.id} >{page.name}</button>
-                        )
-                    }
-                })}
+                <MenuButton  storeAPI={this.storeAPI} onClick={this.onMenuChange} />
                 <EditUIControl onEdit={this.onEditLayout} 
                     onSave={this.onSave}
                     onAddItem={this.onAddItem}/>
@@ -316,7 +293,7 @@ class NMEALayout extends React.Component {
 class MenuButton extends React.Component {
 
     static propTypes = {
-        mainAPI: PropTypes.object,
+        storeAPI: PropTypes.object,
         onClick: PropTypes.func
     };
 
@@ -331,7 +308,7 @@ class MenuButton extends React.Component {
 
     componentDidMount() {
         this.updateInterval = setInterval((async () => {
-            const packetsRecieved = await this.props.mainAPI.getPacketsRecieved();
+            const packetsRecieved = await this.props.storeAPI.getPacketsRecieved();
             if (this.lastPacketsRecived !== packetsRecieved ) {
                 this.lastPacketsRecived = packetsRecieved;
                 this.setState({dataIndicatorOn: !this.state.dataIndicatorOn});
@@ -352,23 +329,6 @@ class MenuButton extends React.Component {
 
 }
 
-class NMEAControls extends React.Component {
-
-    static propTypes = {
-        mainAPI: PropTypes.object
-    };
-    constructor(props) {
-        super(props);
-        this.props = props;
-    }
-    render() {
-        return (
-            <div className="controls">
-                <PortControl mainAPI={this.props.mainAPI}  />
-            </div>
-        );
-    }
-}
 
 
 

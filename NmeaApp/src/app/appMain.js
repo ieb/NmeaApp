@@ -1,7 +1,7 @@
 "use strict";
 
 const { NMEA0183Handler }  = require( "./nmea0183Handler.js");
-const { NMEA0183Reader }  = require('./nmea0183Reader.js');
+//const { NMEA0183Reader }  = require('./nmea0183Reader.js');
 const { NMEA2000Reader }  = require('./nmea2000Reader.js');
 const { NMEA0183Bridge }  = require('./nmea0183Bridge.js');
 const { Calculations }  = require("./calculations.js");
@@ -29,7 +29,7 @@ the nmea0183Bridge holds sentences, once that are updated are emitted to the tcp
 class AppMain {
     constructor() {
         this.nmea0183Handler = new NMEA0183Handler();
-        this.nmea0183Reader = new NMEA0183Reader();
+//        this.nmea0183Reader = new NMEA0183Reader();
         this.nmea2000Reader = new NMEA2000Reader();
         this.nmea0183Bridge = new NMEA0183Bridge();
         this.store = new Store();
@@ -37,22 +37,18 @@ class AppMain {
         this.tcpServer = new TcpServer();
         this.packetsRecieved = 0;
         // must bind the API methods.
-        this.getNetworkAddresses = this.getNetworkAddresses.bind(this);
-        this.getDevices = this.getDevices.bind(this);
-        this.stopServer = this.stopServer.bind(this);
-        this.closeConnection = this.closeConnection.bind(this);
-        this.startServer = this.startServer.bind(this);
-        this.openConnection = this.openConnection.bind(this);
         this.getPacketsRecieved = this.getPacketsRecieved.bind(this);
 
         // start the update intervals
         this.update = this.update.bind(this);
         this.updateTcpClients = this.updateTcpClients.bind(this);
         // connect the reader to the parser
+/*
         this.nmea0183Reader.on('sentence', (line) => {
             this.nmea0183Handler.parseSentence(line);
             this.packetsRecieved++;
         });
+*/
         this.nmea0183Handler.on("nmea0183Sentence", (sentence) => {
             this.store.updateFromNMEA0183Stream(sentence);
         });
@@ -65,13 +61,16 @@ class AppMain {
         });
 
     }
-    start() {
+    async start() {
         if (!this.updateInterval) {
             this.updateInterval = setInterval(this.update, 500);
         }
         if (!this.clientInterval) {
             this.clientInterval = setInterval(this.updateTcpClients, 500);
         }
+
+        await this.nmea2000Reader.keepOpen(true);
+        await this.startServer();
         console.log("Backend running ");
     }
     async shutdown() {
@@ -83,7 +82,8 @@ class AppMain {
             clearInterval(this.clientInterval);
             this.clientInterval = undefined;
         }
-        await this.nmea0183Reader.close();
+        await this.nmea2000Reader.keepOpen(false);
+//        await this.nmea0183Reader.close();
         await this.tcpServer.close();
     }
 
@@ -105,39 +105,28 @@ class AppMain {
         }
     }
 
-    async getDevices() {
-        return await this.nmea0183Reader.listPorts();
+
+    async startServer() {
+        const networkAddresses = await this.tcpServer.networkInterfces();
+        const ipV4Addresses = [];
+        const allAddresses = [];
+        for (var ifname in networkAddresses ) {
+            for (var ipIf of networkAddresses[ifname]) {
+                if ( ipIf.family === "IPv4" && ipIf.address !== '127.0.0.1' ) {
+                    ipV4Addresses.push(ipIf.address);
+                }
+                allAddresses.push(ipIf.address);
+            }
+        }
+        if ( ipV4Addresses.length == 0 ) {
+            ipV4Addresses.push("127.0.0.1");
+        }
+        console.log("All Addresses ", allAddresses);
+        console.log("Available Addresses ", ipV4Addresses);
+        await this.tcpServer.open(ipV4Addresses[0], 10110);
+        console.log(`Opened TCP Server at ${ipV4Addresses[0]}:10110`);
     }
 
-
-    async getNetworkAddresses() {
-        return await this.tcpServer.networkInterfces();
-    }
-    async startServer(address, port) {
-        console.log("Got startServer message",address, port);
-        return await this.tcpServer.open(address, port);
-    }
-
-    async stopServer() {
-      return await this.tcpServer.close();
-    }
-
-    async openNMEA2000() {
-        return await this.nmea2000Reader.begin();
-    }
-
-    async closeNMEA2000() {
-        return await this.nmea2000Reader.close();
-    }
-
-    async openConnection(path, baud) {
-        console.log("Got openConnection message",path, baud);
-        return await this.nmea0183Reader.open(path, baud);
-    }
-
-    async closeConnection() {
-        return await this.nmea0183Reader.close();
-    }
 
     getPacketsRecieved() {
           return this.packetsRecieved;
