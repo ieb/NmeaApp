@@ -11,6 +11,7 @@ class NMEA2000Reader extends EventEmitter {
         this.gs_usb = new GSUsb();
         const emit = this.emit.bind(this);
         const keepOpen = this.keepOpen.bind(this);
+        const stopKeepOpen = this.stopKeepOpen.bind(this);
 
         const messageDecoder = new NMEA2000MessageDecoder();
         this.doKeepOpen = true;
@@ -22,29 +23,24 @@ class NMEA2000Reader extends EventEmitter {
             }
         });
         this.gs_usb.on("error", async (msg) => {
-            console.log("Got USB Error, closing device", msg);
-            await this.close();
-            await keepOpen(true);
-        });
-        process.on('exit', async () => {
-            console.log("NMEA2000Reader Got exit");
-            await keepOpen(false);
-            console.log("Finished exit");
-            process.exit();
-        });
-        process.on('SIGTERM', async () => {
-            console.log("NMEA2000Reader Got term");
-            await keepOpen(false);
-            console.log("Finished term");
-            process.exit();
+            if ( this.open ) {
+                console.log("Got USB Error, will close device", msg);
+                await this.close();                
+            }
         });
     }
 
-    async keepOpen(doKeepOpen) {
-        if ( (!doKeepOpen) || (!this.doKeepOpen) ) {
+    async stopKeepOpen(cb) {
             console.log("Stop keeping open NMEA2000 stream");
             this.doKeepOpen = false;
+            if ( this.keepAliveTimeout ) {
+                clearTimeout(this.keepAliveTimeout);
+            }
             await this.close();
+    }
+
+    async keepOpen() {
+        if ( (!this.doKeepOpen) ) {
             return;
         }
 
@@ -57,8 +53,8 @@ class NMEA2000Reader extends EventEmitter {
             await this.close();
         }
         const keepOpen = this.keepOpen.bind(this);
-        setTimeout(async () => {
-            await keepOpen(true);
+        this.keepAliveTimeout = setTimeout(async () => {
+            await keepOpen();
         }, 5000);
     }
     
@@ -102,7 +98,7 @@ class NMEA2000Reader extends EventEmitter {
 
         const filters = await this.gs_usb.getDeviceFilters();
         console.log("Filters are ", filters);
-        this.gs_usb.startStreamingCANFrmes();
+        this.gs_usb.startStreamingCANFrames();
         this.open = true;
         return {
             ok: true
@@ -110,11 +106,14 @@ class NMEA2000Reader extends EventEmitter {
     }
 
     async close() {
-        if ( this.open ) {
+        try {
+            this.open = false;
             await this.gs_usb.stop();
             console.log("NMEA2000Reader done stop GSUsb streaming");
-            this.open = false;
+        } catch (e) {
+            console.log("Close failed with  ",e);
         }
+
     }
 
 }

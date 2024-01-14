@@ -6,6 +6,7 @@ class Store {
         this.state = {
             lastChange: Date.now()
         };
+        this.messages = {};
         this.newState = {};
         this.history = {
             awa: new AngularHistory(),
@@ -116,6 +117,7 @@ class Store {
         // in the visualisation. (how TBD)
         // Reasoning, is to mimimise CPU usage by not doing unecessary work that isnt used.
         const newState = this.newState || {};
+        this.messages[message.pgn] = message;
         switch(message.pgn) {
             case 126992: // System time
                 // Use GNSS message
@@ -258,6 +260,10 @@ Dont store
                 newState.rudderPosition = message.rudderPosition;
                 break;
             }
+    }
+
+    getMessages() {
+        return this.messages;
     }
 
     mergeUpdate(calculations) {

@@ -53,6 +53,7 @@ class AppMain {
             this.store.updateFromNMEA0183Stream(sentence);
         });
         this.nmea2000Reader.on("nmea2000Message", (message) => {
+            this.packetsRecieved++;
             this.store.updateFromNMEA2000Stream(message);
             this.nmea0183Bridge.update(message, this.nmea0183Handler);
         });
@@ -69,11 +70,11 @@ class AppMain {
             this.clientInterval = setInterval(this.updateTcpClients, 500);
         }
 
-        await this.nmea2000Reader.keepOpen(true);
+        await this.nmea2000Reader.keepOpen();
         await this.startServer();
         console.log("Backend running ");
     }
-    async shutdown() {
+    shutdown(cb) {
         if (this.updateInterval) {
             clearInterval(this.updateInterval);
             this.updateInterval = undefined;
@@ -82,9 +83,12 @@ class AppMain {
             clearInterval(this.clientInterval);
             this.clientInterval = undefined;
         }
-        await this.nmea2000Reader.keepOpen(false);
-//        await this.nmea0183Reader.close();
-        await this.tcpServer.close();
+        this.tcpServer.close().then(() => {
+            this.nmea2000Reader.stopKeepOpen().then(() => {
+                console.log("Shutdown: Close Complete")
+                cb();
+            });
+        });
     }
 
 

@@ -10,6 +10,9 @@ function load(app, ipcMain) {
         ipcMain.handle('storeApi->getState',  async (event, ...args) => {
             return appMain.store.getState(...args);
         }),
+        ipcMain.handle('storeApi->getMessages',  async (event, ...args) => {
+            return appMain.store.getMessages(...args);
+        }),
         ipcMain.handle('storeApi->getHistory',  async (event, ...args) => {
             return appMain.store.getHistory(...args);
         }),

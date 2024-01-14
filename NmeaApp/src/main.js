@@ -1,4 +1,5 @@
 const { app, BrowserWindow, ipcMain } = require('electron');
+const { AppMenu } = require('./menu.js');
 const process = require('node:process');
 
 // Handle creating/removing shortcuts on Windows when installing/uninstalling.
@@ -37,6 +38,14 @@ app.on('window-all-closed', () => {
   }
 });
 
+app.on('menu-will-show', (e) => {
+  console.log("menu-will-show", e);
+});
+
+app.on('menu-will-close', (e) => {
+  console.log("menu-will-close", e);
+});
+
 app.on('activate', () => {
   // On OS X it's common to re-create a window in the app when the
   // dock icon is clicked and there are no other windows open.
@@ -47,11 +56,22 @@ app.on('activate', () => {
 
 // In this file you can include the rest of your app's specific main process
 // code. You can also put them in separate files and import them here.
+const appMenu = new AppMenu();
+appMenu.on("click", (e) => {
+  console.log("Menu click",e);
+});
+appMenu.createApplicationMenu();
 
 const {load} = require('./app/appLoader.js');
 const appMain = load(app, ipcMain);
 appMain.start();
 
-app.on('will-quit', () => {
-  appMain.shutdown();
+app.on('will-quit', (e) => {
+  appMain.shutdown(() => {
+    console.log("Calling Application exit");
+    app.exit();
+  });
+  e.preventDefault();
+  return e;
 });
+

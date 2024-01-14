@@ -10,5 +10,6 @@ contextBridge.exposeInMainWorld('storeAPI',{
         getState: async (field) => { return await ipcRenderer.invoke('storeApi->getState',field); },
         getHistory: async (field) => { return await ipcRenderer.invoke('storeApi->getHistory',field); },
         getKeys: async () => { return await ipcRenderer.invoke('storeApi->getKeys'); },       
-        getPacketsRecieved: () => ipcRenderer.invoke('storeApi->getPacketsRecieved')
+        getPacketsRecieved: () => ipcRenderer.invoke('storeApi->getPacketsRecieved'),
+        getMessages: () => ipcRenderer.invoke('storeApi->getMessages')
     });

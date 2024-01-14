@@ -104,14 +104,14 @@ class TcpServer extends EventEmitter {
 
     async close() {
         return new Promise((resolve) => {
-            if ( this.server != undefined ) {
-                console.log("Closing TCP Server");
-                this.server.close();
-                this.server = undefined;
-                this.port = 0;            
-            }
-            resolve();
-        });
+                if ( this.server != undefined ) {
+                    console.log("Closing TCP Server");
+                    this.server.close();
+                    this.server = undefined;
+                    this.port = 0;            
+                }
+                resolve();
+            });
     }
 
 }
