@@ -26,7 +26,8 @@ class NMEALayout extends React.Component {
     static addOptionKeys = [
         "Position",
         "Log",
-        "Time"
+        "Time",
+        "NMEA2000"
     ];
 
     constructor(props) {
@@ -251,6 +252,18 @@ class NMEALayout extends React.Component {
             case "Time":
                 return ( 
                     <TimeBox 
+                        field={item.field} 
+                        id={item.id} 
+                        key={item.id}
+                        size={item.size}
+                        testValue={item.testValue}
+                        onChange={this.onChangeItem} 
+                        editing={this.state.editing}  
+                        storeAPI={this.storeAPI} /> 
+                    );
+            case "NMEA2000":
+                return (
+                    <NMEA2000 
                         field={item.field} 
                         id={item.id} 
                         key={item.id}
@@ -786,6 +799,81 @@ class LatitudeBox extends TextBox {
             );
     }
 
+
+}
+
+class NMEA2000 extends TextBox {
+    static propTypes = {
+        storeAPI: PropTypes.object,
+        editing: PropTypes.bool,
+        onChange: PropTypes.func,
+        id: PropTypes.number,
+        theme: PropTypes.string,
+        main: PropTypes.string,
+        updateRate: PropTypes.object,
+        size: PropTypes.string
+
+    };
+
+    constructor(props) {
+        super(props);
+        this.testValue = props.testValue;
+    }
+
+    async getDisplayValue(field) {
+        if ( this.testValue && this.testValue[field] ) {
+            return DataTypes.getDataType(field).display(this.testValue[field]);
+        }
+        return DataTypes.getDataType(field).display(await this.storeAPI.getState(field));
+    }
+
+    async updateDisplayState() {
+        if ( this.storeAPI ) {
+            const messages = await this.storeAPI.getMessages();
+            this.setState({
+                nmea2000Data: messages
+            });
+        } else {
+            console.log("No store API");
+        }       
+    }
+
+    renderMessages() {
+        if ( this.state.nmea2000Data ) {
+            const l = [];
+            for(var pgn in this.state.nmea2000Data ) {
+                const message = this.state.nmea2000Data[pgn];
+                const m = [];
+                for(var k in message) {
+                    m.push(`${k}: ${message[k]}`);
+                }
+
+
+
+                l.push((<div key={pgn} >{m.join(' ')}</div>))
+            }
+            return (
+                <div>
+                    {l}
+                </div>
+            )
+        } else {
+            return (
+                <div>
+                    No Messages
+                </div>
+            )
+        }
+    }
+
+    render() {
+        return (
+            <div className={`textbox nmea2000Messages ${this.theme}  `} >
+              {this.renderMessages()}
+              {this.renderEditOverlay()}
+            </div>
+            );
+    }
 
 }
 

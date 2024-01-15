@@ -228,6 +228,13 @@ body {
   color: #f9c9c9;
 }
 
+.nmea2000Messages {
+  display: contents;
+}
+.nmea2000Messages > div {
+  border: solid 1px white;
+  border-radius: 5px;
+}
 
 
 

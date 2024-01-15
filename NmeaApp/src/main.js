@@ -59,6 +59,9 @@ app.on('activate', () => {
 const appMenu = new AppMenu();
 appMenu.on("click", (e) => {
   console.log("Menu click",e);
+  if ( e === 'file->new-window') {
+    createWindow();
+  }
 });
 appMenu.createApplicationMenu();
 

@@ -48,21 +48,21 @@ class RelativeAngle {
         return (v*(180/Math.PI));
     }
     static range(h) {
+        // h is in display units, converted by caller.
         const range = DisplayUtils.calMinMax(h);
         if (!range) {
             return undefined;
         }
         // adjust min max in system units (radians)
-        const toRad = Math.PI/180;
-        if ( range.minV > (-60*toRad) && range.maxV < (60*toRad) ) {
-            range.minV = (-60*toRad);
-            range.maxV = (60*toRad)
-        } else if ( range.minV > (-90*toRad) && range.maxV < (90*toRad) ) {
-            range.minV = (-90*toRad);
-            range.maxV = (90*toRad)
+        if ( range.minV > -60 && range.maxV < 60 ) {
+            range.minV = -60;
+            range.maxV = 60;
+        } else if ( range.minV > -90 && range.maxV < 90 ) {
+            range.minV = -90;
+            range.maxV = 90
         } else  {
-            range.minV = (-180*toRad);
-            range.maxV = (180*toRad);
+            range.minV = -180;
+            range.maxV = 180;
         }
         range.nsamples = h.length;
         return range;
@@ -116,20 +116,20 @@ class RelativeBearing {
         return (v*(180/Math.PI));
     }
     static range(h) {
+        // h is in display units, converted by caller.
         const minMax = DisplayUtils.calMinMax(h);
         if (!minMax) {
             return undefined;
         }
-        const toRad = Math.PI/180;
-        if ( minMax.minV > (-60*toRad) && minMax.maxV < (60*toRad) ) {
-            minMax.minV = (-60*toRad);
-            minMax.maxV = (60*toRad)
-        } else if ( minMax.minV > (-90 *toRad)&& minMax.maxV < (90*toRad) ) {
-            minMax.minV = (-90*toRad);
-            minMax.maxV = (90*toRad)
+        if ( minMax.minV > -60 && minMax.maxV < 60 ) {
+            minMax.minV = -60;
+            minMax.maxV = 60;
+        } else if ( minMax.minV > -90 && minMax.maxV < 90 ) {
+            minMax.minV = -90;
+            minMax.maxV = 90;
         } else  {
-            minMax.minV = (-180*toRad);
-            minMax.maxV = (180*toRad);
+            minMax.minV = -180;
+            minMax.maxV = 180;
         }
         minMax.nsamples = h.length;
         return minMax;
@@ -150,18 +150,22 @@ class WindSpeed {
         return (v*1.9438452);
     }
     static range(h) {
+        // h is in display units, converted by caller.
         const minMax = DisplayUtils.calMinMax(h);
         if (!minMax) {
             return undefined;
         }
         minMax.minV = 0;
-
-        if ( minMax.maxV < 10/1.9438452 ) {
-            minMax.maxV = 10/1.9438452; 
-        } else if ( minMax.maxV < 20/1.9438452 ) {
-            minMax.maxV = 20/1.9438452;
-        } else if ( minMax.maxV < 50/1.9438452 ) {
-            minMax.maxV = 50/1.9438452;
+        if ( minMax.maxV < 10 ) {
+            minMax.maxV = 10; 
+        } else if ( minMax.maxV < 20 ) {
+            minMax.maxV = 20;
+        } else if ( minMax.maxV < 30 ) {
+            minMax.maxV = 30;
+        } else if ( minMax.maxV < 40 ) {
+            minMax.maxV = 40;
+        } else if ( minMax.maxV < 50 ) {
+            minMax.maxV = 50;
         }
         minMax.nsamples = h.length;
         return minMax;
@@ -183,17 +187,24 @@ class Speed {
         return (v*1.9438452);
     }
     static range(h) {
+        // h is in display units, converted by caller.
         const minMax = DisplayUtils.calMinMax(h);
         if (!minMax) {
             return undefined;
         }
         minMax.minV = 0;
-        if ( minMax.maxV < 10/1.9438452 ) {
-            minMax.maxV = 10/1.9438452; 
-        } else if ( minMax.maxV < 20/1.9438452 ) {
-            minMax.maxV = 20/1.9438452;
-        } else if ( minMax.maxV < 50/1.9438452 ) {
-            minMax.maxV = 50/1.9438452;
+        if ( minMax.maxV < 10 ) {
+            minMax.maxV = 10; 
+        } else if ( minMax.maxV < 15 ) {
+            minMax.maxV = 15;
+        } else if ( minMax.maxV < 20 ) {
+            minMax.maxV = 20;
+        } else if ( minMax.maxV < 30 ) {
+            minMax.maxV = 30;
+        } else if ( minMax.maxV < 40 ) {
+            minMax.maxV = 40;
+        } else if ( minMax.maxV < 50 ) {
+            minMax.maxV = 50;
         }
         minMax.nsamples = h.length;
         return minMax;
@@ -215,6 +226,7 @@ class Distance {
         return (v*0.000539957);
     }
     static range(h) {
+        // h is in display units, converted by caller.
         const minMax = DisplayUtils.calMinMax(h);
         if (!minMax) {
             return undefined;
@@ -240,6 +252,7 @@ class AtmosphericPressure {
         return (v*0.01);
     }
     static range(h) {
+        // h is in display units, converted by caller.
         const minMax = DisplayUtils.calMinMax(h);
         if (!minMax) {
             return undefined;
@@ -270,6 +283,7 @@ class Bearing {
         return (v*180/Math.PI);
     }
     static range(h) {
+        // h is in display units, converted by caller.
         const minMax = DisplayUtils.calMinMax(h);
         if (!minMax) {
             return undefined;
@@ -349,6 +363,7 @@ class Percent {
         return (v*100);
     }
     static range(h) {
+        // h is in display units, converted by caller.
         const minMax = DisplayUtils.calMinMax(h);
         if (!minMax) {
             return undefined;
@@ -381,6 +396,7 @@ class Ratio {
         return (v);
     }
     static range(h) {
+        // h is in display units, converted by caller.
         const minMax = DisplayUtils.calMinMax(h);
         if (!minMax) {
             return undefined;
@@ -413,6 +429,7 @@ class Capacity {
         return (v);
     }
     static range(h) {
+        // h is in display units, converted by caller.
         const minMax = DisplayUtils.calMinMax(h);
         if (!minMax) {
             return undefined;
@@ -445,6 +462,7 @@ class Depth {
         return (v);
     }
     static range(h) {
+        // h is in display units, converted by caller.
         const minMax = DisplayUtils.calMinMax(h);
         if (!minMax) {
             return undefined;
@@ -479,6 +497,7 @@ class Rpm {
         return (v);
     }
     static range(h) {
+        // h is in display units, converted by caller.
         const minMax = DisplayUtils.calMinMax(h);
         if (!minMax) {
             return undefined;
@@ -510,6 +529,7 @@ class Temperature {
         return (v-237.15);
     }
     static range(h) {
+        // h is in display units, converted by caller.
         const minMax = DisplayUtils.calMinMax(h);
         if (!minMax) {
             return undefined;
@@ -536,6 +556,7 @@ class Voltage {
         return (v);
     }
     static range(h) {
+        // h is in display units, converted by caller.
         const minMax = DisplayUtils.calMinMax(h);
         if (!minMax) {
             return undefined;
@@ -561,6 +582,7 @@ class Current {
         return (v);
     }
     static range(h) {
+        // h is in display units, converted by caller.
         const minMax = DisplayUtils.calMinMax(h);
         if (!minMax) {
             return undefined;
