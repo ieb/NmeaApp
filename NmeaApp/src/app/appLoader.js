@@ -19,7 +19,15 @@ function load(app, ipcMain) {
         ipcMain.handle('storeApi->getKeys',  async (event, ...args) => {
             return appMain.store.getKeys(...args);
         })
+        ipcMain.handle('storeApi->addListener', async (event, ...args) => {
+            return appMain.store.addListener(event, ...args);
+        });
+        ipcMain.handle('storeApi->removeListener', async (event, ...args) => {
+            return appMain.store.removeListener(event, ...args);
+        });
     });
+
+
     return appMain;
 }
 

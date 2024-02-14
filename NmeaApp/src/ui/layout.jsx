@@ -47,7 +47,26 @@ class NMEALayout extends React.Component {
             dataIndicatorOn: false,
             layout: this.loadLayout() 
         };
+
+        // Not in use at the moment.
+        //storeAPI.onStateChange((newState) => {
+        //    console.log("Got State Change", newState);
+        //});
+
+
     }
+
+
+    componentDidMount() {
+        console.log("Register window for events");
+        this.storeAPI.addListener();
+    }
+    
+    componentWillUnmount() {
+        console.log("deRegister window for events");
+        this.storeAPI.removeListener();
+    }
+
 
     loadLayout() {
         let layout = localStorage.getItem('layout');
@@ -382,6 +401,7 @@ class TextBox extends React.Component {
             "yellow"
         ];
         this.debugEnable = false;
+
         this.state = {
             main: props.main || "-.-",
             options: [],
@@ -398,6 +418,14 @@ class TextBox extends React.Component {
         this.changeSize = this.changeSize.bind(this);
         this.onMaximseBox = this.onMaximseBox.bind(this);
         this.updateRate = props.updateRate || 1000;
+        const that = this;
+        if (this.storeAPI && this.editing) {
+            setTimeout(async () => {
+                that.setState({
+                    options: (await that.storeAPI.getKeys()).filter((key) => !NMEALayout.removeOptionKeys.includes(key)).concat(NMEALayout.addOptionKeys)
+                });
+            }, 1);
+        }
     }
 
     componentDidMount() {
@@ -421,16 +449,13 @@ class TextBox extends React.Component {
               </svg>
     */
 
+
     async updateDisplayState() {
+
         if ( this.storeAPI ) {
             const dataType = DataTypes.getDataType(this.field);
             const value = this.testValue || await this.storeAPI.getState(this.field);
             const display = dataType.display(value);
-            const options = (await this.storeAPI.getKeys()).filter((key) => !NMEALayout.removeOptionKeys.includes(key)).concat(NMEALayout.addOptionKeys);
-            if ( this.state.options === undefined || options.join(",") !== this.state.options.join(",") ) {
-                this.setState({options: options });
-
-            }
 
 
             const displayClass = dataType.cssClass?dataType.cssClass(value):'';
@@ -652,13 +677,11 @@ class LogBox extends TextBox {
             this.debug(this.field, "Update State");
             const logDisplay = await this.getDisplayValue("log");
             const tripLogDisplay = await this.getDisplayValue("tripLog");
-            const options = (await this.storeAPI.getKeys()).filter((key) => !NMEALayout.removeOptionKeys.includes(key)).concat(NMEALayout.addOptionKeys);
             if ( logDisplay !== this.state.logDisplay || 
                   tripLogDisplay !== this.state.tripLogDisplay) {
                     this.setState({
                          logDisplay,
-                         tripLogDisplay,
-                         options });
+                         tripLogDisplay});
             }
         }        
     }
@@ -712,13 +735,11 @@ class TimeBox extends TextBox {
             this.debug(this.field, "Update State");
             const dateDisplay = await this.getDisplayValue("gpsDaysSince1970");
             const timeDisplay = await this.getDisplayValue("gpsSecondsSinceMidnight");
-            const options = (await this.storeAPI.getKeys()).filter((key) => !NMEALayout.removeOptionKeys.includes(key)).concat(NMEALayout.addOptionKeys);
             if ( dateDisplay !== this.state.dateDisplay || 
                   timeDisplay !== this.state.timeDisplay) {
                     this.setState({
                          dateDisplay,
-                         timeDisplay,
-                         options });
+                         timeDisplay });
             }
         }        
     }
@@ -772,13 +793,11 @@ class LatitudeBox extends TextBox {
             this.debug(this.field, "Update State");
             const latitudeDisplay = await this.getDisplayValue("latitude");
             const longitudeDisplay = await this.getDisplayValue("longitude");
-            const options = (await this.storeAPI.getKeys()).filter((key) => !NMEALayout.removeOptionKeys.includes(key)).concat(NMEALayout.addOptionKeys);
             if ( latitudeDisplay !== this.state.latitudeDisplay || 
                   longitudeDisplay !== this.state.longitudeDisplay) {
                     this.setState({
                          latitudeDisplay,
-                         longitudeDisplay,
-                         options });
+                         longitudeDisplay});
             }
         }        
     }

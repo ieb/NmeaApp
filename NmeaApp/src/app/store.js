@@ -53,11 +53,15 @@ class Store {
 
 
         };
+        this.webContents = [];
 
         // Store API exposed to the UI.
         this.getState = this.getState.bind(this);
         this.getHistory = this.getHistory.bind(this);
         this.getKeys = this.getKeys.bind(this);
+        this.addListener = this.addListener.bind(this);
+        this.removeListener = this.removeListener.bind(this);
+
 
     }
 
@@ -268,10 +272,13 @@ Dont store
 
     mergeUpdate(calculations) {
         const now = Date.now();
+        const changedState = {};
         for ( var k in this.newState ) {
             if ( this.newState[k] !== this.state[k]) {
                 this.state.lastChange = now;
                 this.state[k]= this.newState[k];
+                changedState[k] = this.newState[k];
+
             }
         }
         // calculate new values based on the store before updating history.
@@ -280,10 +287,12 @@ Dont store
             if ( calculatedValues[k] !== this.state[k]) {
                 this.state.lastChange = now;
                 this.state[k]= calculatedValues[k];
+                changedState[k] = calculatedValues[k];
             }
         }
 
         this.updateHistory();        
+        this.emitStateChange(changedState);
     }
 
     updateHistory() {
@@ -291,6 +300,26 @@ Dont store
             this.history[k].updateSample(this.state[k]);
         }
 
+    }
+
+
+    addListener(event, ...args) {
+        this.webContents.push(event.sender);
+        console.log("Added Listener ", event, this.webContents);
+    }
+    removeListener(event, ...args) {
+        const i = this.webContents.indexOf(event.sender);
+        if ( i != -1  ) {
+            this.webContents.splice(i,1);
+        }
+        console.log("Remove Listener ", event, this.webContents);
+    }
+    emitStateChange(changeState) {
+        if ( Object.keys(changeState).length > 0 ) {
+            for (var i = 0; i < this.webContents.length; i++) {
+                this.webContents[i].send("storeApi->stateChangeEvent",changeState);
+            }            
+        }
     }
 }
 

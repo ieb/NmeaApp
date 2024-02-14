@@ -8,6 +8,7 @@ if (require('electron-squirrel-startup')) {
 }
 
 const createWindow = () => {
+  console.log("Create Window Called.");
   // Create the browser window.
   const mainWindow = new BrowserWindow({
     width: 1000,
