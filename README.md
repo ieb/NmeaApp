@@ -60,6 +60,8 @@ To use NMEA0183 provide a NMEA0183 source on a serial port, and modify the code 
 
 # ChromeOS 
 
+## USB 
+
 To allow the Can device to be passed through to the linux container enable the Chrome OS flags 
 
      #permissive-usb-passthrough 
@@ -73,6 +75,12 @@ Do not set #enable-unrestricted-usb as this seems to deny Linux the ability to r
 
 ChromeOS is flaky, mostly because its been so locked down that a lot of things that normally work, dont, especially anything that Google in their wisdom thought no one would need. Turns out, not every USB device is a hard disk!
 
+## Building
+
+For some reason, node or at least the links that allow it to run get wiped out each time the LCX container starts. To fix, use nvm install --lts=Iron 
+
+
+
 
 # Plans/Todo
 
@@ -83,6 +91,7 @@ ChromeOS is flaky, mostly because its been so locked down that a lot of things t
 * [x] Allow maximise 1 cell 
 * [x] Soak test on ChromeOS for > 48h
 * [x] Make it easier to find out which port and how many clients, its really hard at the moment due to LXC, but the App knows which IP its on, even if its almost impossible to find out in ChromeOS.
+* [x] Support UDP -- unfortunately UDP broadcasts won't propagate between containers on ChromeOS, so code works, but not using. Sticking to TCP. Almost all NMEA clients listen for UDP packets and the sender cant know where to send them directly.
 * [ ] Write a B&G view.
 * [ ] Do some fun visualizations, charts, etc.
 
