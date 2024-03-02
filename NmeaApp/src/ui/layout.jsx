@@ -27,7 +27,8 @@ class NMEALayout extends React.Component {
         "Position",
         "Log",
         "Time",
-        "NMEA2000"
+        "NMEA2000",
+        "System"
     ];
 
     constructor(props) {
@@ -45,7 +46,11 @@ class NMEALayout extends React.Component {
         this.state = {
             editing: false,
             dataIndicatorOn: false,
-            layout: this.loadLayout() 
+            layout: this.loadLayout(),
+            nmea0183Address: "no server",
+            connectedClients: 0,
+            packetsRecieved: 0
+
         };
 
         // Not in use at the moment.
@@ -60,12 +65,28 @@ class NMEALayout extends React.Component {
     componentDidMount() {
         console.log("Register window for events");
         this.storeAPI.addListener();
+        this.updateInterval = setInterval((async () => {
+            const packetsRecieved = await this.props.storeAPI.getPacketsRecieved();
+            const nmea0183Address = await this.props.storeAPI.getNmea0183Address();
+            const connectedClients = await this.props.storeAPI.getConnectedClients();
+            if (this.state.packetsRecieved !== packetsRecieved ||
+                this.state.nmea0183Address !== nmea0183Address ||
+                this.state.connectedClients !== connectedClients
+                 ) {
+                this.setState({ packetsRecieved, nmea0183Address, connectedClients });
+            }
+        }).bind(this), 1000);
     }
     
     componentWillUnmount() {
         console.log("deRegister window for events");
         this.storeAPI.removeListener();
+        if ( this.updateInterval ) {
+            clearInterval(this.updateInterval);
+        }
     }
+
+
 
 
     loadLayout() {
@@ -237,6 +258,15 @@ class NMEALayout extends React.Component {
                     onSave={this.onSave}
                     onAddItem={this.onAddItem}/>
                 <div className="debugControls">
+                  address: {this.state.nmea0183Address}
+                </div>
+                <div className="debugControls">
+                  connected: {this.state.connectedClients}
+                </div>
+                <div className="debugControls">
+                  packetsRecieved: {this.state.packetsRecieved}
+                </div>
+                <div className="debugControls">
                     <button onClick={this.onDumpStore} >DumpStore</button>
                 </div>
             </div>
@@ -283,6 +313,18 @@ class NMEALayout extends React.Component {
             case "NMEA2000":
                 return (
                     <NMEA2000 
+                        field={item.field} 
+                        id={item.id} 
+                        key={item.id}
+                        size={item.size}
+                        testValue={item.testValue}
+                        onChange={this.onChangeItem} 
+                        editing={this.state.editing}  
+                        storeAPI={this.storeAPI} /> 
+                    );
+            case "System":
+                return (
+                    <SystemStatus 
                         field={item.field} 
                         id={item.id} 
                         key={item.id}
@@ -812,6 +854,68 @@ class LatitudeBox extends TextBox {
               <div className="corner tl"></div>
               <div className="corner tr">{this.renderControls()}</div>
               <div className="corner bl">position</div>
+              <div className="corner br"></div>
+              {this.renderEditOverlay()}
+            </div>
+            );
+    }
+
+
+}
+
+class SystemStatus extends TextBox {
+    static propTypes = {
+        storeAPI: PropTypes.object,
+        editing: PropTypes.bool,
+        onChange: PropTypes.func,
+        id: PropTypes.number,
+        theme: PropTypes.string,
+        main: PropTypes.string,
+        updateRate: PropTypes.object,
+        size: PropTypes.string
+
+    };
+
+    constructor(props) {
+        super(props);
+        this.testValue = props.testValue;
+        this.state.nmea0183Address = "none";
+        this.state.packetsRecieved = 0;
+        this.state.connectedClients = 0;
+    }
+
+    async getDisplayValue(field) {
+        if ( this.testValue && this.testValue[field] ) {
+            return DataTypes.getDataType(field).display(this.testValue[field]);
+        }
+        return DataTypes.getDataType(field).display(await this.storeAPI.getState(field));
+    }
+
+    async updateDisplayState() {
+        if ( this.storeAPI ) {
+            this.debug(this.field, "Update State");
+            const packetsRecieved = await this.storeAPI.getPacketsRecieved();
+            const nmea0183Address = await this.storeAPI.getNmea0183Address();
+            const connectedClients = await this.storeAPI.getConnectedClients();
+            this.setState({
+                packetsRecieved,
+                nmea0183Address,
+                connectedClients
+            });
+        }      
+    }
+
+    render() {
+        return (
+            <div className={`textbox appStatus ${this.theme}  ${this.getSizeClass()}`} >
+              <div className="overlay main">
+                <div className="statusData" >tcp: {this.state.nmea0183Address}</div>
+                <div className="statusData" >clients: {this.state.connectedClients}</div>
+                <div className="statusData" >packets: {this.state.packetsRecieved}</div>
+              </div>
+              <div className="corner tl"></div>
+              <div className="corner tr">{this.renderControls()}</div>
+              <div className="corner bl">status</div>
               <div className="corner br"></div>
               {this.renderEditOverlay()}
             </div>

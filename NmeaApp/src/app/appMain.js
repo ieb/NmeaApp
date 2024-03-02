@@ -128,12 +128,23 @@ class AppMain {
         console.log("All Addresses ", allAddresses);
         console.log("Available Addresses ", ipV4Addresses);
         await this.tcpServer.open(ipV4Addresses[0], 10110);
-        console.log(`Opened TCP Server at ${ipV4Addresses[0]}:10110`);
+        console.log(`Opened TCP Server at ${this.tcpServer.address}:${this.tcpServer.port}`);
     }
 
 
     getPacketsRecieved() {
           return this.packetsRecieved;
+    }
+
+    getConnectedClients() {
+        if ( this.tcpServer === undefined || this.tcpServer.connections === undefined ) {
+            return 0;
+        }
+        return Object.keys(this.tcpServer.connections).length;
+    }
+
+    getNmea0183Address() {
+        return `${this.tcpServer.address}:${this.tcpServer.port}`;
     }
 }
 

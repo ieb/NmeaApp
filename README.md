@@ -58,6 +58,22 @@ by the app and any other messages re dropped in the firmware. This significantly
 
 To use NMEA0183 provide a NMEA0183 source on a serial port, and modify the code to enable NMEA0183 processing. search for props.enableNMEA0183.
 
+# ChromeOS 
+
+To allow the Can device to be passed through to the linux container enable the Chrome OS flags 
+
+     #permissive-usb-passthrough 
+     #cras-split-alsa-usb-internal
+
+
+Restart. If you dont get a popup to attach the device to linux when plugged in, restart again.
+If you get an error about the DISPLAY not being set restart again.
+
+Do not set #enable-unrestricted-usb as this seems to deny Linux the ability to run any apps that use the display.
+
+ChromeOS is flaky, mostly because its been so locked down that a lot of things that normally work, dont, especially anything that Google in their wisdom thought no one would need. Turns out, not every USB device is a hard disk!
+
+
 # Plans/Todo
 
 * [x] Fixed tcp server
@@ -65,6 +81,8 @@ To use NMEA0183 provide a NMEA0183 source on a serial port, and modify the code 
 * [x] Finish testing.
 * [x] Write a gs_usb driver to read NMEA2000 bytes directly from the CAN bus via one of the cheap, very low power, USB-Can adapters (eg CandelLite). The firmware is available in source code which reveals the USB protocol, so no USB drivers needed (they are not available in ChromeOS). There is also a Python module that uses usblib to access gs_usb.
 * [x] Allow maximise 1 cell 
+* [x] Soak test on ChromeOS for > 48h
+* [x] Make it easier to find out which port and how many clients, its really hard at the moment due to LXC, but the App knows which IP its on, even if its almost impossible to find out in ChromeOS.
 * [ ] Write a B&G view.
 * [ ] Do some fun visualizations, charts, etc.
 
@@ -92,7 +110,7 @@ To use NMEA0183 provide a NMEA0183 source on a serial port, and modify the code 
 * [x] Calcs not firing. 
 * [x] NMEA0183 sentences were not being parsed correctly for some apps
 * [x] Fix packaging so that serialport and usb are included in the binary.
-* [x] When UI reloads it doesnt remember state of backend can connection or tcp server.  Now the TCP server and NMEA2000 are managed automatically in the backend.
+* [x] When UI reloads it doesn't remember state of backend can connection or tcp server.  Now the TCP server and NMEA2000 are managed automatically in the backend.
 * [x] Remove NMEA0183 reader code from AppMain.
 * [x] When the NMEA2000 USB connection encounters an error it should close the USB device and reopen. 2 types seen so far. LIBUSB_ERROR_NO_DEVICE on transfer and a timeout on packets received. There should be some way of pinging the USB layer to check that the device is still there and operational.
-* [x] On exit the native usb driver thread tries to close, but has already closed causing a segv. It should be resilient to this as any exit will cause the same. Fix will need to be in the c code.  The fix is to ensure that will-quit event does not exit before shutdown has happend by calling event.preventDefault before returning the event. Then the normal close of the usb can take place and complete before the c pointers become invalid and cause a segv. There are a number of threads in the c usb lib that do not close automatically and do not block the nodeJS main thread.
+* [x] On exit the native usb driver thread tries to close, but has already closed causing a segv. It should be resilient to this as any exit will cause the same. Fix will need to be in the c code.  The fix is to ensure that will-quit event does not exit before shutdown has happened by calling event.preventDefault before returning the event. Then the normal close of the usb can take place and complete before the c pointers become invalid and cause a segv. There are a number of threads in the c usb lib that do not close automatically and do not block the nodeJS main thread.

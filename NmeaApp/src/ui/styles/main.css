@@ -237,6 +237,20 @@ body {
 }
 
 
+.appStatus .main  {
+  align-content: center;
+}
+
+.main .statusData {
+  text-align: left;
+  font-size: 0.75rem;
+  padding: 1px 5px 0px 5px;
+}
+
+.size-maximum .main .statusData {
+  font-size: 2rem;
+}
+ 
 
 input[type="number"] {
   width: 5em;
