@@ -9,18 +9,14 @@ class NMEA2000Reader extends EventEmitter {
     constructor() {
         super();
         this.gs_usb = new GSUsb();
-        const emit = this.emit.bind(this);
+        const processFrame = this.processFrame.bind(this);
         const keepOpen = this.keepOpen.bind(this);
         const stopKeepOpen = this.stopKeepOpen.bind(this);
 
         const messageDecoder = new NMEA2000MessageDecoder();
         this.doKeepOpen = true;
         this.gs_usb.on("frame", (frame) => {
-            const message = messageDecoder.decode(frame);
-            if ( message !== undefined ) {
-                //console.log(JSON.stringify(message));
-                emit('nmea2000Message', message);
-            }
+            await processFrame(frame);
         });
         this.gs_usb.on("error", async (msg) => {
             if ( this.open ) {
@@ -28,6 +24,14 @@ class NMEA2000Reader extends EventEmitter {
                 await this.close();                
             }
         });
+    }
+
+    async processFrame(frame) {
+        const message = messageDecoder.decode(frame);
+        if ( message !== undefined ) {
+            //console.log(JSON.stringify(message));
+            this.emit('nmea2000Message', message);
+        }        
     }
 
     async stopKeepOpen(cb) {
