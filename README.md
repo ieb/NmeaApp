@@ -92,6 +92,8 @@ For some reason, node or at least the links that allow it to run get wiped out e
 * [x] Soak test on ChromeOS for > 48h
 * [x] Make it easier to find out which port and how many clients, its really hard at the moment due to LXC, but the App knows which IP its on, even if its almost impossible to find out in ChromeOS.
 * [x] Support UDP -- unfortunately UDP broadcasts won't propagate between containers on ChromeOS, so code works, but not using. Sticking to TCP. Almost all NMEA clients listen for UDP packets and the sender cant know where to send them directly.
+* [ ] Fix Lookup missing balue gnssType 15
+* [ ] Fix Lookup missing value xteMode 15
 * [ ] Write a B&G view.
 * [ ] Do some fun visualizations, charts, etc.
 
