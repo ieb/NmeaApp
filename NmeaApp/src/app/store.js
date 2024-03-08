@@ -113,8 +113,10 @@ class Store {
         }
     }
 
+
     // When streaming NMEA2000 messages.
     updateFromNMEA2000Stream(message) {
+        console.log("Message in ", message);
 
         // only messages where there is a value in putting them into the store\
         // should be added to the store. Forother messages simply subscribe directly to the message
@@ -343,7 +345,7 @@ class LinearHistory {
         const now = Date.now();
         if ( this.nextSample < now) {
             this.nextSample = now + this.samplePeriod;
-            if ( v !== undefined && !Number.isNaN(v) ) {
+            if ( v !== undefined && !Number.isNaN(v) && v != -1E9 ) {
                 if ( this.value == undefined  ) {
                     this.value = v;
                 } else {

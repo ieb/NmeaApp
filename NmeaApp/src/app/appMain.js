@@ -7,7 +7,7 @@ const { NMEA0183Bridge }  = require('./nmea0183Bridge.js');
 const { Calculations }  = require("./calculations.js");
 const { Store }  = require("./store.js");
 const { TcpServer }  = require('./tcpServer.js');
-
+const { Playback } = require('./playback.js');
 
 /*
 
@@ -62,6 +62,27 @@ class AppMain {
         });
 
     }
+    async startPlayback(filePath) {
+        console.log("Start playback", filePath);
+        this.playbackRunning = true;
+        const that = this;
+        setTimeout( async () => {
+            await Playback.playbackDemoFile(filePath,(message) => {
+                that.packetsRecieved++;
+                console.log("Got messge ", message);
+                that.store.updateFromNMEA2000Stream(message);
+                that.nmea0183Bridge.update(message, this.nmea0183Handler);
+                return that.playbackRunning;
+            });
+        }, 10);
+        return true;
+    }
+
+    async stopPlayback() {
+        console.log("Stop playback");
+        this.playbackRunning = false;
+        return true;
+    }
     async start() {
         if (!this.updateInterval) {
             this.updateInterval = setInterval(this.update, 500);
@@ -107,43 +128,6 @@ class AppMain {
               }                    
           }
         }
-    }
-
-/*
-ESSAGE {"frameLength":24,"data":{},
-"echo_id":4294967295,"can_id":2314276278,"can_dlc":8,
-"channel":0,"flags":0,"reserved":0,
-"timestamp_us":4264232911,
-"errors":{},"frameType":
-"extended","messageHeader":{"sourceAddress":182,"priority":2,"destination":255,"pgn":127245}} {"pgn":127245,"message":"N2K Rudder","instance":252,"rudderDirectionOrder":{"id":0,"name":"NoDirectionOrder"},"angleOrder":-1000000000,"rudderPosition":0.004200000000000001}
-*/
-    async readDemoFile(filename) {
-        const data = await fs.readFile(filename, { encoding: 'utf8' });
-        let tlast = undefined;
-        let lastEmit_ms = undefined;
-        const that = this;
-        data.split("\n")
-            .filter((l) => { return l.startsWith("MESSAGE ");})
-            .forEach((m) => {
-                 const parts = m.split("} {");
-                 const frame = JSON.parse(parts[0]+"}");
-                 const message = JSON.parse("{"+parts[1]);
-                 if ( tlast == undefined ) {
-                    tlast = (frame.timestamp_us/1000);
-                    lastEmit_ms = Date.now();
-                 } else {
-                    const packetDelay_ms = (frame.timestamp_us/1000)-tlast;
-                    tlast = (frame.timestamp_us/1000);
-                    const delay_ms = (lastEmit_ms + packetDelay_ms) - Date.now();
-                    if ( delay_ms > 0 ) {
-                        await new Promise((resolve) => {
-                                setTimeout(resolve, delay_ms);
-                        });
-                    }
-                    lastEmit_ms = Date.now();
-                 }
-                 that.nmea2000Reader.processFrame(message);
-            });
     }
 
 

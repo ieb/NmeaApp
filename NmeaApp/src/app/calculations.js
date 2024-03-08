@@ -36,8 +36,9 @@ class Calculations extends EventEmitter {
                 sog: store.state.sog
             };
 
+            // dont update anything with value of -1E-9 in the calculations.
             for ( var k in newState ) {
-                if ( newState[k] !== this.state[k]) {
+                if ( newState[k] != -1E9 && newState[k] !== this.state[k]) {
                     this.state.lastChange = store.state.lastChange;
                     this.state[k] = newState[k];
                 }

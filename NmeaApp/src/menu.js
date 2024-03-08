@@ -1,14 +1,57 @@
 "use strict";
-const { Menu } = require('electron')
+const { Menu, MenuItem, dialog } = require('electron')
 const { EventEmitter }  = require('node:events');
 
 class AppMenu extends EventEmitter {
 
-  createApplicationMenu() {
+
+
+  createApplicationMenu(appMain) {
 
 
     const isMac = process.platform === 'darwin';
     const emit = this.emit.bind(this);
+    let playbackRunning = false;
+
+    const openPlayback = new MenuItem({
+      label: 'Open playback...',
+      accelerator: 'CmdOrCtrl+O',
+      enabled: true,
+       // this is the main bit hijack the click event 
+      click: async () => {
+        // construct the select file dialog 
+        try {
+          const fileObj = await dialog.showOpenDialog({
+            properties: ['openFile']
+          });
+           if (!fileObj.canceled) {
+             if ( await appMain.startPlayback(fileObj.filePaths[0]) ) {
+                console.log("Enabling stop");
+                openPlayback.enabled = false;
+                stopPlayback.enabled = true;
+             } else {
+              console.log("Not playing");
+             }
+
+           }
+        } catch(err) {
+           console.error(err)  
+        }
+      } 
+    });
+    const stopPlayback = new MenuItem({
+      label: 'Stop playback',
+      enabled: false,
+       // this is the main bit hijack the click event 
+      click: async () => {
+        // construct the select file dialog 
+        await appMain.stopPlayback();
+        console.log("Disable stop");
+        openPlayback.enabled = true;
+        stopPlayback.enabled = false;
+      } 
+    });
+
 
     const template = [
       // { role: 'appMenu' }
@@ -32,6 +75,8 @@ class AppMenu extends EventEmitter {
       {
         label: 'File',
         submenu: [
+          openPlayback,
+          stopPlayback,
           isMac ? { role: 'close' } : { role: 'quit' },
           { 
             label: 'New Window',

@@ -34,7 +34,7 @@ class DisplayUtils {
 class RelativeAngle {
 
     static display(v) {
-        if ( v == undefined ) {
+        if ( v == undefined || v == -1E9) {
             return "--";
         }
 
@@ -71,7 +71,7 @@ class RelativeAngle {
 
 class RelativeAnglePS extends RelativeAngle {
         static display(v) {
-        if ( v == undefined ) {
+        if ( v == undefined || v == -1E9) {
             return "--";
         }
 
@@ -98,7 +98,7 @@ class RelativeAnglePS extends RelativeAngle {
 class RelativeBearing {
 
     static display(v) {
-        if ( v == undefined ) {
+        if ( v == undefined || v == -1E9) {
             return "--";
         }
         if(v < 0) {
@@ -653,7 +653,7 @@ class GPSTime {
 
 class DefaultDataType {
     static display(v) { 
-        if ( v == undefined ) {
+        if ( v == undefined || v == -1E9) {
             return "-.-";
         }
         if ( v.name !== undefined ) {

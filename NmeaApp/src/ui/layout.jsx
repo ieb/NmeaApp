@@ -45,6 +45,7 @@ class NMEALayout extends React.Component {
         this.lastPacketsRecived  = 0;
         this.state = {
             editing: false,
+            options: undefined,
             dataIndicatorOn: false,
             layout: this.loadLayout(),
             nmea0183Address: "no server",
@@ -149,8 +150,21 @@ class NMEALayout extends React.Component {
         this.setState({layout: JSON.stringify(l.layout)});
     }
 
-    onEditLayout( editing ) {
-        this.setState({editing});
+    async onEditLayout( editing ) {
+        if ( editing ) {
+            const that = this;
+            if (this.storeAPI) {
+                const options = (await that.storeAPI.getKeys()).filter((key) => !NMEALayout.removeOptionKeys.includes(key)).concat(NMEALayout.addOptionKeys);
+                console.log("options ", options);
+                this.setState({
+                    editing: true,
+                    options
+                });
+            }
+        } else {
+            this.setState({
+            editing: false});
+        }
     }
     onAddItem(e) {
         console.log("Add Item ", e.target.value);
@@ -273,6 +287,7 @@ class NMEALayout extends React.Component {
         );
     }
     renderItem(item) {
+        console.log("render with editing ", this.state.editing);
         switch (item.field ) {
             case 'Position':
                 return ( 
@@ -284,7 +299,8 @@ class NMEALayout extends React.Component {
                         testValue={item.testValue}
                         onChange={this.onChangeItem} 
                         editing={this.state.editing}  
-                        storeAPI={this.storeAPI} /> 
+                        storeAPI={this.storeAPI}
+                        options={this.state.options} /> 
                     );
              case 'Log':
                 return ( 
@@ -296,7 +312,8 @@ class NMEALayout extends React.Component {
                         testValue={item.testValue}
                         onChange={this.onChangeItem} 
                         editing={this.state.editing}  
-                        storeAPI={this.storeAPI} /> 
+                        storeAPI={this.storeAPI} 
+                        options={this.state.options}/> 
                     );
             case "Time":
                 return ( 
@@ -308,7 +325,8 @@ class NMEALayout extends React.Component {
                         testValue={item.testValue}
                         onChange={this.onChangeItem} 
                         editing={this.state.editing}  
-                        storeAPI={this.storeAPI} /> 
+                        storeAPI={this.storeAPI}
+                        options={this.state.options} /> 
                     );
             case "NMEA2000":
                 return (
@@ -320,7 +338,8 @@ class NMEALayout extends React.Component {
                         testValue={item.testValue}
                         onChange={this.onChangeItem} 
                         editing={this.state.editing}  
-                        storeAPI={this.storeAPI} /> 
+                        storeAPI={this.storeAPI}
+                        options={this.state.options} /> 
                     );
             case "System":
                 return (
@@ -332,7 +351,8 @@ class NMEALayout extends React.Component {
                         testValue={item.testValue}
                         onChange={this.onChangeItem} 
                         editing={this.state.editing}  
-                        storeAPI={this.storeAPI} /> 
+                        storeAPI={this.storeAPI}
+                        options={this.state.options} /> 
                     );
            default:
                 return (
@@ -344,7 +364,8 @@ class NMEALayout extends React.Component {
                         testValue={item.testValue}
                         onChange={this.onChangeItem} 
                         editing={this.state.editing}  
-                        storeAPI={this.storeAPI} />);
+                        storeAPI={this.storeAPI}
+                        options={this.state.options} />);
 
         }
     }
@@ -417,12 +438,14 @@ class TextBox extends React.Component {
         main: PropTypes.string,
         updateRate: PropTypes.number,
         testValue: PropTypes.number,
-        size: PropTypes.string
+        size: PropTypes.string,
+        options: PropTypes.array
     };
 
 
     constructor(props) {
         super(props);
+        console.log("Create with ",props);
         this.storeAPI = props.storeAPI;
         this.editing = props.editing;
         this.onChange = props.onChange;
@@ -446,7 +469,6 @@ class TextBox extends React.Component {
 
         this.state = {
             main: props.main || "-.-",
-            options: [],
             graph: {
                 path: "M 0 0",
                 outline: "M 0 0"
@@ -460,14 +482,7 @@ class TextBox extends React.Component {
         this.changeSize = this.changeSize.bind(this);
         this.onMaximseBox = this.onMaximseBox.bind(this);
         this.updateRate = props.updateRate || 1000;
-        const that = this;
-        if (this.storeAPI && this.editing) {
-            setTimeout(async () => {
-                that.setState({
-                    options: (await that.storeAPI.getKeys()).filter((key) => !NMEALayout.removeOptionKeys.includes(key)).concat(NMEALayout.addOptionKeys)
-                });
-            }, 1);
-        }
+        this.options = props.options;
     }
 
     componentDidMount() {
@@ -634,12 +649,13 @@ class TextBox extends React.Component {
         return "size-normal";
     }
     renderEditOverlay() {
-        if ( this.props.editing ) {
-            const options = this.state.options;
+        console.log("Field editing", this.editing, this.options);
+        if ( this.editing ) {
+
             return (
                 <div className="overlay edit">
                 <select onChange={this.changeField} value={this.field} title="select data item" >
-                    {options.map((item) => <option key={item} value={item} >{item}</option>)}
+                    {this.options.map((item) => <option key={item} value={item} >{item}</option>)}
                 </select>
                 <select onChange={this.changeSize} value={this.size} title="change size" >
                     {this.sizes.map((item) => <option key={item} value={item} >{item}</option>)}
@@ -698,7 +714,8 @@ class LogBox extends TextBox {
         theme: PropTypes.string,
         main: PropTypes.string,
         updateRate: PropTypes.object,
-        size: PropTypes.string
+        size: PropTypes.string,
+        options: PropTypes.array
 
     };
 
@@ -756,7 +773,8 @@ class TimeBox extends TextBox {
         theme: PropTypes.string,
         main: PropTypes.string,
         updateRate: PropTypes.object,
-        size: PropTypes.string
+        size: PropTypes.string,
+        options: PropTypes.array
 
     };
 
@@ -814,7 +832,8 @@ class LatitudeBox extends TextBox {
         theme: PropTypes.string,
         main: PropTypes.string,
         updateRate: PropTypes.object,
-        size: PropTypes.string
+        size: PropTypes.string,
+        options: PropTypes.array
 
     };
 
@@ -872,7 +891,8 @@ class SystemStatus extends TextBox {
         theme: PropTypes.string,
         main: PropTypes.string,
         updateRate: PropTypes.object,
-        size: PropTypes.string
+        size: PropTypes.string,
+        options: PropTypes.array
 
     };
 
@@ -934,7 +954,8 @@ class NMEA2000 extends TextBox {
         theme: PropTypes.string,
         main: PropTypes.string,
         updateRate: PropTypes.object,
-        size: PropTypes.string
+        size: PropTypes.string,
+        options: PropTypes.array
 
     };
 

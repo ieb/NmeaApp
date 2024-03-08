@@ -1,7 +1,6 @@
 "use strict";
 const { GSUsb , NMEA2000MessageDecoder } = require('candleLightJS');
 const { EventEmitter }  = require('node:events');
-const process = require('node:process');
 
 
 class NMEA2000Reader extends EventEmitter {
@@ -13,9 +12,9 @@ class NMEA2000Reader extends EventEmitter {
         const keepOpen = this.keepOpen.bind(this);
         const stopKeepOpen = this.stopKeepOpen.bind(this);
 
-        const messageDecoder = new NMEA2000MessageDecoder();
+        this.messageDecoder = new NMEA2000MessageDecoder();
         this.doKeepOpen = true;
-        this.gs_usb.on("frame", (frame) => {
+        this.gs_usb.on("frame", async (frame) => {
             await processFrame(frame);
         });
         this.gs_usb.on("error", async (msg) => {
@@ -27,14 +26,14 @@ class NMEA2000Reader extends EventEmitter {
     }
 
     async processFrame(frame) {
-        const message = messageDecoder.decode(frame);
+        const message = this.messageDecoder.decode(frame);
         if ( message !== undefined ) {
             //console.log(JSON.stringify(message));
             this.emit('nmea2000Message', message);
         }        
     }
 
-    async stopKeepOpen(cb) {
+    async stopKeepOpen() {
             console.log("Stop keeping open NMEA2000 stream");
             this.doKeepOpen = false;
             if ( this.keepAliveTimeout ) {

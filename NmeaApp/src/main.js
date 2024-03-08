@@ -57,6 +57,9 @@ app.on('activate', () => {
 
 // In this file you can include the rest of your app's specific main process
 // code. You can also put them in separate files and import them here.
+const {load} = require('./app/appLoader.js');
+const appMain = load(app, ipcMain);
+
 const appMenu = new AppMenu();
 appMenu.on("click", (e) => {
   console.log("Menu click",e);
@@ -64,10 +67,8 @@ appMenu.on("click", (e) => {
     createWindow();
   }
 });
-appMenu.createApplicationMenu();
+appMenu.createApplicationMenu(appMain);
 
-const {load} = require('./app/appLoader.js');
-const appMain = load(app, ipcMain);
 appMain.start();
 
 app.on('will-quit', (e) => {
