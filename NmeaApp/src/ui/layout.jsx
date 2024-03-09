@@ -44,8 +44,8 @@ class NMEALayout extends React.Component {
         this.onDumpStore = this.onDumpStore.bind(this);
         this.lastPacketsRecived  = 0;
         this.state = {
-            editing: false,
-            options: undefined,
+            editing: "",
+            options: [],
             dataIndicatorOn: false,
             layout: this.loadLayout(),
             nmea0183Address: "no server",
@@ -157,13 +157,13 @@ class NMEALayout extends React.Component {
                 const options = (await that.storeAPI.getKeys()).filter((key) => !NMEALayout.removeOptionKeys.includes(key)).concat(NMEALayout.addOptionKeys);
                 console.log("options ", options);
                 this.setState({
-                    editing: true,
+                    editing: "editing",
                     options
                 });
             }
         } else {
             this.setState({
-            editing: false});
+            editing: ""});
         }
     }
     onAddItem(e) {
@@ -287,14 +287,13 @@ class NMEALayout extends React.Component {
         );
     }
     renderItem(item) {
-        console.log("render with editing ", this.state.editing);
         switch (item.field ) {
             case 'Position':
                 return ( 
                     <LatitudeBox 
                         field={item.field} 
                         id={item.id} 
-                        key={item.id}
+                        key={item.id+this.state.editing} // NB, the key must change for an existing component to be updated when properties change.
                         size={item.size}
                         testValue={item.testValue}
                         onChange={this.onChangeItem} 
@@ -307,7 +306,7 @@ class NMEALayout extends React.Component {
                     <LogBox 
                         field={item.field} 
                         id={item.id} 
-                        key={item.id}
+                        key={item.id+this.state.editing}
                         size={item.size}
                         testValue={item.testValue}
                         onChange={this.onChangeItem} 
@@ -320,7 +319,7 @@ class NMEALayout extends React.Component {
                     <TimeBox 
                         field={item.field} 
                         id={item.id} 
-                        key={item.id}
+                        key={item.id+this.state.editing}
                         size={item.size}
                         testValue={item.testValue}
                         onChange={this.onChangeItem} 
@@ -333,7 +332,7 @@ class NMEALayout extends React.Component {
                     <NMEA2000 
                         field={item.field} 
                         id={item.id} 
-                        key={item.id}
+                        key={item.id+this.state.editing}
                         size={item.size}
                         testValue={item.testValue}
                         onChange={this.onChangeItem} 
@@ -346,7 +345,7 @@ class NMEALayout extends React.Component {
                     <SystemStatus 
                         field={item.field} 
                         id={item.id} 
-                        key={item.id}
+                        key={item.id+this.state.editing}
                         size={item.size}
                         testValue={item.testValue}
                         onChange={this.onChangeItem} 
@@ -359,7 +358,7 @@ class NMEALayout extends React.Component {
                     <TextBox 
                         field={item.field} 
                         id={item.id} 
-                        key={item.id} 
+                        key={item.id+this.state.editing} 
                         size={item.size}
                         testValue={item.testValue}
                         onChange={this.onChangeItem} 
@@ -371,12 +370,13 @@ class NMEALayout extends React.Component {
     }
     render() {
         const l = this.getLayout();
-        console.log("Layout ", l);
+        const boxes = l.page.boxes.map((item) => { return this.renderItem(item); });
+        console.log("Layout ", l, boxes);
         return (
             <div className="nmeaLayout">
                 {this.renderMenu(l)}
                 <div>
-                 {l.page.boxes.map((item) => { return this.renderItem(item); }) }
+                 {boxes}
                 </div>
             </div>
         );
@@ -430,7 +430,7 @@ class MenuButton extends React.Component {
 class TextBox extends React.Component {
     static propTypes = {
         storeAPI: PropTypes.object,
-        editing: PropTypes.bool,
+        editing: PropTypes.string,
         onChange: PropTypes.func,
         id: PropTypes.number,
         field: PropTypes.string,
@@ -649,9 +649,7 @@ class TextBox extends React.Component {
         return "size-normal";
     }
     renderEditOverlay() {
-        console.log("Field editing", this.editing, this.options);
-        if ( this.editing ) {
-
+        if ( this.editing === "editing" ) {
             return (
                 <div className="overlay edit">
                 <select onChange={this.changeField} value={this.field} title="select data item" >
@@ -708,7 +706,7 @@ class TextBox extends React.Component {
 class LogBox extends TextBox {
         static propTypes = {
         storeAPI: PropTypes.object,
-        editing: PropTypes.bool,
+        editing: PropTypes.string,
         onChange: PropTypes.func,
         id: PropTypes.number,
         theme: PropTypes.string,
@@ -767,7 +765,7 @@ class LogBox extends TextBox {
 class TimeBox extends TextBox {
         static propTypes = {
         storeAPI: PropTypes.object,
-        editing: PropTypes.bool,
+        editing: PropTypes.string,
         onChange: PropTypes.func,
         id: PropTypes.number,
         theme: PropTypes.string,
@@ -826,7 +824,7 @@ class TimeBox extends TextBox {
 class LatitudeBox extends TextBox {
     static propTypes = {
         storeAPI: PropTypes.object,
-        editing: PropTypes.bool,
+        editing: PropTypes.string,
         onChange: PropTypes.func,
         id: PropTypes.number,
         theme: PropTypes.string,
@@ -885,7 +883,7 @@ class LatitudeBox extends TextBox {
 class SystemStatus extends TextBox {
     static propTypes = {
         storeAPI: PropTypes.object,
-        editing: PropTypes.bool,
+        editing: PropTypes.string,
         onChange: PropTypes.func,
         id: PropTypes.number,
         theme: PropTypes.string,
@@ -948,7 +946,7 @@ class SystemStatus extends TextBox {
 class NMEA2000 extends TextBox {
     static propTypes = {
         storeAPI: PropTypes.object,
-        editing: PropTypes.bool,
+        editing: PropTypes.string,
         onChange: PropTypes.func,
         id: PropTypes.number,
         theme: PropTypes.string,

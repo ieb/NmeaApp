@@ -92,8 +92,7 @@ For some reason, node or at least the links that allow it to run get wiped out e
 * [x] Soak test on ChromeOS for > 48h
 * [x] Make it easier to find out which port and how many clients, its really hard at the moment due to LXC, but the App knows which IP its on, even if its almost impossible to find out in ChromeOS.
 * [x] Support UDP -- unfortunately UDP broadcasts won't propagate between containers on ChromeOS, so code works, but not using. Sticking to TCP. Almost all NMEA clients listen for UDP packets and the sender cant know where to send them directly.
-* [ ] Fix Lookup missing balue gnssType 15
-* [ ] Fix Lookup missing value xteMode 15
+* [x] Implement playback functionality to replay real NMEA2000 packets
 * [ ] Write a B&G view.
 * [ ] Do some fun visualizations, charts, etc.
 
@@ -125,3 +124,9 @@ For some reason, node or at least the links that allow it to run get wiped out e
 * [x] Remove NMEA0183 reader code from AppMain.
 * [x] When the NMEA2000 USB connection encounters an error it should close the USB device and reopen. 2 types seen so far. LIBUSB_ERROR_NO_DEVICE on transfer and a timeout on packets received. There should be some way of pinging the USB layer to check that the device is still there and operational.
 * [x] On exit the native usb driver thread tries to close, but has already closed causing a segv. It should be resilient to this as any exit will cause the same. Fix will need to be in the c code.  The fix is to ensure that will-quit event does not exit before shutdown has happened by calling event.preventDefault before returning the event. Then the normal close of the usb can take place and complete before the c pointers become invalid and cause a segv. There are a number of threads in the c usb lib that do not close automatically and do not block the nodeJS main thread.
+* [x] Fix editiing widgets. Only when the key is updated, will a component be recreated. IIUC, if this is set explicitly, if should reflect all the properties otherwise changes to properties will be ignored by React. Simple fix was to make the key depend on the edited property. 
+* [ ] Fix playback to use raw NMEA packets rather than the current parsed packets, this needs the packets to be written out correctly, and this needs a menu item to start recording.
+* [ ] Fix Lookup missing balue gnssType 15 seen on Raymarine bus.
+* [ ] Fix Lookup missing value xteMode 15 seen on Raymarine bus.
+* [ ] NADoubleN2K is not being handled properly. When received after a valid value is present, it should not flip flop as it does with the playback of rudder from a real feed. Need to add some logic to the updates in the store, so that NA only takes effect after a timeout period.
+
