@@ -66,6 +66,7 @@ class NMEALayout extends React.Component {
     componentDidMount() {
         console.log("Register window for events");
         this.storeAPI.addListener();
+        window.addEventListener('beforeunload', this.storeAPI.removeListener, false);
         this.updateInterval = setInterval((async () => {
             const packetsRecieved = await this.props.storeAPI.getPacketsRecieved();
             const nmea0183Address = await this.props.storeAPI.getNmea0183Address();
@@ -81,6 +82,7 @@ class NMEALayout extends React.Component {
     
     componentWillUnmount() {
         console.log("deRegister window for events");
+        window.removeEventListener('beforeunload', this.storeAPI.removeListener, false);
         this.storeAPI.removeListener();
         if ( this.updateInterval ) {
             clearInterval(this.updateInterval);
@@ -263,7 +265,8 @@ class NMEALayout extends React.Component {
 
     }
 
-    renderMenu(l) {
+
+    renderMenu() {
         const menuClass = this.state.showMenu?"menu normal":"menu minimised";
         return (
             <div className={menuClass} >
@@ -374,7 +377,7 @@ class NMEALayout extends React.Component {
         console.log("Layout ", l, boxes);
         return (
             <div className="nmeaLayout">
-                {this.renderMenu(l)}
+                {this.renderMenu()}
                 <div>
                  {boxes}
                 </div>

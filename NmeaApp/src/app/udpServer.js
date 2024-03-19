@@ -1,5 +1,4 @@
 "use strict";
-const net  = require('node:net');
 const dgram = require('node:dgram');
 
 

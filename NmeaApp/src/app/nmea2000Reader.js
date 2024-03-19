@@ -1,5 +1,5 @@
 "use strict";
-const { GSUsb , NMEA2000MessageDecoder } = require('candleLightJS');
+const { GSUsb , NMEA2000MessageDecoder, CanPlayer, CanRecorder } = require('candleLightJS');
 const { EventEmitter }  = require('node:events');
 
 
@@ -8,29 +8,30 @@ class NMEA2000Reader extends EventEmitter {
     constructor() {
         super();
         this.gs_usb = new GSUsb();
+        this.canRecoder = undefined;
         const processFrame = this.processFrame.bind(this);
-        const keepOpen = this.keepOpen.bind(this);
-        const stopKeepOpen = this.stopKeepOpen.bind(this);
+        this.keepOpen = this.keepOpen.bind(this);
+        this.stopKeepOpen = this.stopKeepOpen.bind(this);
 
         this.messageDecoder = new NMEA2000MessageDecoder();
         this.doKeepOpen = true;
         this.gs_usb.on("frame", async (frame) => {
+            if ( this.canRecoder ) {
+                this.canRecoder.write(frame); 
+            }   
             await processFrame(frame);
         });
         this.gs_usb.on("error", async (msg) => {
             if ( this.open ) {
                 console.log("Got USB Error, will close device", msg);
-                await this.close();                
+                //await this.close();                
             }
         });
     }
 
     async processFrame(frame) {
         const message = this.messageDecoder.decode(frame);
-        if ( message !== undefined ) {
-            //console.log(JSON.stringify(message));
-            this.emit('nmea2000Message', message);
-        }        
+        this.emit('nmea2000Message', message, frame);
     }
 
     async stopKeepOpen() {
@@ -88,11 +89,14 @@ class NMEA2000Reader extends EventEmitter {
                 127506, // DC Status
                 127508, // DC Bat status
                 130312, // temp
+                130316, // ext temp
                 127505, // fluid level
                 127489, // Engine Dynamic params
                 127488, // Engine Rapiod
                 130314, // pressure
-                127245 // rudder
+                127245, // rudder
+                130310,  // outside environmental parameters
+                130311   // enviromental parameters 
             ]
         };
 
@@ -101,7 +105,9 @@ class NMEA2000Reader extends EventEmitter {
 
         const filters = await this.gs_usb.getDeviceFilters();
         console.log("Filters are ", filters);
-        this.gs_usb.startStreamingCANFrames();
+        setTimeout(() => {
+            this.gs_usb.startStreamingCANFrames();
+        }, 100);
         this.open = true;
         return {
             ok: true
@@ -110,14 +116,51 @@ class NMEA2000Reader extends EventEmitter {
 
     async close() {
         try {
-            this.open = false;
-            await this.gs_usb.stop();
-            console.log("NMEA2000Reader done stop GSUsb streaming");
+            if ( this.open ) {
+                this.open = false;
+                await this.gs_usb.stop();
+                console.log("NMEA2000Reader done stop GSUsb streaming");                
+            }
         } catch (e) {
             console.log("Close failed with  ",e);
         }
 
     }
+
+
+    playbackStart(filePath) {
+        console.log("Start playback", filePath);
+        this.playbackStop(); // just in case.
+        this.canPlayer = new CanPlayer();
+        this.canPlayer.on('frame', async (frame) => {
+            await this.processFrame(frame);
+        });
+        this.canPlayer.on('end', () => {
+            this.emit('playbackEnd');
+        })
+        this.canPlayer.start(filePath);        
+    }
+
+    playbackStop() {
+        if ( this.canPlayer ) {
+            this.canPlayer.stop();
+        }
+    }
+
+    captureStart(filePath) {
+        this.captureStop(); // just in case.
+        this.canRecoder = new CanRecorder();
+        this.canRecoder.open(filePath);
+    }
+    captureStop() {
+        if ( this.canRecoder ) {
+            this.canRecoder.close();
+            this.canRecoder = undefined;
+
+        }
+    }
+
+
 
 }
 

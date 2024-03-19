@@ -7,7 +7,7 @@ if (require('electron-squirrel-startup')) {
   app.quit();
 }
 
-const createWindow = () => {
+const createWindow = (entryPoint) => {
   console.log("Create Window Called.");
   // Create the browser window.
   const mainWindow = new BrowserWindow({
@@ -17,13 +17,16 @@ const createWindow = () => {
       preload: MAIN_WINDOW_PRELOAD_WEBPACK_ENTRY,
     },
   });
+  entryPoint = (entryPoint === undefined)?"":"#"+entryPoint;
 
   // and load the index.html of the app.
-  mainWindow.loadURL(MAIN_WINDOW_WEBPACK_ENTRY);
+  mainWindow.loadURL(MAIN_WINDOW_WEBPACK_ENTRY+entryPoint);
 
   // Open the DevTools.
   //mainWindow.webContents.openDevTools();
 };
+
+
 
 // This method will be called when Electron has finished
 // initialization and is ready to create browser windows.
@@ -61,12 +64,39 @@ const {load} = require('./app/appLoader.js');
 const appMain = load(app, ipcMain);
 
 const appMenu = new AppMenu();
-appMenu.on("click", (e) => {
+appMenu.on("click", async (e, obj) => {
   console.log("Menu click",e);
-  if ( e === 'file->new-window') {
+  switch (e) {
+  case 'file->new-window':
     createWindow();
+    break;
+  case "view->dump-store":
+    createWindow("view-dump-store");
+    break;
+  case "view->can-stream":
+    createWindow("view-can-stream");
+    break;
+  case "view->debug-logs":
+    createWindow("view-debug-logs");
+    break;
+  case "file->captureStart":
+    if ( await appMain.captureStart(obj) ) {
+      appMenu.enableStop();
+    }
+    break;
+  case "file->playbackOrCaptureStop":
+    await appMain.playbackStop();
+    await appMain.captureStop();
+    appMenu.disableStop();
+    break;
+  case "file->playbackStart":
+    if ( await appMain.playbackStart(obj) ) {
+      appMenu.enableStop();      
+    }
+    break;
   }
 });
+
 appMenu.createApplicationMenu(appMain);
 
 appMain.start();

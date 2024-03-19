@@ -4,6 +4,19 @@ const { EventEmitter }  = require('node:events');
 
 class AppMenu extends EventEmitter {
 
+  disableStop() {
+        this.openPlayback.enabled = true;
+        this.recordPlayback.enabled = true;
+        this.stopPlayback.enabled = false;
+  }
+
+  enableStop() {
+    console.log("Enabling stop");
+    this.openPlayback.enabled = false
+    this.recordPlayback.enabled = false;
+    this.stopPlayback.enabled = true;
+  }
+
 
 
   createApplicationMenu(appMain) {
@@ -11,9 +24,9 @@ class AppMenu extends EventEmitter {
 
     const isMac = process.platform === 'darwin';
     const emit = this.emit.bind(this);
-    let playbackRunning = false;
 
-    const openPlayback = new MenuItem({
+
+    this.openPlayback = new MenuItem({
       label: 'Open playback...',
       accelerator: 'CmdOrCtrl+O',
       enabled: true,
@@ -24,34 +37,45 @@ class AppMenu extends EventEmitter {
           const fileObj = await dialog.showOpenDialog({
             properties: ['openFile']
           });
-           if (!fileObj.canceled) {
-             if ( await appMain.startPlayback(fileObj.filePaths[0]) ) {
-                console.log("Enabling stop");
-                openPlayback.enabled = false;
-                stopPlayback.enabled = true;
-             } else {
-              console.log("Not playing");
-             }
-
+            if (!fileObj.canceled) {
+              this.emit("click", "file->playbackStart", fileObj.filePaths[0]);
            }
         } catch(err) {
            console.error(err)  
         }
       } 
     });
-    const stopPlayback = new MenuItem({
-      label: 'Stop playback',
+    this.stopPlayback = new MenuItem({
+      label: 'Stop record or playback',
+      accelerator: 'CmdOrCtrl+S',
       enabled: false,
        // this is the main bit hijack the click event 
-      click: async () => {
-        // construct the select file dialog 
-        await appMain.stopPlayback();
-        console.log("Disable stop");
-        openPlayback.enabled = true;
-        stopPlayback.enabled = false;
+      click: () => {
+        this.emit("click", "file->playbackOrCaptureStop");
       } 
     });
 
+    this.recordPlayback = new MenuItem({
+      label: 'Record playback...',
+      accelerator: 'CmdOrCtrl+R',
+      enabled: true,
+       // this is the main bit hijack the click event 
+      click: async () => {
+        // construct the select file dialog 
+        try {
+          const fileObj = await dialog.showSaveDialog({
+            properties: ['createDirectory'],
+            title: "Select file to record into",
+            nameFieldLabel: 'recording file'
+          });
+            if (!fileObj.canceled) {
+              this.emit("click", "file->captureStart");
+           }
+        } catch(err) {
+           console.error(err)  
+        }
+      } 
+    });
 
     const template = [
       // { role: 'appMenu' }
@@ -75,8 +99,9 @@ class AppMenu extends EventEmitter {
       {
         label: 'File',
         submenu: [
-          openPlayback,
-          stopPlayback,
+          this.recordPlayback,
+          this.openPlayback,
+          this.stopPlayback,
           isMac ? { role: 'close' } : { role: 'quit' },
           { 
             label: 'New Window',
@@ -121,6 +146,24 @@ class AppMenu extends EventEmitter {
       {
         label: 'View',
         submenu: [
+          { 
+            label: 'Show Store',
+            click: async () => { 
+              await emit("click", "view->dump-store");
+            }
+          },
+          { 
+            label: 'Show Can Stream',
+            click: async () => { 
+              await emit("click", "view->can-stream");
+            }
+          },
+          { 
+            label: 'Show Debug Logs',
+            click: async () => { 
+              await emit("click", "view->debug-logs");
+            }
+          },
           { role: 'reload' },
           { role: 'forceReload' },
           { role: 'toggleDevTools' },

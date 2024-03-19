@@ -59,8 +59,8 @@ class Store {
         this.getState = this.getState.bind(this);
         this.getHistory = this.getHistory.bind(this);
         this.getKeys = this.getKeys.bind(this);
-        this.addListener = this.addListener.bind(this);
-        this.removeListener = this.removeListener.bind(this);
+        this.addWebListener = this.addWebListener.bind(this);
+        this.removeWebListener = this.removeWebListener.bind(this);
 
 
     }
@@ -116,8 +116,6 @@ class Store {
 
     // When streaming NMEA2000 messages.
     updateFromNMEA2000Stream(message) {
-        console.log("Message in ", message);
-
         // only messages where there is a value in putting them into the store\
         // should be added to the store. Forother messages simply subscribe directly to the message
         // in the visualisation. (how TBD)
@@ -275,7 +273,7 @@ Dont store
     mergeUpdate(calculations) {
         const now = Date.now();
         const changedState = {};
-        for ( var k in this.newState ) {
+        for ( let k in this.newState ) {
             if ( this.newState[k] !== this.state[k]) {
                 this.state.lastChange = now;
                 this.state[k]= this.newState[k];
@@ -285,7 +283,7 @@ Dont store
         }
         // calculate new values based on the store before updating history.
         const calculatedValues = calculations.update(this);
-        for ( var k in calculatedValues ) {
+        for ( let k in calculatedValues ) {
             if ( calculatedValues[k] !== this.state[k]) {
                 this.state.lastChange = now;
                 this.state[k]= calculatedValues[k];
@@ -305,16 +303,19 @@ Dont store
     }
 
 
-    addListener(event, ...args) {
+    addWebListener(event) {
+        console.log("Add Listner ", event, this.webContents);
         this.webContents.push(event.sender);
-        console.log("Added Listener ", event, this.webContents);
     }
-    removeListener(event, ...args) {
+    removeWebListener(event) {
+        console.log("Remove Listner ", event, this.webContents);
         const i = this.webContents.indexOf(event.sender);
         if ( i != -1  ) {
             this.webContents.splice(i,1);
+           console.log("Removed Listner ", event, this.webContents);
+        } else {
+            console.log("Failed remove");
         }
-        console.log("Remove Listener ", event, this.webContents);
     }
     emitStateChange(changeState) {
         if ( Object.keys(changeState).length > 0 ) {

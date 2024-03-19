@@ -26,11 +26,18 @@ function load(app, ipcMain) {
             return appMain.store.getKeys(...args);
         });
         ipcMain.handle('storeApi->addListener', async (event, ...args) => {
-            return appMain.store.addListener(event, ...args);
+            return appMain.store.addWebListener(event, ...args);
         });
         ipcMain.handle('storeApi->removeListener', async (event, ...args) => {
-            return appMain.store.removeListener(event, ...args);
+            return appMain.store.removeWebListener(event, ...args);
         });
+        ipcMain.handle('mainApi->addListener', async (event, ...args) => {
+            return appMain.addWebListener(event, ...args);
+        });
+        ipcMain.handle('mainApi->removeListener', async (event, ...args) => {
+            return appMain.removeWebListener(event, ...args);
+        });
+
     });
 
 

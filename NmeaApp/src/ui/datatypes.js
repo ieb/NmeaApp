@@ -519,14 +519,14 @@ class Temperature {
         if ( v == undefined || v === -1E9 ) {
             return "-.-";
         }
-        return (v-237.15).toFixed(1);
+        return (v-273.15).toFixed(1);
     }
     static tl = "";
     static tr = "";
     static units = "C";
     static withHistory = true;
     static toDisplayUnits(v) {
-        return (v-237.15);
+        return (v-273.15);
     }
     static range(h) {
         // h is in display units, converted by caller.

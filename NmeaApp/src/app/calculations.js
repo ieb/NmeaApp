@@ -4,7 +4,7 @@ const { EventEmitter }  = require('node:events');
 
 
 class Calculations extends EventEmitter {
-    constructor(options) {
+    constructor() {
         super();
         this.performance = new Performance({});
         this.state = {
