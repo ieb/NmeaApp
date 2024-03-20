@@ -6,11 +6,14 @@ import './styles/logs.css';
 
 class Logs  extends React.Component {
     static propTypes = {
-        mainAPI: PropTypes.object
+        mainAPI: PropTypes.object,
+        title: PropTypes.string,
+        enableFeed: PropTypes.func,
     };
     constructor(props) {
         super(props);
         this.props = props;
+        this.title = props.title || "Debug Log"
         this.mainAPI = props.mainAPI;
         this.state = {
             linecount: 0,
@@ -18,13 +21,11 @@ class Logs  extends React.Component {
             pauseButton: "Pause"
         };
         this.pauseUpdates = this.pauseUpdates.bind(this);
-
-        this.mainAPI.onLogMessage((line) => {
+        this.props.enableFeed((line) => {
             const loglines = this.state.loglines.slice(-500);
             loglines.push(line);
             this.setState({loglines, linecount: this.state.linecount+1});
-        });
-
+        });        
     }
     componentDidMount() {
         console.log("Register window for events");
@@ -53,7 +54,7 @@ class Logs  extends React.Component {
         }
         return (
             <div className="logviewer" >
-            <div>Debug Log <button onClick={this.pauseUpdates} >{this.state.pauseButton}</button></div>
+            <div>{this.title}<button onClick={this.pauseUpdates} >{this.state.pauseButton}</button></div>
             <LazyLog text={text} extraLines={1} 
                 selectableLines 
                 caseInsensitive
@@ -62,8 +63,6 @@ class Logs  extends React.Component {
             </div>
         );
     }
-
-
 }
 
 export { Logs };

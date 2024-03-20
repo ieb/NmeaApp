@@ -153,9 +153,15 @@ class AppMenu extends EventEmitter {
             }
           },
           { 
-            label: 'Show Can Stream',
+            label: 'Show Can Messages',
             click: async () => { 
-              await emit("click", "view->can-stream");
+              await emit("click", "view->can-messages");
+            }
+          },
+          { 
+            label: 'Show Can Frames',
+            click: async () => { 
+              await emit("click", "view->can-frames");
             }
           },
           { 

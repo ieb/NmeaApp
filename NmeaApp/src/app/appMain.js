@@ -61,11 +61,12 @@ class AppMain extends EventEmitter {
         });
         this.nmea2000Reader.on("nmea2000Message", (message, frame) => {
             if ( message !== undefined ) {
-                console.log(JSON.stringify(message));
                 this.packetsRecieved++;
                 this.store.updateFromNMEA2000Stream(message);
-                this.nmea0183Bridge.update(message, this.nmea0183Handler);                
+                this.nmea0183Bridge.update(message, this.nmea0183Handler); 
+                this.emitCanMessage(message);               
             }
+            this.emitCanFrame(message, frame);
 
         });
         this.nmea2000Reader.on("playbackEnd", () => {
@@ -118,9 +119,18 @@ class AppMain extends EventEmitter {
     }
 
     emitLogMessage(line) {
-
         for (var i = 0; i < this.webContents.length; i++) {
             this.webContents[i].send("mainApi->logMessage",line);
+        }            
+    }
+    emitCanMessage(message) {
+        for (var i = 0; i < this.webContents.length; i++) {
+            this.webContents[i].send("mainApi->canMessage",JSON.stringify(message));
+        }            
+    }
+    emitCanFrame(frame, message) {
+        for (var i = 0; i < this.webContents.length; i++) {
+            this.webContents[i].send("mainApi->canFrame",JSON.stringify({frame: frame, message:message}));
         }            
     }
 

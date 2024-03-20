@@ -93,6 +93,11 @@ For some reason, node or at least the links that allow it to run get wiped out e
 * [x] Make it easier to find out which port and how many clients, its really hard at the moment due to LXC, but the App knows which IP its on, even if its almost impossible to find out in ChromeOS.
 * [x] Support UDP -- unfortunately UDP broadcasts won't propagate between containers on ChromeOS, so code works, but not using. Sticking to TCP. Almost all NMEA clients listen for UDP packets and the sender cant know where to send them directly.
 * [x] Implement playback functionality to replay real NMEA2000 packets
+* [x] Implement debug log viewer window.
+* [x] Implement can frame log viewer window.
+* [x] Implement can messages log viewer window.
+* [ ] Improve viewer layout (prety print etc)
+* [ ] Implement store viewer as a tree structure.
 * [ ] Write a B&G view.
 * [ ] Do some fun visualizations, charts, etc.
 
@@ -129,4 +134,5 @@ For some reason, node or at least the links that allow it to run get wiped out e
 * [ ] Fix Lookup missing balue gnssType 15 seen on Raymarine bus.
 * [ ] Fix Lookup missing value xteMode 15 seen on Raymarine bus.
 * [ ] NADoubleN2K is not being handled properly. When received after a valid value is present, it should not flip flop as it does with the playback of rudder from a real feed. Need to add some logic to the updates in the store, so that NA only takes effect after a timeout period.
+
 

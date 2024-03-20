@@ -73,8 +73,11 @@ appMenu.on("click", async (e, obj) => {
   case "view->dump-store":
     createWindow("view-dump-store");
     break;
-  case "view->can-stream":
-    createWindow("view-can-stream");
+  case "view->can-messages":
+    createWindow("view-can-messages");
+    break;
+  case "view->can-frames":
+    createWindow("view-can-frames");
     break;
   case "view->debug-logs":
     createWindow("view-debug-logs");

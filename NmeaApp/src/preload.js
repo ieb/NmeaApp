@@ -32,6 +32,11 @@ contextBridge.exposeInMainWorld('mainAPI',{
         onLogMessage: (callback) => ipcRenderer.on('mainApi->logMessage', (_event, value) => {
                 callback(value);
         }),
-        onFrame: (callback) => ipcRenderer.on('mainApi->frame', (_event, value) => callback(value)),
+        onCanFrame: (callback) => ipcRenderer.on('mainApi->canFrame', (_event, value) => {
+                callback(value);
+        }),
+        onCanMessage: (callback) => ipcRenderer.on('mainApi->canMessage', (_event, value) => {
+                callback(value);
+        }),
     });
 

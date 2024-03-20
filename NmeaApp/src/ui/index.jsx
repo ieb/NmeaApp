@@ -29,10 +29,12 @@ if ( !window.mainAPI ) {
 if ( window.location.hash ===  "#view-dump-store") {
 
     root.render(<h1>View DumpStore</h1>);
-} else if ( window.location.hash ===  "#view-can-stream") { 
-    root.render(<h1>View CanStream</h1>);
+} else if ( window.location.hash ===  "#view-can-frames") { 
+    root.render(<Logs title="CAN Frames" mainAPI={window.mainAPI} enableFeed={window.mainAPI.onCanFrame} > </Logs>);
+} else if ( window.location.hash ===  "#view-can-messages") { 
+    root.render(<Logs title="CAN Messages" mainAPI={window.mainAPI} enableFeed={window.mainAPI.onCanMessage} > </Logs>);
 } else if ( window.location.hash ===  "#view-debug-logs") { 
-    root.render(<Logs mainAPI={window.mainAPI} > </Logs>);
+    root.render(<Logs title="Debug Logs" mainAPI={window.mainAPI} enableFeed={window.mainAPI.onLogMessage} > </Logs>);
 } else {
     root.render(<NMEALayout storeAPI={window.storeAPI} > </NMEALayout>);
 }
