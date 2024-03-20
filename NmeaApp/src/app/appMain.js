@@ -1,5 +1,6 @@
 "use strict";
 const { EventEmitter }  = require('node:events');
+const util = require('node:util');
 const { NMEA0183Handler }  = require( "./nmea0183Handler.js");
 //const { NMEA0183Reader }  = require('./nmea0183Reader.js');
 const { NMEA2000Reader }  = require('./nmea2000Reader.js');
@@ -60,6 +61,7 @@ class AppMain extends EventEmitter {
         });
         this.nmea2000Reader.on("nmea2000Message", (message, frame) => {
             if ( message !== undefined ) {
+                console.log(JSON.stringify(message));
                 this.packetsRecieved++;
                 this.store.updateFromNMEA2000Stream(message);
                 this.nmea0183Bridge.update(message, this.nmea0183Handler);                
@@ -75,8 +77,9 @@ class AppMain extends EventEmitter {
 
         this.capturedLog = console.log;
         console.log = (...args) => {
+            args = args.map((e)=> util.inspect(e));
+            this.emitLogMessage(args.join(' '));
             this.capturedLog("Captured ", args);
-            this.emitLogMessage(args);
         }
 
     }
@@ -114,11 +117,10 @@ class AppMain extends EventEmitter {
         }
     }
 
-    emitLogMessage(args) {
+    emitLogMessage(line) {
 
         for (var i = 0; i < this.webContents.length; i++) {
-            this.capturedLog("Sending ",args);
-            this.webContents[i].send("mainApi->logMessage",JSON.stringify(args));
+            this.webContents[i].send("mainApi->logMessage",line);
         }            
     }
 

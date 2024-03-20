@@ -30,7 +30,6 @@ contextBridge.exposeInMainWorld('mainAPI',{
         addListener: () => ipcRenderer.invoke('mainApi->addListener'),
         removeListener: () => ipcRenderer.invoke('mainApi->removeListener'),
         onLogMessage: (callback) => ipcRenderer.on('mainApi->logMessage', (_event, value) => {
-                console.log("Got log message ",value);
                 callback(value);
         }),
         onFrame: (callback) => ipcRenderer.on('mainApi->frame', (_event, value) => callback(value)),

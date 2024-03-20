@@ -1,5 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
+import { LazyLog } from 'react-lazylog';
+import './styles/logs.css';
 
 
 class Logs  extends React.Component {
@@ -12,13 +14,14 @@ class Logs  extends React.Component {
         this.mainAPI = props.mainAPI;
         this.state = {
             linecount: 0,
-            loglines: []
+            loglines: [],
+            pauseButton: "Pause"
         };
-        this.mainAPI.onLogMessage((line) => {
-            console.log("Log Message", line);
-            const loglines = this.state.loglines.slice(0,500);
-            loglines.push(JSON.parse(line).join(' '));
+        this.pauseUpdates = this.pauseUpdates.bind(this);
 
+        this.mainAPI.onLogMessage((line) => {
+            const loglines = this.state.loglines.slice(-500);
+            loglines.push(line);
             this.setState({loglines, linecount: this.state.linecount+1});
         });
 
@@ -34,17 +37,28 @@ class Logs  extends React.Component {
         window.removeEventListener('beforeunload', this.mainAPI.removeListener, false);
         this.mainAPI.removeListener();
     }
+    pauseUpdates() {
+        if ( this.state.pauseButton === "Pause" ) {
+            this.setState({pauseButton: 'Resume', pausedLogs: this.state.loglines.join('\n')});
+        } else {
+            this.setState({pauseButton: 'Pause', pausedLogs: undefined});
+        }
+    }
 
 
     render() {
-        const lines = [];
-        for(let i = 0; i < this.state.loglines.length; i++) {
-            const key = this.state.linecount-(this.state.loglines.length-i-1);
-            lines.push((<div key={key} >{this.state.loglines[i]}</div>));
+        let text= this.state.pausedLogs || this.state.loglines.join("\n");
+        if ( text === "" ) {
+            text = "Waiting for logs...."
         }
         return (
-            <div>
-                {lines}
+            <div className="logviewer" >
+            <div>Debug Log <button onClick={this.pauseUpdates} >{this.state.pauseButton}</button></div>
+            <LazyLog text={text} extraLines={1} 
+                selectableLines 
+                caseInsensitive
+                follow
+                enableSearch />
             </div>
         );
     }
