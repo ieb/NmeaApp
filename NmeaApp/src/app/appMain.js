@@ -8,6 +8,7 @@ const { NMEA0183Bridge }  = require('./nmea0183Bridge.js');
 const { Calculations }  = require("./calculations.js");
 const { Store }  = require("./store.js");
 const { TcpServer }  = require('./tcpServer.js');
+const yaml = require('js-yaml');
 
 /*
 
@@ -120,17 +121,38 @@ class AppMain extends EventEmitter {
 
     emitLogMessage(line) {
         for (var i = 0; i < this.webContents.length; i++) {
-            this.webContents[i].send("mainApi->logMessage",line);
+            try {
+                this.webContents[i].send("mainApi->logMessage",line);
+            } catch(e) {
+                // ignore
+            }
         }            
     }
     emitCanMessage(message) {
         for (var i = 0; i < this.webContents.length; i++) {
-            this.webContents[i].send("mainApi->canMessage",JSON.stringify(message));
+            try {
+                this.webContents[i].send("mainApi->canMessage", yaml.dump(message, {
+                    skipInvalid: true,
+                    flowLevel:1,
+
+                }));
+            } catch(e) {
+                // ignore
+            }
         }            
     }
-    emitCanFrame(frame, message) {
+    emitCanFrame(message, frame) {
         for (var i = 0; i < this.webContents.length; i++) {
-            this.webContents[i].send("mainApi->canFrame",JSON.stringify({frame: frame, message:message}));
+            try {
+                this.webContents[i].send("mainApi->canFrame",
+                    yaml.dump({frame: frame, message:message}, {
+                    skipInvalid: true,
+                    flowLevel:2,
+                    
+                }));
+            } catch(e) {
+                // ignore
+            }
         }            
     }
 

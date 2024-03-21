@@ -59,8 +59,10 @@ class Logs  extends React.Component {
                 selectableLines 
                 caseInsensitive
                 follow
-                enableSearch />
-            </div>
+                lineClassName="logline"
+                enableSearch / >
+            </div> 
+
         );
     }
 }
