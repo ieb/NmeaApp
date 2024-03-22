@@ -42,6 +42,12 @@ could if you want.
 Performance data is calculated from a VPP Polar. The one encoded is for a Pogo1250 (my boat), but there are many others
 available.
 
+# UI
+
+The UI consists of 1 main window that can be configured with wigets and sub windows used for inspecting the detail of data on the bus down to the Can frames, in the store or calculated.
+
+![UI!](screenshots/ui.png "UI")
+
 
 # CandleLight NMEA2000 USB adapter.
 
@@ -96,7 +102,7 @@ For some reason, node or at least the links that allow it to run get wiped out e
 * [x] Implement debug log viewer window.
 * [x] Implement can frame log viewer window.
 * [x] Implement can messages log viewer window.
-* [ ] Improve viewer layout (prety print etc)
+* [x] Improve viewer layout (prety print etc)
 * [ ] Implement store viewer as a tree structure.
 * [ ] Write a B&G view.
 * [ ] Do some fun visualizations, charts, etc.
@@ -130,7 +136,7 @@ For some reason, node or at least the links that allow it to run get wiped out e
 * [x] When the NMEA2000 USB connection encounters an error it should close the USB device and reopen. 2 types seen so far. LIBUSB_ERROR_NO_DEVICE on transfer and a timeout on packets received. There should be some way of pinging the USB layer to check that the device is still there and operational.
 * [x] On exit the native usb driver thread tries to close, but has already closed causing a segv. It should be resilient to this as any exit will cause the same. Fix will need to be in the c code.  The fix is to ensure that will-quit event does not exit before shutdown has happened by calling event.preventDefault before returning the event. Then the normal close of the usb can take place and complete before the c pointers become invalid and cause a segv. There are a number of threads in the c usb lib that do not close automatically and do not block the nodeJS main thread.
 * [x] Fix editiing widgets. Only when the key is updated, will a component be recreated. IIUC, if this is set explicitly, if should reflect all the properties otherwise changes to properties will be ignored by React. Simple fix was to make the key depend on the edited property. 
-* [ ] Fix playback to use raw NMEA packets rather than the current parsed packets, this needs the packets to be written out correctly, and this needs a menu item to start recording.
+* [x] Fix playback to use raw NMEA packets rather than the current parsed packets, this needs the packets to be written out correctly, and this needs a menu item to start recording.
 * [ ] Fix Lookup missing balue gnssType 15 seen on Raymarine bus.
 * [ ] Fix Lookup missing value xteMode 15 seen on Raymarine bus.
 * [ ] NADoubleN2K is not being handled properly. When received after a valid value is present, it should not flip flop as it does with the playback of rudder from a real feed. Need to add some logic to the updates in the store, so that NA only takes effect after a timeout period.

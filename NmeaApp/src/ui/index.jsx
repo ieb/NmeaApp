@@ -3,6 +3,7 @@ import React from 'react';
 import ReactDOM from 'react-dom/client';
 import { NMEALayout } from './layout.jsx';
 import { Logs } from './logs.jsx';
+import { StoreView } from './storeview.jsx';
 
 const rootElement = document.getElementById('root');
 console.log("Root element is ", rootElement)
@@ -27,8 +28,7 @@ if ( !window.mainAPI ) {
 }
 
 if ( window.location.hash ===  "#view-dump-store") {
-
-    root.render(<h1>View DumpStore</h1>);
+    root.render(<StoreView title="Store" storeAPI={window.storeAPI}  > </StoreView>);
 } else if ( window.location.hash ===  "#view-can-frames") { 
     root.render(<Logs title="CAN Frames" mainAPI={window.mainAPI} enableFeed={window.mainAPI.onCanFrame} > </Logs>);
 } else if ( window.location.hash ===  "#view-can-messages") { 
