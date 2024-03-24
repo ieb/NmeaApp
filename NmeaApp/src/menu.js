@@ -4,84 +4,75 @@ const { EventEmitter }  = require('node:events');
 
 class AppMenu extends EventEmitter {
 
+  constructor() {
+    super();
+    this.viewFlags = {
+      store: false,
+      messages: false,
+      frames: false,
+      debuglog: false
+    };
+    this.enabledFlags = {
+      openPlayback: true,
+      recordPlayback: true,
+      stopPlayback: false
+    };
+    this.menuCreation = 0;
+    this.on('click', (e, v) => {
+        console.log("Internal Menu click",e);
+
+      switch (e) {
+
+      case 'view->dump-store':
+        this.viewFlags.store = !v;
+        this.createApplicationMenu();
+        break;
+      case 'view->can-messages':
+        this.viewFlags.messages = !v;
+        this.createApplicationMenu();
+        break;
+      case 'view->can-frames':
+        this.viewFlags.frames = !v;
+        this.createApplicationMenu();
+        break;
+      case 'view->debug-logs':
+        this.viewFlags.debuglog = !v;
+        this.createApplicationMenu();
+        break;
+      }
+
+    });
+
+  }
+
   disableStop() {
-        this.openPlayback.enabled = true;
-        this.recordPlayback.enabled = true;
-        this.stopPlayback.enabled = false;
+    this.enabledFlags.openPlayback = true;
+    this.enabledFlags.recordPlayback = true;
+    this.enabledFlags.stopPlayback = false;
+    this.createApplicationMenu();
   }
 
   enableStop() {
-    console.log("Enabling stop");
-    this.openPlayback.enabled = false
-    this.recordPlayback.enabled = false;
-    this.stopPlayback.enabled = true;
+    this.enabledFlags.openPlayback = false;
+    this.enabledFlags.recordPlayback = false;
+    this.enabledFlags.stopPlayback = true;
+    this.createApplicationMenu();
   }
 
 
 
-  createApplicationMenu(appMain) {
+  createApplicationMenu() {
 
-
+    this.menuCreation++;
+    // eslint-disable-next-line no-undef
     const isMac = process.platform === 'darwin';
     const emit = this.emit.bind(this);
-
-
-    this.openPlayback = new MenuItem({
-      label: 'Open playback...',
-      accelerator: 'CmdOrCtrl+O',
-      enabled: true,
-       // this is the main bit hijack the click event 
-      click: async () => {
-        // construct the select file dialog 
-        try {
-          const fileObj = await dialog.showOpenDialog({
-            properties: ['openFile']
-          });
-            if (!fileObj.canceled) {
-              this.emit("click", "file->playbackStart", fileObj.filePaths[0]);
-           }
-        } catch(err) {
-           console.error(err)  
-        }
-      } 
-    });
-    this.stopPlayback = new MenuItem({
-      label: 'Stop record or playback',
-      accelerator: 'CmdOrCtrl+S',
-      enabled: false,
-       // this is the main bit hijack the click event 
-      click: () => {
-        this.emit("click", "file->playbackOrCaptureStop");
-      } 
-    });
-
-    this.recordPlayback = new MenuItem({
-      label: 'Record playback...',
-      accelerator: 'CmdOrCtrl+R',
-      enabled: true,
-       // this is the main bit hijack the click event 
-      click: async () => {
-        // construct the select file dialog 
-        try {
-          const fileObj = await dialog.showSaveDialog({
-            properties: ['createDirectory'],
-            title: "Select file to record into",
-            nameFieldLabel: 'recording file'
-          });
-            if (!fileObj.canceled) {
-              this.emit("click", "file->captureStart");
-           }
-        } catch(err) {
-           console.error(err)  
-        }
-      } 
-    });
 
     const template = [
       // { role: 'appMenu' }
       ...(isMac
         ? [{
-            label: "NMEA2000",
+            label: "NMEA2000 ",
             submenu: [
               { role: 'about' , },
               { type: 'separator' },
@@ -97,14 +88,60 @@ class AppMenu extends EventEmitter {
         : []),
       // { role: 'fileMenu' }
       {
-        label: 'File',
+        label: 'File ',
         submenu: [
-          this.recordPlayback,
-          this.openPlayback,
-          this.stopPlayback,
+          {
+            label: 'Record playback...',
+            accelerator: 'CmdOrCtrl+R',
+            enabled: this.enabledFlags.recordPlayback,
+             // this is the main bit hijack the click event 
+            click: async () => {
+              // construct the select file dialog 
+              try {
+                const fileObj = await dialog.showSaveDialog({
+                  properties: ['createDirectory'],
+                  title: "Select file to record into",
+                  nameFieldLabel: 'recording file'
+                });
+                  if (!fileObj.canceled) {
+                    this.emit("click", "file->captureStart");
+                 }
+              } catch(err) {
+                 console.error(err)  
+              }
+            } 
+          },
+          {
+            label: 'Open playback...',
+            accelerator: 'CmdOrCtrl+O',
+            enabled: this.enabledFlags.openPlayback,
+             // this is the main bit hijack the click event 
+            click: async () => {
+              // construct the select file dialog 
+              try {
+                const fileObj = await dialog.showOpenDialog({
+                  properties: ['openFile']
+                });
+                  if (!fileObj.canceled) {
+                    this.emit("click", "file->playbackStart", fileObj.filePaths[0]);
+                 }
+              } catch(err) {
+                 console.error(err)  
+              }
+            } 
+          },
+          {
+            label: 'Stop record or playback',
+            accelerator: 'CmdOrCtrl+S',
+            enabled: this.enabledFlags.stopPlayback,
+             // this is the main bit hijack the click event 
+            click: () => {
+              this.emit("click", "file->playbackOrCaptureStop");
+            } 
+          },
           isMac ? { role: 'close' } : { role: 'quit' },
           { 
-            label: 'New Window',
+            label: 'New Instrument Window',
             click: async () => { 
               await emit("click", "file->new-window");
             }
@@ -146,30 +183,27 @@ class AppMenu extends EventEmitter {
       {
         label: 'View',
         submenu: [
-          { 
-            label: 'Show Store',
-            click: async () => { 
-              await emit("click", "view->dump-store");
-            }
+          {
+            label: (this.viewFlags.store)?'Hide Store':'Show Store',
+            enabled: true,
+            click: async () => { await this.emit("click", "view->dump-store", this.viewFlags.store) }
           },
-          { 
-            label: 'Show Can Messages',
-            click: async () => { 
-              await emit("click", "view->can-messages");
-            }
+          {
+            label: (this.viewFlags.messages)?'Hide Can Messages':'Show Can Messages',
+            enabled: true,
+            click: async () => { await this.emit("click", "view->can-messages", this.viewFlags.messages) }
           },
-          { 
-            label: 'Show Can Frames',
-            click: async () => { 
-              await emit("click", "view->can-frames");
-            }
+          {
+            label:  (this.viewFlags.frames)?'Hide Can Frames':'Show Can Frames',
+            enabled: true,
+            click: async () => { await this.emit("click", "view->can-frames", this.viewFlags.frames) }
           },
-          { 
-            label: 'Show Debug Logs',
-            click: async () => { 
-              await emit("click", "view->debug-logs");
-            }
+          {
+            label: (this.viewFlags.debuglog)?'Hide Debug Logs':'Show Debug Logs',
+            enabled: true,
+            click: async () => { await this.emit("click", "view->debug-logs", this.viewFlags.debuglog) }
           },
+          { type: 'separator' },
           { role: 'reload' },
           { role: 'forceReload' },
           { role: 'toggleDevTools' },
@@ -213,8 +247,9 @@ class AppMenu extends EventEmitter {
       }
     ]
 
-    const menu = Menu.buildFromTemplate(template)
-    Menu.setApplicationMenu(menu)
+
+    const menu = Menu.buildFromTemplate(template);
+    Menu.setApplicationMenu(menu);
 
   }
 }

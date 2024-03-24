@@ -14,16 +14,19 @@ const createWindow = (entryPoint) => {
     width: 1000,
     height: 600,
     webPreferences: {
+      // eslint-disable-next-line no-undef
       preload: MAIN_WINDOW_PRELOAD_WEBPACK_ENTRY,
     },
   });
   entryPoint = (entryPoint === undefined)?"":"#"+entryPoint;
 
   // and load the index.html of the app.
+  // eslint-disable-next-line no-undef
   mainWindow.loadURL(MAIN_WINDOW_WEBPACK_ENTRY+entryPoint);
 
   // Open the DevTools.
   //mainWindow.webContents.openDevTools();
+  return mainWindow;
 };
 
 
@@ -62,7 +65,7 @@ app.on('activate', () => {
 // code. You can also put them in separate files and import them here.
 const {load} = require('./app/appLoader.js');
 const appMain = load(app, ipcMain);
-
+const openWindows = {};
 const appMenu = new AppMenu();
 appMenu.on("click", async (e, obj) => {
   console.log("Menu click",e);
@@ -71,16 +74,65 @@ appMenu.on("click", async (e, obj) => {
     createWindow();
     break;
   case "view->dump-store":
-    createWindow("view-dump-store");
+    if ( !obj ) {
+      openWindows.dumpStoreWindow = createWindow("view-dump-store");
+      openWindows.dumpStoreWindow.once('close', () => {
+        openWindows.dumpStoreWindow  = undefined;
+        console.log(appMenu.viewFlags);
+        if ( appMenu.viewFlags.store ) {
+          appMenu.viewFlags.store = false;
+          appMenu.createApplicationMenu();
+        }
+      });
+    } else if ( openWindows.dumpStoreWindow  ) {
+      openWindows.dumpStoreWindow .close();
+      openWindows.dumpStoreWindow  = undefined;
+    }
     break;
   case "view->can-messages":
-    createWindow("view-can-messages");
+    if ( !obj ) {
+      openWindows.canMessagesWindow = createWindow("view-can-messages");
+      openWindows.canMessagesWindow.once('close', () => {
+        openWindows.canMessagesWindow  = undefined;
+        if ( appMenu.viewFlags.messages ) {
+          appMenu.viewFlags.messages = false;
+          appMenu.createApplicationMenu();
+        }
+      });
+    } else if ( openWindows.canMessagesWindow  ) {
+      openWindows.canMessagesWindow .close();
+      openWindows.canMessagesWindow  = undefined;
+    }
     break;
   case "view->can-frames":
-    createWindow("view-can-frames");
+    if ( !obj ) {
+      openWindows.canFramesWindow = createWindow("view-can-frames");
+      openWindows.canFramesWindow.once('close', () => {
+        openWindows.canFramesWindow  = undefined;
+        if ( appMenu.viewFlags.frames ) {
+          appMenu.viewFlags.frames = false;
+          appMenu.createApplicationMenu();
+        }
+      });
+    } else if ( openWindows.canFramesWindow  ) {
+      openWindows.canFramesWindow .close();
+      openWindows.canFramesWindow  = undefined;
+    }
     break;
   case "view->debug-logs":
-    createWindow("view-debug-logs");
+    if ( !obj ) {
+      openWindows.debugLogsWindow = createWindow("view-debug-logs");
+      openWindows.debugLogsWindow.once('close', () => {
+        openWindows.debugLogsWindow  = undefined;
+        if ( appMenu.viewFlags.debuglog ) {
+          appMenu.viewFlags.debuglog = false;
+          appMenu.createApplicationMenu();
+        }
+      });
+    } else if ( openWindows.debugLogsWindow  ) {
+      openWindows.debugLogsWindow .close();
+      openWindows.debugLogsWindow  = undefined;
+    }
     break;
   case "file->captureStart":
     if ( await appMain.captureStart(obj) ) {
@@ -100,7 +152,7 @@ appMenu.on("click", async (e, obj) => {
   }
 });
 
-appMenu.createApplicationMenu(appMain);
+appMenu.createApplicationMenu();
 
 appMain.start();
 

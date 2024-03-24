@@ -304,17 +304,12 @@ Dont store
 
 
     addWebListener(event) {
-        console.log("Add Listner ", event, this.webContents);
         this.webContents.push(event.sender);
     }
     removeWebListener(event) {
-        console.log("Remove Listner ", event, this.webContents);
         const i = this.webContents.indexOf(event.sender);
         if ( i != -1  ) {
             this.webContents.splice(i,1);
-           console.log("Removed Listner ", event, this.webContents);
-        } else {
-            console.log("Failed remove");
         }
     }
     emitStateChange(changeState) {

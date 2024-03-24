@@ -2,3 +2,7 @@
     width: 100%;
     height: calc(100vh - 10px);
 }
+
+.logviewer .enabled {
+    border: solid 0.5px white;
+}

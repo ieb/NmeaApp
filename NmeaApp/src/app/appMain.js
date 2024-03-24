@@ -105,17 +105,12 @@ class AppMain extends EventEmitter {
 
 
     addWebListener(event) {
-        console.log("Add Listner ", event, this.webContents);
         this.webContents.push(event.sender);
     }
     removeWebListener(event) {
-        console.log("Remove Listner ", event, this.webContents);
         const i = this.webContents.indexOf(event.sender);
         if ( i != -1  ) {
             this.webContents.splice(i,1);
-           console.log("Removed Listner ", event, this.webContents);
-        } else {
-            console.log("Failed remove");
         }
     }
 
@@ -134,7 +129,6 @@ class AppMain extends EventEmitter {
                 this.webContents[i].send("mainApi->canMessage", yaml.dump(message, {
                     skipInvalid: true,
                     flowLevel:1,
-
                 }));
             } catch(e) {
                 // ignore
@@ -144,13 +138,9 @@ class AppMain extends EventEmitter {
     emitCanFrame(message, frame) {
         for (var i = 0; i < this.webContents.length; i++) {
             try {
-                this.webContents[i].send("mainApi->canFrame",
-                    yaml.dump({frame: frame, message:message}, {
-                    skipInvalid: true,
-                    flowLevel:2,
-                    
-                }));
+                this.webContents[i].send("mainApi->canFrame",{frame: frame, message:message});
             } catch(e) {
+                this.capturedLog("Failed ",e);
                 // ignore
             }
         }            
