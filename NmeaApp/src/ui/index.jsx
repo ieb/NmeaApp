@@ -27,6 +27,8 @@ if ( !window.mainAPI ) {
 
 }
 
+
+
 if ( window.location.hash ===  "#view-dump-store") {
     root.render(<StoreView title="Store" storeAPI={window.storeAPI}  > </StoreView>);
 } else if ( window.location.hash ===  "#view-can-frames") { 
@@ -36,7 +38,7 @@ if ( window.location.hash ===  "#view-dump-store") {
 } else if ( window.location.hash ===  "#view-debug-logs") { 
     root.render(<Logs title="Debug Logs" mainAPI={window.mainAPI} enableFeed={window.mainAPI.onLogMessage} > </Logs>);
 } else {
-    root.render(<NMEALayout storeAPI={window.storeAPI} > </NMEALayout>);
+    root.render(<NMEALayout mainAPI={window.mainAPI} storeAPI={window.storeAPI} > </NMEALayout>);
 }
 
 

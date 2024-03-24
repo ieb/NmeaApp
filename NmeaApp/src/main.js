@@ -1,16 +1,22 @@
 const { app, BrowserWindow, ipcMain } = require('electron');
 const { AppMenu } = require('./menu.js');
 const process = require('node:process');
+const path = require('node:path');
 
 // Handle creating/removing shortcuts on Windows when installing/uninstalling.
 if (require('electron-squirrel-startup')) {
   app.quit();
 }
 
-const createWindow = (entryPoint) => {
+
+
+const createWindow = (title, entryPoint) => {
   console.log("Create Window Called.");
+  entryPoint = (entryPoint === undefined)?"":"#"+entryPoint;
+  title = title || 'Instruments';
   // Create the browser window.
   const mainWindow = new BrowserWindow({
+    title: title,
     width: 1000,
     height: 600,
     webPreferences: {
@@ -18,7 +24,6 @@ const createWindow = (entryPoint) => {
       preload: MAIN_WINDOW_PRELOAD_WEBPACK_ENTRY,
     },
   });
-  entryPoint = (entryPoint === undefined)?"":"#"+entryPoint;
 
   // and load the index.html of the app.
   // eslint-disable-next-line no-undef
@@ -34,7 +39,10 @@ const createWindow = (entryPoint) => {
 // This method will be called when Electron has finished
 // initialization and is ready to create browser windows.
 // Some APIs can only be used after this event occurs.
-app.on('ready', createWindow);
+let mainAppWindow = undefined;
+app.on('ready', () => {
+  mainAppWindow = createWindow();
+});
 
 // Quit when all windows are closed, except on macOS. There, it's common
 // for applications and their menu bar to stay active until the user quits
@@ -75,7 +83,7 @@ appMenu.on("click", async (e, obj) => {
     break;
   case "view->dump-store":
     if ( !obj ) {
-      openWindows.dumpStoreWindow = createWindow("view-dump-store");
+      openWindows.dumpStoreWindow = createWindow('NMEA Store',"view-dump-store");
       openWindows.dumpStoreWindow.once('close', () => {
         openWindows.dumpStoreWindow  = undefined;
         console.log(appMenu.viewFlags);
@@ -91,7 +99,7 @@ appMenu.on("click", async (e, obj) => {
     break;
   case "view->can-messages":
     if ( !obj ) {
-      openWindows.canMessagesWindow = createWindow("view-can-messages");
+      openWindows.canMessagesWindow = createWindow('CAN Messages',"view-can-messages");
       openWindows.canMessagesWindow.once('close', () => {
         openWindows.canMessagesWindow  = undefined;
         if ( appMenu.viewFlags.messages ) {
@@ -106,7 +114,7 @@ appMenu.on("click", async (e, obj) => {
     break;
   case "view->can-frames":
     if ( !obj ) {
-      openWindows.canFramesWindow = createWindow("view-can-frames");
+      openWindows.canFramesWindow = createWindow('CAN Frames',"view-can-frames");
       openWindows.canFramesWindow.once('close', () => {
         openWindows.canFramesWindow  = undefined;
         if ( appMenu.viewFlags.frames ) {
@@ -121,7 +129,7 @@ appMenu.on("click", async (e, obj) => {
     break;
   case "view->debug-logs":
     if ( !obj ) {
-      openWindows.debugLogsWindow = createWindow("view-debug-logs");
+      openWindows.debugLogsWindow = createWindow('Debug Log',"view-debug-logs");
       openWindows.debugLogsWindow.once('close', () => {
         openWindows.debugLogsWindow  = undefined;
         if ( appMenu.viewFlags.debuglog ) {
@@ -146,7 +154,12 @@ appMenu.on("click", async (e, obj) => {
     break;
   case "file->playbackStart":
     if ( await appMain.playbackStart(obj) ) {
-      appMenu.enableStop();      
+      mainAppWindow.title = "Instruments ("+path.basename(obj)+")";
+      appMenu.enableStop();
+      appMain.once("playbackEnd", () => {
+        mainAppWindow.title = "Instruments ";
+        appMenu.disableStop();
+      });      
     }
     break;
   }

@@ -9,7 +9,8 @@ import PropTypes from 'prop-types';
 class NMEALayout extends React.Component {
 
     static propTypes = {
-        storeAPI: PropTypes.object
+        storeAPI: PropTypes.object,
+        mainAPI: PropTypes.object,
     };
 
     static removeOptionKeys = [ 
@@ -35,6 +36,7 @@ class NMEALayout extends React.Component {
         super(props);
         this.props = props;
         this.storeAPI = props.storeAPI;
+        this.mainAPI = props.mainAPI;
         this.onEditLayout = this.onEditLayout.bind(this);
         this.onAddItem = this.onAddItem.bind(this);
         this.onChangeItem = this.onChangeItem.bind(this);
@@ -54,6 +56,10 @@ class NMEALayout extends React.Component {
 
         };
 
+        this.mainAPI.onPlaybackEnd(() => {
+            alert("Playback has ended");
+        });
+
         // Not in use at the moment.
         //storeAPI.onStateChange((newState) => {
         //    console.log("Got State Change", newState);
@@ -65,8 +71,8 @@ class NMEALayout extends React.Component {
 
     componentDidMount() {
         console.log("Register window for events");
-        this.storeAPI.addListener();
-        window.addEventListener('beforeunload', this.storeAPI.removeListener, false);
+        this.mainAPI.addListener();
+        window.addEventListener('beforeunload', this.mainAPI.removeListener, false);
         this.updateInterval = setInterval((async () => {
             const packetsRecieved = await this.props.storeAPI.getPacketsRecieved();
             const nmea0183Address = await this.props.storeAPI.getNmea0183Address();
@@ -82,8 +88,8 @@ class NMEALayout extends React.Component {
     
     componentWillUnmount() {
         console.log("deRegister window for events");
-        window.removeEventListener('beforeunload', this.storeAPI.removeListener, false);
-        this.storeAPI.removeListener();
+        window.removeEventListener('beforeunload', this.mainAPI.removeListener, false);
+        this.mainAPI.removeListener();
         if ( this.updateInterval ) {
             clearInterval(this.updateInterval);
         }

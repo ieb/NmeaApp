@@ -38,5 +38,11 @@ contextBridge.exposeInMainWorld('mainAPI',{
         onCanMessage: (callback) => ipcRenderer.on('mainApi->canMessage', (_event, value) => {
                 callback(value);
         }),
+        onPlaybackEnd: (callback) => ipcRenderer.on('mainApi->playbackEnd', (_event, value) => {
+                callback(value);
+        }),
+
+
+
     });
 

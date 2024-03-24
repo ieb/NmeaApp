@@ -104,7 +104,8 @@ class AppMenu extends EventEmitter {
                   nameFieldLabel: 'recording file'
                 });
                   if (!fileObj.canceled) {
-                    this.emit("click", "file->captureStart");
+                    console.log("Opening ",fileObj);
+                    this.emit("click", "file->captureStart", fileObj.filePath);
                  }
               } catch(err) {
                  console.error(err)  
@@ -215,24 +216,7 @@ class AppMenu extends EventEmitter {
           { role: 'togglefullscreen' }
         ]
       },
-      // { role: 'windowMenu' }
-      {
-        label: 'Window',
-        submenu: [
-          { role: 'minimize' },
-          { role: 'zoom' },
-          ...(isMac
-            ? [
-                { type: 'separator' },
-                { role: 'front' },
-                { type: 'separator' },
-                { role: 'window' }
-              ]
-            : [
-                { role: 'close' }
-              ])
-        ]
-      },
+      { role: 'windowMenu' },
       {
         role: 'help',
         submenu: [

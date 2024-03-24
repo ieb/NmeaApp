@@ -72,6 +72,7 @@ class AppMain extends EventEmitter {
         });
         this.nmea2000Reader.on("playbackEnd", () => {
             this.emit("playbackEnd");
+            this.emitPlaybackEnd();
         });
         this.calculations.on("update", (calculatedState) => {
             this.nmea0183Bridge.updateCalculatedSentences(calculatedState, this.nmea0183Handler);
@@ -144,6 +145,17 @@ class AppMain extends EventEmitter {
                 // ignore
             }
         }            
+    }
+    emitPlaybackEnd() {
+        for (var i = 0; i < this.webContents.length; i++) {
+            try {
+                this.webContents[i].send("mainApi->playbackEnd");
+            } catch(e) {
+                this.capturedLog("Failed ",e);
+                // ignore
+            }
+        }            
+
     }
 
     async playbackStart(filePath) {
