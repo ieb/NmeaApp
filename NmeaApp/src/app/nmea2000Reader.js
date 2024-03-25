@@ -15,11 +15,14 @@ class NMEA2000Reader extends EventEmitter {
 
         this.messageDecoder = new NMEA2000MessageDecoder();
         this.doKeepOpen = true;
+        this.canPlayer = undefined;
         this.gs_usb.on("frame", async (frame) => {
             if ( this.canRecoder ) {
                 this.canRecoder.write(frame); 
             }   
-            await processFrame(frame);
+            if (this.canPlayer == undefined ) {
+                await processFrame(frame);
+            }
         });
         this.gs_usb.on("error", async (msg) => {
             if ( this.open ) {
@@ -137,13 +140,15 @@ class NMEA2000Reader extends EventEmitter {
         });
         this.canPlayer.on('end', () => {
             this.emit('playbackEnd');
-        })
+            this.canPlayer = undefined;            
+        });
         this.canPlayer.start(filePath);        
     }
 
     playbackStop() {
         if ( this.canPlayer ) {
             this.canPlayer.stop();
+            this.canPlayer = undefined;
         }
     }
 
