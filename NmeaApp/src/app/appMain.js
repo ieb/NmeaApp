@@ -144,7 +144,7 @@ class AppMain extends EventEmitter {
                 this.capturedLog("Failed ",e);
                 // ignore
             }
-        }            
+        }
     }
     emitPlaybackEnd() {
         for (var i = 0; i < this.webContents.length; i++) {

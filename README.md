@@ -106,7 +106,7 @@ For some reason, node or at least the links that allow it to run get wiped out e
 * [x] Implement store viewer as a tree structure.
 * [x] Fixed Window handling of views and main
 * [x] record and playback bugs
-* [ ] expose standard and fastpackets in the frame view.
+* [x] expose standard and fastpackets in the frame view.
 * [ ] Write a B&G view.
 * [ ] Do some fun visualizations, charts, etc.
 

@@ -159,9 +159,6 @@ class NMEA2000Reader extends EventEmitter {
 
         }
     }
-
-
-
 }
 
 
