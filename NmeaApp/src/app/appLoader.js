@@ -2,7 +2,7 @@
 const { AppMain }  = require('./appMain.js');
 
 function load(app, ipcMain) {
-    const appMain = new AppMain();
+    const appMain = new AppMain({ captureLog: true});
     app.on("ready", () => {
         ipcMain.handle('storeApi->getNmea0183Address',  async (event, ...args) => {
             return appMain.getNmea0183Address(...args);

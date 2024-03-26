@@ -29,8 +29,9 @@ the nmea0183Bridge holds sentences, once that are updated are emitted to the tcp
 
 
 class AppMain extends EventEmitter {
-    constructor() {
+    constructor(options) {
         super();
+        options = options || {};
         this.nmea0183Handler = new NMEA0183Handler();
 //        this.nmea0183Reader = new NMEA0183Reader();
         this.nmea2000Reader = new NMEA2000Reader();
@@ -78,13 +79,16 @@ class AppMain extends EventEmitter {
             this.nmea0183Bridge.updateCalculatedSentences(calculatedState, this.nmea0183Handler);
         });
 
-        this.capturedLog = console.log;
-        console.log = (...args) => {
-            args = args.map((e)=> util.inspect(e));
-            this.emitLogMessage(args.join(' '));
-            this.capturedLog("Captured ", args);
+        this.capturedLog  = console.log.bind(console);
+        if ( options.captureLog ) {
+            console.log = () => {
+                const a = [];
+                for (let i = 0; i < arguments.length; i++) {
+                    a.push(util.inspect(arguments[i]));
+                }
+                this.emitLogMessage(a.join(' '));
+            }
         }
-
     }
 
 /*
