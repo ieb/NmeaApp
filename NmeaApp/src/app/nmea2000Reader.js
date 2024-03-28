@@ -108,8 +108,9 @@ class NMEA2000Reader extends EventEmitter {
 
         const filters = await this.gs_usb.getDeviceFilters();
         console.log("Filters are ", filters);
-        setTimeout(() => {
-            this.gs_usb.startStreamingCANFrames();
+
+        setTimeout(async () => {
+            await this.gs_usb.startPolling();
         }, 100);
         this.open = true;
         return {
@@ -121,6 +122,7 @@ class NMEA2000Reader extends EventEmitter {
         try {
             if ( this.open ) {
                 this.open = false;
+                await this.gs_usb.stopPolling();
                 await this.gs_usb.stop();
                 console.log("NMEA2000Reader done stop GSUsb streaming");                
             }
