@@ -321,7 +321,6 @@ $IIMWV,x.x,a,x.x,N,a*hh
 
 
                     if (message.windReference.name === "Apparent" ) {
-
                         nmea0183Handler.updateSentence('IIVWR', ['$IIVWR',
                             this.toFixed(relativeAngle, 1),
                             dir,
@@ -332,7 +331,7 @@ $IIMWV,x.x,a,x.x,N,a*hh
                             this.toFixed((message.windSpeed*3.6), 1),
                             'K']);
                         nmea0183Handler.updateSentence('IIMWVA', ['$IIMWV',
-                            this.toFixed(relativeAngle, 1),
+                            this.toFixed(message.windAngle*180/Math.PI, 1),
                             'R',
                             this.toFixed((message.windSpeed*1.94384617179), 1),
                             'N',
@@ -362,6 +361,24 @@ $IIMWV,x.x,a,x.x,N,a*hh
                 case 127508: // DC Bat status
                     break;
                 case 130312:
+
+                    if ( message.source && message.source.id === 0) {
+                        nmea0183Handler.updateSentence('IIMTW', ['$IIMTW',
+                            (message.actualTemperature-273.15).toFixed(2),
+                            'C']);
+                    }
+                    break;
+                case 130316:
+                    if ( message.tempSource && message.tempSource.id == 4 ) {
+                        nmea0183Handler.updateSentence('IIXDRC', ['$IIXDR',
+                            'C',
+                            (message.actualTemperature-273.15).toFixed(2),
+                            'C',
+                            'TempAir']);
+                        nmea0183Handler.updateSentence('IIMTA', ['$IIMTA',
+                            (message.actualTemperature-273.15).toFixed(2),
+                            'C']);
+                    }
                     break;
                 case 127505: // fluid level
                     break;
@@ -370,14 +387,13 @@ $IIMWV,x.x,a,x.x,N,a*hh
                 case 127488: // Engine Rapiod
                     break;
                 case 130314: // pressure
-/*
-NKE
-$IIMMB,x.x,I,x.x,B*hh
- I I I__I_Atmospheric pressure in bars
- I_ I_Atmospheric pressure in inches of mercury 
- TODO
-*/
-
+                    if ( message.pressureSource && message.pressureSource.id === 0 ) {
+                        nmea0183Handler.updateSentence('IIXDRP', ['$IIXDR',
+                            'P',
+                            (message.actualPressure/100000).toFixed(5),
+                            'B',
+                            'Barometer']);
+                    }
                     break;
                 case 127245: // rudder
 
@@ -399,6 +415,14 @@ $IIMMB,x.x,I,x.x,B*hh
         // by default these are saved in the store which can be used to generate
         // NMEA0183 messages on demand.
         // for NKE instruments.
+        /*
+        calculatedState.polarSpeed = 8.5/1.9438452;
+        calculatedState.oppTrackMagnetic = 225*Math.PI/180;
+        calculatedState.targetTwa = 46*Math.PI/180;
+        calculatedState.polarVmgRatio = 0.43;
+        calculatedState.polarSpeedRatio = 0.49;
+        calculatedState.stw = 4.5/1.9438452;
+        */
         if ( calculatedState.polarSpeed !== undefined ) {
             nmea0183Handler.updateSentence('PNKEP01', ['$PNKEP',
                                         '01',
@@ -438,7 +462,7 @@ $IIMMB,x.x,I,x.x,B*hh
                         (calculatedState.twa*180/Math.PI).toFixed(2),
                         'T',
                         (calculatedState.tws*1.9438452).toFixed(2),
-                        'K',
+                        'N',
                         'A'], calculatedState.lastCalc);
         }
     }

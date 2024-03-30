@@ -81,11 +81,16 @@ class AppMain extends EventEmitter {
 
         this.capturedLog  = console.log.bind(console);
         if ( options.captureLog ) {
-            console.log = () => {
+            console.log = (...args) => {
                 const a = [];
-                for (let i = 0; i < arguments.length; i++) {
-                    a.push(util.inspect(arguments[i]));
+                for (let i = 0; i < args.length; i++) {
+                    if ( typeof args[i] === 'object') {
+                        a.push(util.inspect(args[i]));
+                    } else {
+                        a.push(args[i]);
+                    }
                 }
+                this.capturedLog(a.join(' '));
                 this.emitLogMessage(a.join(' '));
             }
         }

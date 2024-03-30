@@ -996,7 +996,11 @@ class NMEA2000 extends TextBox {
                 const message = this.state.nmea2000Data[pgn];
                 const m = [];
                 for(var k in message) {
-                    m.push(`${k}: ${message[k]}`);
+                    if ( message[k].id !== undefined ) {
+                        m.push(`${k}: ${message[k].name}(${message[k].id})`)
+                    } else {
+                        m.push(`${k}: ${message[k]}`);
+                    }
                 }
 
 

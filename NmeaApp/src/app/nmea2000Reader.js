@@ -52,7 +52,7 @@ class NMEA2000Reader extends EventEmitter {
         }
 
         if ( !this.open ) {
-            console.log("Try reopen NMEA2000");
+            //console.log("Try reopen NMEA2000");
             await this.begin();
         } else if (! await this.gs_usb.identify(0) ) {
             // not responding.
@@ -62,7 +62,7 @@ class NMEA2000Reader extends EventEmitter {
         const keepOpen = this.keepOpen.bind(this);
         this.keepAliveTimeout = setTimeout(async () => {
             await keepOpen();
-        }, 5000);
+        }, 30000);
     }
     
 

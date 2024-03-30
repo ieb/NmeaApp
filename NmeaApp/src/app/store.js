@@ -121,7 +121,6 @@ class Store {
         // in the visualisation. (how TBD)
         // Reasoning, is to mimimise CPU usage by not doing unecessary work that isnt used.
         const newState = this.newState || {};
-        this.messages[message.pgn] = message;
         switch(message.pgn) {
             case 126992: // System time
                 // Use GNSS message
@@ -169,10 +168,14 @@ class Store {
             case 129029: // GNSS
                 // if a more complete view of GNSS is required, then create a subscriber to the 
                 // messages directly.
-                newState.latitude = message.latitude;
-                newState.longitude = message.longitude;
-                newState.gpsDaysSince1970 = message.daysSince1970;
-                newState.gpsSecondsSinceMidnight = message.secondsSinceMidnight;
+                if ( message.GNSStype && message.GNSStype.id < 9 ) {
+                    newState.latitude = message.latitude;
+                    newState.longitude = message.longitude;
+                    newState.gpsDaysSince1970 = message.daysSince1970;
+                    newState.gpsSecondsSinceMidnight = message.secondsSinceMidnight;                    
+                } else  {
+                    return; // dont save message as its come from an untrusted gnss source with an unrecognized GNSS type
+                }
                 break;
             case 129026: // sog cog rapid
                 if ( message.ref.name === "True" ) {
@@ -264,6 +267,9 @@ Dont store
                 newState.rudderPosition = message.rudderPosition;
                 break;
             }
+
+            this.messages[message.pgn] = message;
+
     }
 
     getMessages() {

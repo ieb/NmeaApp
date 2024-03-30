@@ -1,5 +1,11 @@
 # NMEA App
 
+This project was started when ChromeOS supported USB devices in Linux reliably. That has since been withdrawn making the approach less compelling. It sill works, but sometimes is takes several reboots of the Chomebook to any USB devices available for use in the ChromeOS linux container. Attempts to run in crosh shell fail due to missing dependencies for node.  
+
+----
+
+
+
 After 2 weeks at sea I discovered that a ancient 8 core ARM based Chromebook would last almost indefinitely running
 Navionics Boating App connected to a minimal nodejs tcp server connected over serial though an ESP32 to the boats
 CanBus. Powered by a low power USB adapter. CPU typically sits at < 5% and even without the USB adapter connected the
@@ -42,6 +48,10 @@ could if you want.
 Performance data is calculated from a VPP Polar. The one encoded is for a Pogo1250 (my boat), but there are many others
 available.
 
+# NKE App
+
+Unfortunately the NKE app will not connect to a TCP service unless ICPM or TCP Echo respond on port 7. ChromeOS does not support ICPM to the Linux IP and does not allow port 7 to be exposed. Hence the NKE app will not work with this application. (unless I can find a way to getting ChromeOS to expose the port). 
+
 # UI
 
 The UI consists of 1 main window that can be configured with wigets and sub windows used for inspecting the detail of data on the bus down to the Can frames, in the store or calculated.
@@ -80,6 +90,19 @@ If you get an error about the DISPLAY not being set restart again.
 Do not set #enable-unrestricted-usb as this seems to deny Linux the ability to run any apps that use the display.
 
 ChromeOS is flaky, mostly because its been so locked down that a lot of things that normally work, dont, especially anything that Google in their wisdom thought no one would need. Turns out, not every USB device is a hard disk!
+
+
+
+USB devices can be attached using the crosh shell, probably easier than the UI
+
+     Ctrl+Alt+T 
+     crosh> shell
+     lsusb
+     vmc usb-list termina
+     vmc usb-attach termina 001:009
+
+
+Setting the shell does not produce reliable results. It is becoming clearer that recent changes in termina/penguin with respects to USB handling have made ChromeOS Linux almost unusable with USB devices. It typically takes 2 or 3 reboots to get a good USB device inside the penguin coupled with the fact that the linux image seems to need to be downloaded when updated....... at sea, thats not an option as generally connectivity is limited.
 
 ## Building
 
@@ -140,8 +163,9 @@ For some reason, node or at least the links that allow it to run get wiped out e
 * [x] On exit the native usb driver thread tries to close, but has already closed causing a segv. It should be resilient to this as any exit will cause the same. Fix will need to be in the c code.  The fix is to ensure that will-quit event does not exit before shutdown has happened by calling event.preventDefault before returning the event. Then the normal close of the usb can take place and complete before the c pointers become invalid and cause a segv. There are a number of threads in the c usb lib that do not close automatically and do not block the nodeJS main thread.
 * [x] Fix editiing widgets. Only when the key is updated, will a component be recreated. IIUC, if this is set explicitly, if should reflect all the properties otherwise changes to properties will be ignored by React. Simple fix was to make the key depend on the edited property. 
 * [x] Fix playback to use raw NMEA packets rather than the current parsed packets, this needs the packets to be written out correctly, and this needs a menu item to start recording.
-* [ ] Fix Lookup missing balue gnssType 15 seen on Raymarine bus.
-* [ ] Fix Lookup missing value xteMode 15 seen on Raymarine bus.
-* [ ] NADoubleN2K is not being handled properly. When received after a valid value is present, it should not flip flop as it does with the playback of rudder from a real feed. Need to add some logic to the updates in the store, so that NA only takes effect after a timeout period.
+* [x] Fix Lookup missing balue gnssType 15 seen on Raymarine bus.
+* [x] Fix Lookup missing value xteMode 15 seen on Raymarine bus.
+* [x] NADoubleN2K is not being handled properly. When received after a valid value is present, it should not flip flop as it does with the playback of rudder from a real feed. Need to add some logic to the updates in the store, so that NA only takes effect after a timeout period.
+* [x] Fixed NMEA sentences for NKE app that were not correct.
 
 
